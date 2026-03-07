@@ -19,15 +19,15 @@ html, body {
 
 .screen {
   display: none; 
-  position: fixed; /* Changed from absolute to prevent flex collapsing */
+  position: fixed !important; /* must override theme class position:relative */
   inset: 0; 
   width: 100%; 
   height: 100dvh;
   flex-direction: column; 
   overflow: hidden;
-  /* --sat is set by JS after env() resolves; falls back to 54px for notch/DI */
-  padding-top: var(--sat, max(env(safe-area-inset-top, 0px), 54px));
-  padding-bottom: var(--sab, max(env(safe-area-inset-bottom, 0px), 24px));
+  /* Use max() to guarantee it always clears the dynamic island/notch */
+  padding-top: max(env(safe-area-inset-top), 54px);
+  padding-bottom: max(env(safe-area-inset-bottom), 24px);
 }
 .screen.active { display: flex; }
 
@@ -110,7 +110,7 @@ html, body {
 
 /* SETUP — min-height fixes background cutoff bug */
 #setup { align-items: center; justify-content: center;
-  overflow-y: auto; padding-top: var(--sat, max(env(safe-area-inset-top, 0px), 54px)); padding-left: 22px; padding-right: 22px; padding-bottom: 32px; min-height: 100%; }
+  overflow-y: auto; padding-top: max(env(safe-area-inset-top), 54px); padding-left: 22px; padding-right: 22px; padding-bottom: 32px; min-height: 100%; }
 .su-logo { text-align: center; margin-bottom: 6px; }
 .su-sub  { text-align: center;
   margin-bottom: 30px; }
@@ -704,7 +704,7 @@ html, body {
   font-size: .95rem; color: #1a1a1a; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; transition: background .1s; }
 .rnd-next:active { background: #ccc;
 }
-#end { background: #0d0d0d; align-items: center; justify-content: center; padding-top: var(--sat, max(env(safe-area-inset-top, 0px), 54px)); padding-left: 22px; padding-right: 22px; padding-bottom: 36px; gap: 18px; overflow-y: auto;
+#end { background: #0d0d0d; align-items: center; justify-content: center; padding-top: max(env(safe-area-inset-top), 54px); padding-left: 22px; padding-right: 22px; padding-bottom: 36px; gap: 18px; overflow-y: auto;
 }
 .end-hed { font-family: 'Archivo Black', sans-serif; font-size: 2.8rem; letter-spacing: -.02em; color: #fff; text-align: center; line-height: 1; }
 .end-list { width: 100%;
@@ -1225,40 +1225,13 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
 }
 
-// Measure actual safe area insets via a probe element and apply as CSS vars
-// env() can return 0 if queried too early or in certain PWA states
-(function() {
-  var probe = document.createElement('div');
-  probe.style.cssText = 'position:fixed;top:env(safe-area-inset-top,0px);left:0;width:1px;height:1px;pointer-events:none;opacity:0;';
-  document.body.appendChild(probe);
-  function applyInsets() {
-    var top = probe.getBoundingClientRect().top;
-    // top tells us where env(safe-area-inset-top) positioned the element from viewport top
-    // if env() returned 0, top will be 0; use 54px floor for notch/DI devices
-    var safeTop = Math.max(top, 54);
-    document.documentElement.style.setProperty('--sat', safeTop + 'px');
-    document.documentElement.style.setProperty('--sab', 'max(env(safe-area-inset-bottom, 0px), 24px)');
-  }
-  // Run after paint so env() values are resolved
-  requestAnimationFrame(function() { setTimeout(applyInsets, 0); });
-  window.addEventListener('resize', applyInsets);
-})();
-
-// Fix iOS PWA keyboard pushing viewport and not restoring
-document.addEventListener('focusin', function(e) {
-  if (e.target.tagName === 'INPUT') {
-    // Let keyboard open, then scroll input into view gently
-    setTimeout(function() { e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 300);
-  }
-});
 document.addEventListener('focusout', function(e) {
   if (e.target.tagName === 'INPUT') {
-    // Force viewport to restore after keyboard dismisses
     setTimeout(function() {
       window.scrollTo(0, 0);
-      document.documentElement.style.height = '100%';
-      document.body.style.height = '100dvh';
-    }, 100);
+      document.body.style.height = '99.9dvh';
+      setTimeout(function() { document.body.style.height = '100dvh'; }, 20);
+    }, 10);
   }
 });
 addInput(); addInput(); addInput();
