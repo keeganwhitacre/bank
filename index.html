@@ -110,7 +110,7 @@ html, body {
 
 /* SETUP — min-height fixes background cutoff bug */
 #setup { align-items: center; justify-content: center;
-  overflow-y: auto; padding: 36px 22px 32px; min-height: 100%; }
+  overflow-y: auto; padding-top: max(env(safe-area-inset-top), 54px); padding-left: 22px; padding-right: 22px; padding-bottom: 32px; min-height: 100%; }
 .su-logo { text-align: center; margin-bottom: 6px; }
 .su-sub  { text-align: center;
   margin-bottom: 30px; }
@@ -704,7 +704,7 @@ html, body {
   font-size: .95rem; color: #1a1a1a; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; transition: background .1s; }
 .rnd-next:active { background: #ccc;
 }
-#end { background: #0d0d0d; align-items: center; justify-content: center; padding: 40px 22px 36px; gap: 18px; overflow-y: auto;
+#end { background: #0d0d0d; align-items: center; justify-content: center; padding-top: max(env(safe-area-inset-top), 54px); padding-left: 22px; padding-right: 22px; padding-bottom: 36px; gap: 18px; overflow-y: auto;
 }
 .end-hed { font-family: 'Archivo Black', sans-serif; font-size: 2.8rem; letter-spacing: -.02em; color: #fff; text-align: center; line-height: 1; }
 .end-list { width: 100%;
