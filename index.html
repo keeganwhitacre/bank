@@ -14,9 +14,10 @@
 html, body {
   position: fixed;
   inset: 0;
-  width: 100vw;
-  height: 100dvh;
-  background: #0d0d0d;
+  width: 100%;
+  height: 100%;
+  /* Default background for the picker screen */
+  background-color: #0d0d0d;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
 }
@@ -779,9 +780,9 @@ html, body {
 var T = 'dive';
 
 var THEME_MAP = {
-  dive: { cls: 't-dive', bankText: 'Bank it', undoText: 'undo' },
-  sb:   { cls: 't-sb',   bankText: 'BANK',    undoText: 'UNDO' },
-  br:   { cls: 't-br',   bankText: 'BANK',    undoText: 'UNDO' },
+  dive: { cls: 't-dive', bankText: 'Bank it', undoText: 'undo', bg: '#1a1a18' },
+  sb:   { cls: 't-sb',   bankText: 'BANK',    undoText: 'UNDO', bg: '#111111' },
+  br:   { cls: 't-br',   bankText: 'BANK',    undoText: 'UNDO', bg: '#ddd8ce' },
 };
 
 function selectTheme(t) {
@@ -793,6 +794,10 @@ function selectTheme(t) {
 function applyTheme(el) {
   Object.values(THEME_MAP).forEach(function(v) { el.classList.remove(v.cls); });
   el.classList.add(THEME_MAP[T].cls);
+  
+  // The magic bullet: Sync the physical body background to the theme color
+  document.body.style.backgroundColor = THEME_MAP[T].bg;
+  document.documentElement.style.backgroundColor = THEME_MAP[T].bg;
 }
 
 function goSetup() {
