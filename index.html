@@ -10,27 +10,36 @@
 @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Victor+Mono:wght@400;700&family=Anybody:wght@400;700;900&family=DM+Mono:wght@400;500&family=Archivo+Black&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body {
-  height: 100%;
-  width: 100%;
-  margin: 0; 
-  padding: 0;
-}
 
-body {
-  height: 100dvh; /* Uses the dynamic viewport height */
-  position: fixed; /* Locks the body to prevent keyboard shrinking bugs */
+html, body {
+  /* Aggressively lock the app to the screen edges */
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  
+  /* Fallback dark background so even if a glitch happens, it's not blinding white */
+  background: #0d0d0d; 
   overflow: hidden; 
   -webkit-font-smoothing: antialiased;
 }
 
-
 /* ── SCREENS ── */
 .screen {
-  display: none; position: absolute; inset: 0;
-  flex-direction: column; overflow: hidden;
+  display: none; 
+  position: absolute; 
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  flex-direction: column; 
+  overflow: hidden;
+  
+  /* Pushes content safely below the iPhone notch and above the bottom swipe bar */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 .screen.active { display: flex; }
+
 
 /* ══════════════════════════════════════════════
    PICKER SCREEN
