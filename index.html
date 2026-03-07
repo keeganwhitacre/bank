@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover"> 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Bank</title>
@@ -10,11 +10,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Victor+Mono:wght@400;700&family=Anybody:wght@400;700;900&family=DM+Mono:wght@400;500&family=Archivo+Black&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { height: -webkit-fill-available; }
-body {
-  height: 100dvh; min-height: -webkit-fill-available;
-  overflow: hidden; -webkit-font-smoothing: antialiased;
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0; 
+  padding: 0;
 }
+
+body {
+  height: 100dvh; /* Uses the dynamic viewport height */
+  position: fixed; /* Locks the body to prevent keyboard shrinking bugs */
+  overflow: hidden; 
+  -webkit-font-smoothing: antialiased;
+}
+
 
 /* ── SCREENS ── */
 .screen {
