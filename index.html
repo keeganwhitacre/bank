@@ -736,6 +736,116 @@ html, body {
   bottom: calc(-1 * env(safe-area-inset-bottom) - 10px) !important;
 }
 
+/* Base su-rbtn outside of theme (for modeSelect screen) */
+.su-rbtn { flex: 1; height: 46px; background: rgba(255,255,255,.06); border: 1.5px solid rgba(255,255,255,.12); border-radius: 10px; color: rgba(255,255,255,.3);
+  font-family: 'Archivo Black', sans-serif; font-size: 1rem; cursor: pointer; transition: all .15s; }
+.su-rbtn.on { background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.4); color: #fff; }
+
+/* MODE CARDS */
+.mode-list { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 400px; padding: 0 20px; flex: 1; overflow-y: auto; }
+.mode-card { cursor: pointer; background: #111; border: 2px solid #1e1e1e; border-radius: 12px; padding: 14px 16px; transition: border-color .12s; -webkit-tap-highlight-color: transparent; }
+.mode-card:active { opacity: .85; }
+.mode-card.sel { border-color: #fff; }
+.mode-card-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+.mode-card-name { font-family: 'Archivo Black', sans-serif; font-size: .95rem; color: #fff; }
+.mode-card-tag { font-family: 'DM Mono', monospace; font-size: .5rem; letter-spacing: .1em; text-transform: uppercase; color: #444; }
+.mode-card-tag.danger { color: #ff3300; }
+.mode-card-tag.gold { color: #c9a227; }
+.mode-card-rule { font-family: 'DM Mono', monospace; font-size: .58rem; color: #555; line-height: 1.55; margin-bottom: 8px; }
+.mode-card-effects { display: flex; flex-wrap: wrap; gap: 5px; }
+.mode-effect { font-family: 'DM Mono', monospace; font-size: .48rem; letter-spacing: .06em; text-transform: uppercase; padding: 3px 7px; border-radius: 3px; background: #1a1a1a; color: #444; }
+.mode-effect.danger { background: rgba(255,51,0,.12); color: rgba(255,51,0,.7); }
+.mode-effect.gold { background: rgba(201,162,39,.1); color: rgba(201,162,39,.7); }
+.mode-effect.neutral { background: #1a1a1a; color: #555; }
+
+/* BLACKOUT pot — truly hidden, font-size 0 trick to preserve layout */
+.pot-hidden { color: transparent !important; text-shadow: 0 0 18px rgba(255,255,255,.12) !important; opacity: 1 !important; user-select: none; }
+
+/* VIRTUAL DICE — legacy stub, screen removed */
+
+/* HOME SCREEN */
+#home { background: #0d0d0d; align-items: center; justify-content: center; }
+.home-menu { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 400px; padding: 0 20px; }
+.home-btn { cursor: pointer; background: #181818; border: 2px solid #222; border-radius: 14px; padding: 18px 20px; display: flex; align-items: center; gap: 16px; text-align: left; -webkit-tap-highlight-color: transparent; transition: border-color .12s, background .12s; }
+.home-btn:active { background: #202020; border-color: #333; }
+.home-btn-icon { font-size: 1.4rem; flex-shrink: 0; width: 32px; text-align: center; }
+.home-btn-label { font-family: 'Archivo Black', sans-serif; font-size: 1.1rem; color: #fff; flex: 1; }
+.home-btn-sub { font-family: 'DM Mono', monospace; font-size: .55rem; color: #444; text-align: right; flex-shrink: 0; }
+
+/* MODE BADGE on game screen */
+.g-mode-badge { position: absolute; top: 4px; right: 8px; font-family: 'DM Mono', monospace; font-size: .45rem; color: #555; letter-spacing: .1em; text-transform: uppercase; z-index: 10; }
+
+/* TRACKERS BAR */
+.g-trackers { flex-shrink: 0; display: flex; gap: 8px; padding: 2px 12px 4px; justify-content: center; position: relative; z-index: 2; }
+.g-tracker-item { font-family: 'DM Mono', monospace; font-size: .5rem; color: #3a3a3a; letter-spacing: .06em; text-align: center; }
+.g-tracker-item span.trk-val { color: #666; }
+
+/* AWARDS */
+.end-awards { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 6px; }
+.award-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #111; border-left: 4px solid #1e1e1e; }
+.award-icon { font-size: 1.1rem; flex-shrink: 0; }
+.award-info { flex: 1; }
+.award-title { font-family: 'DM Mono', monospace; font-size: .5rem; color: #555; letter-spacing: .1em; text-transform: uppercase; }
+.award-name { font-family: 'Archivo Black', sans-serif; font-size: .85rem; color: #ddd8ce; }
+.award-detail { font-family: 'DM Mono', monospace; font-size: .48rem; color: #3a3a3a; margin-top: 1px; }
+
+/* MISS TRACKER in round end */
+.rnd-miss-total { font-family: 'DM Mono', monospace; font-size: .58rem; color: rgba(255,51,0,.65); flex-shrink: 0; margin-left: 4px; }
+
+/* RACE TARGET banner */
+.race-target-bar { flex-shrink: 0; text-align: center; font-family: 'DM Mono', monospace; font-size: .5rem; color: #444; letter-spacing: .1em; padding: 2px 0; position: relative; z-index: 2; }
+
+/* BLACKOUT pot overlay */
+.pot-blackout { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(3.2rem, 9dvh, 6rem); color: rgba(255,255,255,.08); pointer-events: none; }
+
+/* ── DICE TOGGLE BUTTON ── */
+.g-dice-toggle { background: transparent; border: none; font-size: 1rem; cursor: pointer; padding: 2px 4px; opacity: .35; transition: opacity .15s; -webkit-tap-highlight-color: transparent; line-height: 1; }
+.g-dice-toggle.on { opacity: 1; }
+
+/* ── IN-GAME DICE AREA ── */
+.g-dice-area { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; position: relative; z-index: 2; }
+.g-dice-pair { display: flex; gap: 20px; align-items: center; justify-content: center; }
+
+/* Die base — each theme overrides */
+.g-die { width: clamp(88px, 22vw, 110px); height: clamp(88px, 22vw, 110px); border-radius: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; transition: transform .06s; position: relative; overflow: hidden; }
+.g-die:active { transform: scale(.93); }
+.g-die.rolling { animation: gDieShake .3s ease; }
+@keyframes gDieShake { 0%,100%{transform:translate(0)} 20%{transform:translate(-4px,2px) rotate(-6deg)} 40%{transform:translate(4px,-3px) rotate(5deg)} 60%{transform:translate(-3px,4px) rotate(-4deg)} 80%{transform:translate(3px,-2px) rotate(3deg)} }
+
+.g-die-pip-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; width: 72%; height: 72%; }
+.g-die-pip-grid span { display: flex; align-items: center; justify-content: center; }
+.g-die-pip { width: 28%; height: 28%; border-radius: 50%; }
+
+.g-dice-roll-btn { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: all .08s; }
+.g-dice-roll-btn:active { transform: translate(2px,2px); }
+
+/* ── DIVE BAR DICE ── */
+.t-dive .g-die { background: rgba(255,255,255,.06); border: 1.5px solid rgba(255,255,255,.12); box-shadow: 0 0 20px rgba(255,31,71,.08); }
+.t-dive .g-die-pip { background: #fff; box-shadow: 0 0 4px rgba(255,255,255,.4); }
+.t-dive .g-dice-roll-btn { background: transparent; border: 2px solid #ff1f47; border-radius: 10px; color: #ff1f47; font-family: 'Permanent Marker', cursive; font-size: 1.2rem; padding: 10px 28px; text-shadow: 0 0 12px rgba(255,31,71,.3); box-shadow: 0 0 20px rgba(255,31,71,.1); }
+
+/* ── SCOREBOARD DICE ── */
+.t-sb .g-die { background: #1a1a1a; border: 1px solid rgba(255,225,77,.12); box-shadow: 0 4px 16px rgba(0,0,0,.4); }
+.t-sb .g-die-pip { background: #ffe14d; box-shadow: 0 0 4px rgba(255,225,77,.5); }
+.t-sb .g-dice-roll-btn { background: #ffe14d; border: none; border-radius: 4px; color: #111; font-family: 'Anybody', sans-serif; font-weight: 900; font-size: 1rem; padding: 12px 32px; letter-spacing: .2em; text-transform: uppercase; box-shadow: 0 4px 20px rgba(255,225,77,.2); }
+
+/* ── BRUTALIST DICE ── */
+.t-br .g-die { background: #1a1a1a; border: 3px solid #1a1a1a; border-radius: 8px; box-shadow: 4px 4px 0 #aaa4; }
+.t-br .g-die-pip { background: #ddd8ce; border-radius: 50%; }
+.t-br .g-dice-roll-btn { background: #1a1a1a; border: 3px solid #1a1a1a; border-radius: 0; color: #ddd8ce; font-family: 'Archivo Black', sans-serif; font-size: 1rem; padding: 12px 32px; text-transform: uppercase; letter-spacing: .1em; box-shadow: 4px 4px 0 rgba(0,0,0,.15); }
+.t-br .g-dice-roll-btn:active { box-shadow: 2px 2px 0 rgba(0,0,0,.1); }
+
+/* ── TERMINAL DICE ── */
+.t-term .g-die { background: rgba(0,255,65,.04); border: 1px solid rgba(0,255,65,.25); border-radius: 0; box-shadow: 0 0 20px rgba(0,255,65,.08), inset 0 0 20px rgba(0,255,65,.02); position: relative; z-index: 2; }
+.t-term .g-die-pip { background: #00ff41; border-radius: 50%; box-shadow: 0 0 6px rgba(0,255,65,.8); }
+.t-term .g-dice-roll-btn { background: transparent; border: 1px solid #00ff41; border-radius: 0; color: #00ff41; font-family: 'Share Tech Mono', monospace; font-size: .9rem; padding: 12px 32px; letter-spacing: .2em; text-transform: uppercase; text-shadow: 0 0 10px rgba(0,255,65,.5); box-shadow: 0 0 16px rgba(0,255,65,.1); position: relative; z-index: 2; }
+.t-term .g-dice-roll-btn::before { content: '> '; opacity: .6; }
+
+/* ── CASINO DICE ── */
+.t-cas .g-die { background: rgba(212,175,55,.06); border: 1px solid rgba(212,175,55,.25); border-radius: 4px; box-shadow: 0 4px 20px rgba(212,175,55,.08), inset 0 1px 0 rgba(212,175,55,.1); }
+.t-cas .g-die-pip { background: #d4af37; border-radius: 50%; box-shadow: 0 0 4px rgba(212,175,55,.6); }
+.t-cas .g-dice-roll-btn { background: linear-gradient(135deg, #c9a227 0%, #d4af37 50%, #c9a227 100%); border: none; border-radius: 2px; color: #0a1f12; font-family: 'Playfair Display', serif; font-weight: 700; font-style: italic; font-size: 1.1rem; padding: 12px 32px; box-shadow: 0 4px 20px rgba(212,175,55,.25); }
+
 /* Overlay Theme Overrides */
 .t-sb .sheet, .t-sb .rnd-sheet { background: #111; border-top-color: #ff2020; }
 .t-sb .rnd-status, .t-sb .rnd-name { color: #ffe14d; }
@@ -757,11 +867,35 @@ html, body {
 <canvas id="cv"></canvas>
 <div id="flash"></div>
 
-<div class="screen active" id="picker">
+<!-- HOME SCREEN -->
+<div class="screen active" id="home">
+  <div class="pk-title">Bank</div>
+  <div class="pk-sub">CHOOSE YOUR ACTION</div>
+  <div class="home-menu">
+    <button class="home-btn" onclick="goSetup()">
+      <span class="home-btn-icon">▶</span>
+      <span class="home-btn-label">Play</span>
+      <span class="home-btn-sub" id="homeThemeSub">Theme: Brutalist</span>
+    </button>
+    <button class="home-btn" onclick="showScreen('picker')">
+      <span class="home-btn-icon">◈</span>
+      <span class="home-btn-label">Change Theme</span>
+      <span class="home-btn-sub" id="homeThemeSub2">Brutalist</span>
+    </button>
+    <button class="home-btn" onclick="showScreen('modeSelect')">
+      <span class="home-btn-icon">⚡</span>
+      <span class="home-btn-label">Change Gamemode</span>
+      <span class="home-btn-sub" id="homeModeSub">Standard</span>
+    </button>
+  </div>
+</div>
+
+<!-- THEME PICKER (was picker) -->
+<div class="screen" id="picker">
   <div class="pk-title">Bank</div>
   <div class="pk-sub">PICK YOUR VIBE</div>
   <div class="pk-list">
-    <div class="pk-card sel" id="card-dive" onclick="selectTheme('dive')">
+    <div class="pk-card" id="card-dive" onclick="selectTheme('dive')">
       <div class="pk-preview prev-dive">
         <span class="pv-name">Bank</span><span class="pv-pot">97</span><span class="pv-tag">Keegan's roll</span>
       </div>
@@ -775,7 +909,7 @@ Handwritten, loose, alive.</span></div>
       <div class="pk-foot"><span class="pk-foot-name">Scoreboard</span><span class="pk-foot-desc">Stadium LED.
 Yellow on black. This is a game.</span></div>
     </div>
-    <div class="pk-card" id="card-br" onclick="selectTheme('br')">
+    <div class="pk-card sel" id="card-br" onclick="selectTheme('br')">
       <div class="pk-preview prev-br">
         <span class="pv-name">Bank</span><span class="pv-pot">97</span><span class="pv-tag">&#8594;
 Keegan'S ROLL</span>
@@ -799,8 +933,94 @@ CRT glow. Pure signal.</span></div>
 gold. The house always watches.</span></div>
     </div>
   </div>
-  <div class="pk-go"><button onclick="goSetup()">Select Theme &#8594;</button></div>
+  <div class="pk-go"><button onclick="confirmTheme()">Confirm Theme &#8594;</button></div>
 </div>
+
+<!-- GAMEMODE SELECT SCREEN -->
+<div class="screen" id="modeSelect">
+  <div class="pk-title">Gamemode</div>
+  <div class="pk-sub">PICK YOUR POISON</div>
+  <div class="mode-list" id="modeList">
+    <div class="mode-card sel" id="mode-standard" onclick="selectMode('standard')">
+      <div class="mode-card-header">
+        <span class="mode-card-name">Standard</span>
+        <span class="mode-card-tag">default</span>
+      </div>
+      <div class="mode-card-rule">3 safe rolls to build the pot. On roll 4+, a 7 wipes everyone who hasn't banked.</div>
+      <div class="mode-card-effects">
+        <span class="mode-effect neutral">3 safe</span>
+        <span class="mode-effect danger">7 kills r4+</span>
+        <span class="mode-effect neutral">2/12 blocked</span>
+      </div>
+    </div>
+    <div class="mode-card" id="mode-turbo" onclick="selectMode('turbo')">
+      <div class="mode-card-header">
+        <span class="mode-card-name">Turbo</span>
+        <span class="mode-card-tag danger">risky</span>
+      </div>
+      <div class="mode-card-rule">No safe rolls. 7 kills from the very first roll. Bank early or lose everything.</div>
+      <div class="mode-card-effects">
+        <span class="mode-effect danger">no safety net</span>
+        <span class="mode-effect danger">7 kills always</span>
+      </div>
+    </div>
+    <div class="mode-card" id="mode-race" onclick="selectMode('race')">
+      <div class="mode-card-header">
+        <span class="mode-card-name">Race to the Bank</span>
+        <span class="mode-card-tag gold">first wins</span>
+      </div>
+      <div class="mode-card-rule">Forget rounds — first player to bank enough to hit the target score wins the whole game instantly.</div>
+      <div class="mode-card-effects">
+        <span class="mode-effect gold">target score</span>
+        <span class="mode-effect neutral">instant win</span>
+        <span class="mode-effect neutral">no round limit</span>
+      </div>
+    </div>
+    <div class="mode-card" id="mode-blackout" onclick="selectMode('blackout')">
+      <div class="mode-card-header">
+        <span class="mode-card-name">Blackout</span>
+        <span class="mode-card-tag">memory test</span>
+      </div>
+      <div class="mode-card-rule">After roll 3, the pot display goes dark. You have to track in your head what everyone's rolled.</div>
+      <div class="mode-card-effects">
+        <span class="mode-effect danger">pot hidden r4+</span>
+        <span class="mode-effect neutral">track mentally</span>
+      </div>
+    </div>
+    <div class="mode-card" id="mode-cutthroat" onclick="selectMode('cutthroat')">
+      <div class="mode-card-header">
+        <span class="mode-card-name">Cutthroat</span>
+        <span class="mode-card-tag danger">volatile</span>
+      </div>
+      <div class="mode-card-rule">Rolling a 2 or 12 slashes the pot in half. These numbers are no longer blocked — use them as weapons.</div>
+      <div class="mode-card-effects">
+        <span class="mode-effect danger">2 or 12 halves pot</span>
+        <span class="mode-effect neutral">2/12 re-enabled</span>
+      </div>
+    </div>
+    <div class="mode-card" id="mode-rollerscut" onclick="selectMode('rollerscut')">
+      <div class="mode-card-header">
+        <span class="mode-card-name">Roller's Cut</span>
+        <span class="mode-card-tag gold">greed bonus</span>
+      </div>
+      <div class="mode-card-rule">When only one player hasn't banked, they earn a 20% bonus on top of each roll. Staying in is rewarded — until the 7 drops.</div>
+      <div class="mode-card-effects">
+        <span class="mode-effect gold">+20% solo bonus</span>
+        <span class="mode-effect danger">7 still kills</span>
+      </div>
+    </div>
+  </div>
+  <div id="raceTargetWrap" style="display:none;padding:0 20px;max-width:400px;width:100%;margin-top:2px;flex-shrink:0">
+    <label style="display:block;margin-bottom:6px;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#555">Target Score</label>
+    <div style="display:flex;gap:8px">
+      <button class="su-rbtn on" data-t="1500" onclick="pickRaceTarget(1500)">1,500</button>
+      <button class="su-rbtn" data-t="5000" onclick="pickRaceTarget(5000)">5,000</button>
+      <button class="su-rbtn" data-t="10000" onclick="pickRaceTarget(10000)">10,000</button>
+    </div>
+  </div>
+  <div class="pk-go"><button onclick="confirmMode()">Confirm Mode &#8594;</button></div>
+</div>
+
 
 <div class="screen" id="setup">
   <div class="su-logo" id="suLogo">Bank</div>
@@ -825,8 +1045,8 @@ gold. The house always watches.</span></div>
   <div class="g-topbar">
     <div class="g-title" id="gTitle">Bank</div>
     <div class="g-right">
-    
-  <div class="g-rnd" id="gRnd"></div>
+      <button class="g-dice-toggle" id="gDiceToggle" onclick="toggleDice()" title="Toggle virtual dice">🎲</button>
+      <div class="g-rnd" id="gRnd"></div>
       <div class="g-pips" id="gPips"></div>
     </div>
   </div>
@@ -837,21 +1057,34 @@ gold. The house always watches.</span></div>
   </div>
   <div class="g-turn" id="gTurn"></div>
   <div class="g-grid" id="gGrid"></div>
+  <div class="g-dice-area" id="gDiceArea" style="display:none">
+    <div class="g-dice-pair">
+      <div class="g-die" id="gDie1"><div class="g-die-pip-grid" id="gDie1pips"></div></div>
+      <div class="g-die" id="gDie2"><div class="g-die-pip-grid" id="gDie2pips"></div></div>
+    </div>
+    <button class="g-dice-roll-btn" id="gDiceRollBtn" onclick="rollInGameDice()">Roll</button>
+  </div>
   <button class="g-bank" id="gBank" onclick="showBankPicker()">Bank</button>
   <div class="g-bottom">
     <button class="g-undo dim" id="gUndo" onclick="undoLast()">UNDO</button>
     <div class="g-scores-wrap"><div class="g-scores-row" id="gScores"></div></div>
+  </div>
+  <div class="g-trackers" id="gTrackers">
+    <div class="g-tracker-item" id="trk7s"></div>
+    <div class="g-tracker-item" id="trkDbl"></div>
   </div>
 </div>
 
 <div class="screen" id="end">
   <div class="end-hed">Final<br>Score</div>
   <div class="end-list" id="endList"></div>
+  <div class="end-awards" id="endAwards"></div>
   <button class="again-btn" onclick="playAgain()">Play Again</button>
 </div>
-
 <script>
-var T = 'dive';
+var T = 'br';
+var MODE = 'standard'; // turbo | race | blackout | cutthroat | rollerscut
+var RACE_TARGET = 1500;
 var THEME_MAP = {
   dive: { cls: 't-dive', bankText: 'Bank it', undoText: 'undo', bg: '#1a1a18' },
   sb:   { cls: 't-sb',   bankText: 'BANK',    undoText: 'UNDO', bg: '#111111' },
@@ -874,10 +1107,50 @@ function applyTheme(el) {
   document.body.style.backgroundColor = THEME_MAP[T].bg;
   document.documentElement.style.backgroundColor = THEME_MAP[T].bg;
 }
-function goSetup() { applyTheme(document.getElementById('setup')); showScreen('setup');
+function confirmTheme() {
+  updateHomeLabels();
+  showScreen('home');
 }
+function selectMode(m) {
+  MODE = m;
+  document.querySelectorAll('#modeList .mode-card').forEach(function(c) { c.classList.remove('sel'); });
+  var el = document.getElementById('mode-' + m);
+  if (el) el.classList.add('sel');
+  document.getElementById('raceTargetWrap').style.display = m === 'race' ? '' : 'none';
+}
+function confirmMode() {
+  updateHomeLabels();
+  showScreen('home');
+}
+function pickRaceTarget(t) {
+  RACE_TARGET = t;
+  document.querySelectorAll('#raceTargetWrap .su-rbtn').forEach(function(b) {
+    b.classList.toggle('on', +b.dataset.t === t);
+  });
+}
+var MODE_LABELS = { standard: 'Standard', turbo: 'Turbo Mode', race: 'Race to the Bank', blackout: 'Blackout', cutthroat: 'Cutthroat', rollerscut: "Roller's Cut" };
+var THEME_LABELS = { dive: 'Dive Bar', sb: 'Scoreboard', br: 'Brutalist', term: 'Terminal', cas: 'Casino' };
+function updateHomeLabels() {
+  var tl = THEME_LABELS[T] || T;
+  var ml = MODE_LABELS[MODE] || MODE;
+  var sub1 = document.getElementById('homeThemeSub');
+  var sub2 = document.getElementById('homeThemeSub2');
+  var msub = document.getElementById('homeModeSub');
+  if (sub1) sub1.textContent = 'Theme: ' + tl;
+  if (sub2) sub2.textContent = tl;
+  if (msub) msub.textContent = MODE === 'race' ? ml + ' (' + RACE_TARGET.toLocaleString() + ')' : ml;
+}
+function goSetup() { applyTheme(document.getElementById('setup')); showScreen('setup'); }
 
-var G = { players: [], roller: 0, pot: 0, rolls: 0, round: 1, total: 10, selR: 10, bankedThisRound: [], bustPot: 0 };
+var G = { players: [], roller: 0, pot: 0, rolls: 0, round: 1, total: 10, selR: 10, bankedThisRound: [], bustPot: 0, cumMiss: {} };
+// stat tracking (outside G so undo doesn't revert them easily — we track deliberately)
+var STATS = {};
+function initStats(names) {
+  STATS = {};
+  names.forEach(function(n) {
+    STATS[n] = { sevens: 0, doubles: 0, bustSevens: 0, pointsLost: 0, banks: [], bankAmts: [] };
+  });
+}
 var HISTORY = [];
 
 function pushSnap() { HISTORY.push(JSON.stringify(G)); if (HISTORY.length > 20) HISTORY.shift(); }
@@ -888,6 +1161,7 @@ var s = JSON.parse(HISTORY.pop());
   G.round = s.round;
 G.total = s.total; G.selR = s.selR;
   G.bankedThisRound = s.bankedThisRound; G.bustPot = s.bustPot;
+  if (s.cumMiss) G.cumMiss = s.cumMiss;
 ['dblPicker','bankPicker'].forEach(function(id) { var e = document.getElementById(id); if (e) e.remove(); });
   render(); showToast('Undone');
 }
@@ -919,10 +1193,31 @@ if (names.length < 2) { showToast('Need at least 2 players'); return;
   G.players = names.map(function(n) { return { name: n, score: 0, banked: false, bankedAmt: null }; });
 G.total = G.selR; G.round = 1; G.roller = 0; G.pot = 0; G.rolls = 0;
   G.bankedThisRound = [];
-G.bustPot = 0; HISTORY = [];
+G.bustPot = 0; G.cumMiss = {}; HISTORY = [];
+  names.forEach(function(n) { G.cumMiss[n] = 0; });
+  initStats(names);
   var game = document.getElementById('game');
   applyTheme(game);
   document.getElementById('gBank').textContent = THEME_MAP[T].bankText;
+  // mode badge
+  var oldBadge = document.getElementById('gModeBadge');
+  if (oldBadge) oldBadge.remove();
+  if (MODE !== 'standard') {
+    var badge = document.createElement('div');
+    badge.id = 'gModeBadge'; badge.className = 'g-mode-badge';
+    badge.textContent = MODE_LABELS[MODE] || MODE;
+    game.appendChild(badge);
+  }
+  // race target bar
+  var oldRaceBar = document.getElementById('gRaceBar');
+  if (oldRaceBar) oldRaceBar.remove();
+  if (MODE === 'race') {
+    var rb = document.createElement('div');
+    rb.id = 'gRaceBar'; rb.className = 'race-target-bar';
+    rb.textContent = 'First to ' + RACE_TARGET.toLocaleString() + ' wins';
+    var bankBtn = document.getElementById('gBank');
+    bankBtn.parentNode.insertBefore(rb, bankBtn);
+  }
   showScreen('game'); render();
 }
 
@@ -935,21 +1230,63 @@ keyEl.appendChild(rip); setTimeout(function() { if(rip.parentNode) rip.remove();
   var name = G.players[G.roller].name;
   var prev = G.pot;
   G.rolls++;
-if (G.rolls <= 3) {
-    if (total === 7) { G.pot += 70; doFlash('rgba(255,255,255,.15)'); potPulse();
-showToast(name + ' rolled 7  \u2192  +70'); }
-    else { G.pot += total; animatePot(prev, G.pot);
-showToast(name + ': ' + total + '  \u2192  +' + total);
-}
-  } else {
-    if (total === 7) { G.bustPot = prev; doFlash('rgba(255,51,0,.22)'); shakeScreen(); showRoundEnd(true); return;
-}
-    else if (isDbl) { G.pot *= 2; doFlash('rgba(255,255,255,.12)'); animatePot(prev, G.pot);
-showToast(name + ' doubles!  Pot \u2192 ' + G.pot.toLocaleString()); }
-    else { G.pot += total;
-animatePot(prev, G.pot); showToast(name + ': ' + total + '  \u2192  +' + total);
-}
+
+  // Track doubles/sevens for STATS
+  if (isDbl) {
+    if (STATS[name]) STATS[name].doubles++;
   }
+  if (total === 7) {
+    if (STATS[name]) STATS[name].sevens++;
+  }
+
+  // Determine safe phase — turbo has no safe phase
+  var inSafePhase = (MODE !== 'turbo') && (G.rolls <= 3);
+
+  if (inSafePhase) {
+    if (total === 7) { G.pot += 70; doFlash('rgba(255,255,255,.15)'); potPulse();
+      showToast(name + ' rolled 7  \u2192  +70'); }
+    else { G.pot += total; animatePot(prev, G.pot);
+      showToast(name + ': ' + total + '  \u2192  +' + total); }
+  } else {
+    if (total === 7) {
+      G.bustPot = prev;
+      // Track bust stats
+      if (STATS[name]) { STATS[name].bustSevens++; }
+      G.players.filter(function(p) { return !p.banked; }).forEach(function(p) {
+        if (STATS[p.name]) STATS[p.name].pointsLost += prev;
+        // accumulate cumulative miss
+        G.cumMiss[p.name] = (G.cumMiss[p.name] || 0) + prev;
+      });
+      doFlash('rgba(255,51,0,.22)'); shakeScreen(); showRoundEnd(true); return;
+    }
+    // Cutthroat: 2 or 12 halves the pot
+    else if (MODE === 'cutthroat' && (total === 2 || total === 12)) {
+      var halved = Math.floor(G.pot / 2);
+      G.pot = halved;
+      doFlash('rgba(255,100,0,.25)');
+      animatePot(prev, G.pot);
+      showToast(name + ' rolled ' + total + '! Pot halved \u2192 ' + G.pot.toLocaleString());
+    }
+    else if (isDbl) {
+      G.pot *= 2; doFlash('rgba(255,255,255,.12)'); animatePot(prev, G.pot);
+      showToast(name + ' doubles!  Pot \u2192 ' + G.pot.toLocaleString());
+    }
+    else { G.pot += total; animatePot(prev, G.pot); showToast(name + ': ' + total + '  \u2192  +' + total); }
+  }
+
+  // Roller's Cut: if only 1 player not banked, they get a 10% bonus
+  if (MODE === 'rollerscut') {
+    var unbankedCount = G.players.filter(function(p) { return !p.banked; }).length;
+    if (unbankedCount === 1) {
+      var bonus = Math.floor(G.pot * 0.20);
+      if (bonus > 0) {
+        G.pot += bonus;
+        showToast("Roller's cut! +" + bonus.toLocaleString() + ' bonus');
+        animatePot(G.pot - bonus, G.pot);
+      }
+    }
+  }
+
   nextRoller(); render();
 }
 
@@ -959,8 +1296,18 @@ function bankPlayer(idx) {
 var amt = G.pot;
   p.score += amt; p.banked = true; p.bankedAmt = amt;
   G.bankedThisRound.push({ name: p.name, amt: amt });
+  // track stats
+  if (STATS[p.name]) {
+    STATS[p.name].banks.push(amt);
+    STATS[p.name].bankAmts.push(amt);
+  }
 spawnConfetti(55, false);
   showToast(p.name + ' banked ' + amt.toLocaleString() + '!');
+  // Race mode: check if this player hit the target
+  if (MODE === 'race' && p.score >= RACE_TARGET) {
+    showRaceWin(p.name, p.score);
+    return;
+  }
   if (idx === G.roller) nextRoller();
 if (G.players.every(function(q) { return q.banked; })) { showRoundEnd(false); return; }
   render();
@@ -973,6 +1320,10 @@ do { G.roller = (G.roller + 1) % G.players.length; tries++; }
 }
 
 function endRound() {
+  // For clear rounds (not bust), accumulate miss for players who didn't bank
+  G.players.filter(function(p) { return !p.banked; }).forEach(function(p) {
+    G.cumMiss[p.name] = (G.cumMiss[p.name] || 0) + G.pot;
+  });
   G.players.forEach(function(p) { p.banked = false; p.bankedAmt = null; });
   G.pot = 0; G.rolls = 0;
 G.bankedThisRound = []; G.bustPot = 0; G.round++;
@@ -983,22 +1334,36 @@ G.bankedThisRound = []; G.bustPot = 0; G.round++;
 }
 
 function render() {
-  var p2 = G.rolls >= 3;
+  var p2 = (MODE === 'turbo') ? true : (G.rolls >= 3);
 var roller = G.players[G.roller];
-  document.getElementById('gPotValue').textContent = G.pot.toLocaleString();
+  // Blackout: hide pot value after roll 3
+  var potEl = document.getElementById('gPotValue');
+  if (MODE === 'blackout' && G.rolls >= 3) {
+    potEl.textContent = G.pot.toLocaleString(); // keep real value for bust logic
+    potEl.classList.add('pot-hidden');
+  } else {
+    potEl.textContent = G.pot.toLocaleString();
+    potEl.classList.remove('pot-hidden');
+    potEl.style.opacity = '';
+  }
   document.getElementById('gPotSub').textContent = 'roll ' + (G.rolls + 1);
 
   var rndEl = document.getElementById('gRnd');
-if (T === 'sb') rndEl.innerHTML = 'RND <span class="rnd-num">' + pad(G.round) + '</span>/' + G.total;
-else if (T === 'br') rndEl.textContent = 'roll_' + pad(G.round);
-else if (T === 'term') rndEl.textContent = 'rnd[' + pad(G.round) + '/' + G.total + ']';
-else rndEl.textContent = G.round + '/' + G.total;
-
-  var pipsEl = document.getElementById('gPips'); pipsEl.innerHTML = '';
-for (var i = 1; i <= G.total; i++) {
-    var pip = document.createElement('div');
-pip.className = 'g-pip' + (i < G.round ? ' done' : '') + (i === G.round ? ' current' : '');
-pipsEl.appendChild(pip);
+  var pipsEl = document.getElementById('gPips');
+  if (MODE === 'race') {
+    rndEl.textContent = '';
+    pipsEl.innerHTML = '';
+  } else {
+    if (T === 'sb') rndEl.innerHTML = 'RND <span class="rnd-num">' + pad(G.round) + '</span>/' + G.total;
+    else if (T === 'br') rndEl.textContent = 'roll_' + pad(G.round);
+    else if (T === 'term') rndEl.textContent = 'rnd[' + pad(G.round) + '/' + G.total + ']';
+    else rndEl.textContent = G.round + '/' + G.total;
+    pipsEl.innerHTML = '';
+    for (var i = 1; i <= G.total; i++) {
+      var pip = document.createElement('div');
+      pip.className = 'g-pip' + (i < G.round ? ' done' : '') + (i === G.round ? ' current' : '');
+      pipsEl.appendChild(pip);
+    }
   }
 
   var turnEl = document.getElementById('gTurn');
@@ -1010,11 +1375,25 @@ else if (T === 'cas') turnEl.textContent = roller ? roller.name + "'s turn" : '\
 roller.name + "'s roll" : '\u2014';
 
   var grid = document.getElementById('gGrid'); grid.innerHTML = '';
+  var diceArea = document.getElementById('gDiceArea');
+  grid.style.display = USE_DICE ? 'none' : '';
+  if (diceArea) diceArea.style.display = USE_DICE ? '' : 'none';
+  var diceToggle = document.getElementById('gDiceToggle');
+  if (diceToggle) diceToggle.classList.toggle('on', USE_DICE);
+  if (USE_DICE) {
+    // In dice mode: reset dice to neutral and re-enable roll button
+    renderGameDie('gDie1', 1); renderGameDie('gDie2', 1);
+    DICE_ROLLING = false;
+    var btn = document.getElementById('gDiceRollBtn');
+    if (btn) btn.disabled = false;
+    // Still build the key grid off-screen so blocked logic works (not shown)
+  }
 for (var t = 2; t <= 12; t++) {
     (function(total) {
       var btn = document.createElement('button'); btn.className = 'g-key'; btn.textContent = total;
       if (total === 7) btn.classList.add(p2 ? 'k-seven-danger' : 'k-seven-safe');
-      if (p2 && (total === 2 || total === 12)) btn.classList.add('k-blocked');
+      // Block 2 and 12 only in non-cutthroat modes when in danger phase
+      if (p2 && (total === 2 || total === 12) && MODE !== 'cutthroat') btn.classList.add('k-blocked');
       btn.addEventListener('click', function() { submitRoll(false, total, btn); });
       grid.appendChild(btn);
     })(t);
@@ -1042,6 +1421,18 @@ var activeChip = null;
     if (isRoller) activeChip = chip;
   });
 if (activeChip) setTimeout(function() { activeChip.scrollIntoView({ behavior: 'smooth', inline: 'center' }); }, 50);
+
+  // Trackers
+  var names = G.players.map(function(p) { return p.name; });
+  function topBy(fn) {
+    var best = null, bestVal = -1;
+    names.forEach(function(n) { var v = fn(n); if (v > bestVal) { bestVal = v; best = n; } });
+    return bestVal > 0 ? best + ' (' + bestVal + ')' : '—';
+  }
+  var t7 = document.getElementById('trk7s');
+  var tDbl = document.getElementById('trkDbl');
+  if (t7) t7.innerHTML = '🎯 7s: <span class="trk-val">' + topBy(function(n){ return STATS[n] ? STATS[n].sevens : 0; }) + '</span>';
+  if (tDbl) tDbl.innerHTML = '🎲 Dbls: <span class="trk-val">' + topBy(function(n){ return STATS[n] ? STATS[n].doubles : 0; }) + '</span>';
 }
 
 function pad(n) { return n < 10 ?
@@ -1089,6 +1480,29 @@ bd.addEventListener('click', function(e) { if (e.target === bd) bd.remove(); });
   document.body.appendChild(bd);
 }
 
+function showRaceWin(name, score) {
+  var ov = document.createElement('div'); ov.className = 'rnd-backdrop';
+  var sh = document.createElement('div'); sh.className = 'rnd-sheet';
+  sh.innerHTML = '<div class="rnd-handle"></div>';
+  var hd = document.createElement('div'); hd.className = 'rnd-header';
+  hd.innerHTML = '<div class="rnd-label">Race to the Bank</div><div class="rnd-status clear">' + name + ' Wins!</div>';
+  sh.appendChild(hd);
+  var msg = document.createElement('div'); msg.className = 'rnd-bust-msg';
+  msg.style.borderColor = 'rgba(93,222,93,.25)'; msg.style.background = 'rgba(93,222,93,.08)'; msg.style.color = 'rgba(93,222,93,.8)';
+  msg.textContent = name + ' reached ' + score.toLocaleString() + ' \u2014 target was ' + RACE_TARGET.toLocaleString();
+  sh.appendChild(msg);
+  var sHead = document.createElement('div'); sHead.className = 'rnd-stand-head'; sHead.textContent = 'Final Standings'; sh.appendChild(sHead);
+  G.players.slice().sort(function(a,b) { return b.score - a.score; }).forEach(function(p, i) {
+    var row = document.createElement('div'); row.className = 'rnd-stand-row' + (i === 0 ? ' lead' : '');
+    row.innerHTML = '<div class="rnd-stand-pos">' + (i+1) + '</div><div class="rnd-stand-name">' + p.name + '</div><div class="rnd-stand-pts">' + p.score.toLocaleString() + '</div>';
+    sh.appendChild(row);
+  });
+  var btn = document.createElement('button'); btn.className = 'rnd-next'; btn.textContent = 'Game Over';
+  btn.onclick = function() { ov.remove(); showEndScreen(); };
+  sh.appendChild(btn); ov.appendChild(sh); document.body.appendChild(ov);
+  spawnConfetti(180, true);
+}
+
 function showRoundEnd(bust) {
   var ov = document.createElement('div');
 ov.className = 'rnd-backdrop';
@@ -1108,7 +1522,10 @@ bm.textContent = 'Seven rolled \u2014 pot was ' + G.bustPot.toLocaleString(); sh
   });
 G.players.filter(function(p) { return !p.banked; }).forEach(function(p) {
     var row = document.createElement('div'); row.className = 'rnd-row';
-    row.innerHTML = '<div class="rnd-rank">\u2014</div><div class="rnd-name">' + p.name + '</div><div class="rnd-zero">+0</div><div class="rnd-miss">left ' + (bust ? G.bustPot : G.pot).toLocaleString() + '</div>';
+    var missThisRound = (bust ? G.bustPot : G.pot);
+    var cumTotal = G.cumMiss[p.name] || 0;
+    var cumStr = cumTotal > missThisRound ? '<span class="rnd-miss-total">('+cumTotal.toLocaleString()+' total)</span>' : '';
+    row.innerHTML = '<div class="rnd-rank">\u2014</div><div class="rnd-name">' + p.name + '</div><div class="rnd-zero">+0</div><div class="rnd-miss">left ' + missThisRound.toLocaleString() + cumStr + '</div>';
     sh.appendChild(row);
   });
 var sHead = document.createElement('div'); sHead.className = 'rnd-stand-head'; sHead.textContent = 'Standings'; sh.appendChild(sHead);
@@ -1132,6 +1549,44 @@ list.innerHTML = '';
     row.innerHTML = '<div class="end-rank">' + (i+1) + '</div><div class="end-name">' + p.name + '</div><div class="end-pts">' + p.score.toLocaleString() + '</div>';
     list.appendChild(row);
   });
+
+  // Awards
+  var awards = document.getElementById('endAwards');
+  awards.innerHTML = '';
+  var pnames = G.players.map(function(p) { return p.name; });
+  function maxBy(fn) {
+    var best = null, bestVal = -Infinity;
+    pnames.forEach(function(n) { var v = fn(n); if (v > bestVal) { bestVal = v; best = n; } });
+    return { name: best, val: bestVal };
+  }
+  function minBy(fn) {
+    var best = null, bestVal = Infinity;
+    pnames.forEach(function(n) { var v = fn(n); if (v < bestVal) { bestVal = v; best = n; } });
+    return { name: best, val: bestVal };
+  }
+  function avgBank(n) {
+    var s = STATS[n]; if (!s || !s.banks.length) return 0;
+    return s.banks.reduce(function(a,b){return a+b;},0) / s.banks.length;
+  }
+  function maxBank(n) {
+    var s = STATS[n]; if (!s || !s.bankAmts.length) return 0;
+    return Math.max.apply(null, s.bankAmts);
+  }
+  var defs = [
+    { icon: '😈', title: 'The Menace', fn: function(n){ return STATS[n] ? STATS[n].bustSevens : 0; }, fmt: function(v){ return v + ' bust 7' + (v===1?'':'s'); } },
+    { icon: '🎲', title: 'The High Roller', fn: function(n){ return STATS[n] ? STATS[n].doubles : 0; }, fmt: function(v){ return v + ' double' + (v===1?'':'s'); } },
+    { icon: '🐔', title: 'The Coward', fn: avgBank, min: true, fmt: function(v){ return 'avg ' + Math.round(v).toLocaleString() + ' per bank'; } },
+    { icon: '💎', title: 'Diamond Hands', fn: maxBank, fmt: function(v){ return 'banked ' + v.toLocaleString() + ' at once'; } },
+    { icon: '💀', title: 'The Unlucky', fn: function(n){ return STATS[n] ? STATS[n].pointsLost : 0; }, fmt: function(v){ return v.toLocaleString() + ' lost to busts'; } },
+  ];
+  defs.forEach(function(d) {
+    var res = d.min ? minBy(d.fn) : maxBy(d.fn);
+    if (!res.name || res.val <= 0) return;
+    var row = document.createElement('div'); row.className = 'award-row';
+    row.innerHTML = '<div class="award-icon">' + d.icon + '</div><div class="award-info"><div class="award-title">' + d.title + '</div><div class="award-name">' + res.name + '</div><div class="award-detail">' + d.fmt(res.val) + '</div></div>';
+    awards.appendChild(row);
+  });
+
 showScreen('end'); spawnConfetti(180, true);
 }
 
@@ -1139,6 +1594,8 @@ function playAgain() {
   G.players.forEach(function(p) { p.score = 0; p.banked = false; p.bankedAmt = null; });
 G.round = 1; G.roller = 0; G.pot = 0; G.rolls = 0;
   G.bankedThisRound = []; G.bustPot = 0;
+  G.cumMiss = {}; G.players.forEach(function(p) { G.cumMiss[p.name] = 0; });
+  initStats(G.players.map(function(p){return p.name;}));
 HISTORY = [];
   var game = document.getElementById('game');
   applyTheme(game);
@@ -1218,6 +1675,77 @@ TOAST.style.opacity = '1'; TOAST.style.transform = 'translateX(-50%) translateY(
   clearTimeout(TT);
   TT = setTimeout(function() { TOAST.style.opacity = '0'; TOAST.style.transform = 'translateX(-50%) translateY(12px)'; }, 2500);
 }
+
+// ── VIRTUAL DICE (in-game) ──
+var USE_DICE = false;
+var DICE_ROLLING = false;
+var DIE_PIPS = {
+  1: [[1,1]],
+  2: [[0,0],[2,2]],
+  3: [[0,0],[1,1],[2,2]],
+  4: [[0,0],[0,2],[2,0],[2,2]],
+  5: [[0,0],[0,2],[1,1],[2,0],[2,2]],
+  6: [[0,0],[0,1],[0,2],[2,0],[2,1],[2,2]]
+};
+function renderGameDie(id, val) {
+  var grid = document.getElementById(id + 'pips');
+  if (!grid) return;
+  grid.innerHTML = '';
+  var filled = DIE_PIPS[val] || [];
+  for (var r = 0; r < 3; r++) {
+    for (var c = 0; c < 3; c++) {
+      var cell = document.createElement('span');
+      var hasPip = filled.some(function(p){ return p[0]===r && p[1]===c; });
+      if (hasPip) { var pip = document.createElement('div'); pip.className = 'g-die-pip'; cell.appendChild(pip); }
+      grid.appendChild(cell);
+    }
+  }
+}
+function toggleDice() {
+  USE_DICE = !USE_DICE;
+  document.getElementById('gDiceToggle').classList.toggle('on', USE_DICE);
+  var grid = document.getElementById('gGrid');
+  var diceArea = document.getElementById('gDiceArea');
+  grid.style.display = USE_DICE ? 'none' : '';
+  diceArea.style.display = USE_DICE ? '' : 'none';
+  if (USE_DICE) {
+    renderGameDie('gDie1', 1); renderGameDie('gDie2', 1);
+    DICE_ROLLING = false;
+  }
+  showToast(USE_DICE ? 'Virtual dice on' : 'Virtual dice off');
+}
+function rollInGameDice() {
+  if (DICE_ROLLING) return;
+  DICE_ROLLING = true;
+  var d1 = document.getElementById('gDie1');
+  var d2 = document.getElementById('gDie2');
+  var btn = document.getElementById('gDiceRollBtn');
+  d1.classList.add('rolling'); d2.classList.add('rolling');
+  if (btn) btn.disabled = true;
+  var flashes = 0, maxFlashes = 9;
+  var iv = setInterval(function() {
+    renderGameDie('gDie1', Math.ceil(Math.random()*6));
+    renderGameDie('gDie2', Math.ceil(Math.random()*6));
+    flashes++;
+    if (flashes >= maxFlashes) {
+      clearInterval(iv);
+      var v1 = Math.ceil(Math.random()*6);
+      var v2 = Math.ceil(Math.random()*6);
+      renderGameDie('gDie1', v1);
+      renderGameDie('gDie2', v2);
+      d1.classList.remove('rolling'); d2.classList.remove('rolling');
+      if (btn) btn.disabled = false;
+      DICE_ROLLING = false;
+      var total = v1 + v2;
+      var isDbl = v1 === v2;
+      // After a short pause so the player can see the dice, submit
+      setTimeout(function() {
+        submitRoll(isDbl, total, null);
+      }, 420);
+    }
+  }, 55);
+}
+function openDice() { /* legacy stub */ }
 
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(function(s) { if (s.id !== id) s.classList.remove('active'); });
