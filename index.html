@@ -26,7 +26,7 @@ html, body {
   flex-direction: column; 
   overflow: hidden;
   /* Use max() to guarantee it always clears the dynamic island/notch */
-  padding-top: max(env(safe-area-inset-top), 16px);
+  padding-top: max(env(safe-area-inset-top), 110px);
   padding-bottom: max(env(safe-area-inset-bottom), 24px);
 }
 .screen.active { display: flex; }
@@ -139,7 +139,7 @@ html, body {
 
 /* GRID — fills all remaining space, keys fill cells */
 .g-grid { flex: 1; min-height: 0; display: grid;
-  grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, 1fr); position: relative; z-index: 2; }
+  grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(4, minmax(0, 1fr)); position: relative; z-index: 2; }
 .g-key { display: flex; align-items: center; justify-content: center; cursor: pointer;
   width: 100%; height: 100%; -webkit-tap-highlight-color: transparent; user-select: none; position: relative; overflow: hidden; }
 
@@ -980,7 +980,7 @@ body.state-duel.t-br .g-vignette { background: radial-gradient(ellipse at center
 body.state-duel.t-br .g-intensity-label { color: rgba(255,51,0,.5); font-family: 'Archivo Black', sans-serif; }
 body.state-solo.t-br .g-vignette { background: radial-gradient(ellipse at center, transparent 20%, rgba(255,51,0,.12) 100%); }
 body.state-solo.t-br .g-intensity-label { color: #ff3300; font-family: 'Archivo Black', sans-serif; }
-.t-br.state-solo::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+body.state-solo.t-br::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
   border: 4px solid #ff3300; animation: brBorderPulse 1s ease-in-out infinite; }
 @keyframes brBorderPulse { 0%,100%{opacity:.25} 50%{opacity:.7} }
 
@@ -1000,7 +1000,7 @@ body.state-duel.t-cas .g-intensity-label { color: rgba(212,175,55,.5); font-fami
 body.state-solo.t-cas .g-vignette { background: radial-gradient(ellipse at center, transparent 18%, rgba(100,10,10,.35) 100%); }
 body.state-solo.t-cas .g-intensity-label { color: #d4af37; font-family: 'Playfair Display', serif; font-style: italic; text-shadow: 0 0 12px rgba(212,175,55,.4); }
 .t-cas.state-solo .g-pot-value { animation: casGoldPulse 1.1s ease-in-out infinite; }
-.t-cas.state-solo::after { animation: casBorderPulse 1.4s ease-in-out infinite !important; }
+body.state-solo.t-cas::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0; border: 1px solid rgba(212,175,55,.2); animation: casBorderPulse 1.4s ease-in-out infinite; }
 @keyframes casGoldPulse { 0%,100%{text-shadow:0 0 30px rgba(212,175,55,.4)} 50%{text-shadow:0 0 60px rgba(212,175,55,.8)} }
 @keyframes casBorderPulse { 0%,100%{opacity:.25} 50%{opacity:.7} }
 
