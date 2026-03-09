@@ -798,9 +798,13 @@ html, body {
 /* BLACKOUT pot overlay */
 .pot-blackout { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(3.2rem, 9dvh, 6rem); color: rgba(255,255,255,.08); pointer-events: none; }
 
-/* ── DICE TOGGLE BUTTON ── */
-.g-dice-toggle { background: transparent; border: none; font-size: 1rem; cursor: pointer; padding: 2px 4px; opacity: .35; transition: opacity .15s; -webkit-tap-highlight-color: transparent; line-height: 1; }
-.g-dice-toggle.on { opacity: 1; }
+.home-btn-toggle { position: relative; }
+.home-btn-toggle .home-btn-sub { transition: color .15s; }
+.home-btn-toggle.active { border-color: #fff; }
+.home-btn-toggle.active .home-btn-label { color: #fff; }
+.home-btn-toggle.active .home-btn-sub { color: #5dde5d; }
+
+/* ── DICE TOGGLE BUTTON (in-game topbar — removed) ── */
 
 /* ── IN-GAME DICE AREA ── */
 .g-dice-area { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; position: relative; z-index: 2; }
@@ -886,6 +890,11 @@ html, body {
       <span class="home-btn-icon">⚡</span>
       <span class="home-btn-label">Change Gamemode</span>
       <span class="home-btn-sub" id="homeModeSub">Standard</span>
+    </button>
+    <button class="home-btn home-btn-toggle" id="homeDiceBtn" onclick="toggleDiceHome()">
+      <span class="home-btn-icon">🎲</span>
+      <span class="home-btn-label">Virtual Dice</span>
+      <span class="home-btn-sub" id="homeDiceSub">Off</span>
     </button>
   </div>
 </div>
@@ -1045,7 +1054,6 @@ gold. The house always watches.</span></div>
   <div class="g-topbar">
     <div class="g-title" id="gTitle">Bank</div>
     <div class="g-right">
-      <button class="g-dice-toggle" id="gDiceToggle" onclick="toggleDice()" title="Toggle virtual dice">🎲</button>
       <div class="g-rnd" id="gRnd"></div>
       <div class="g-pips" id="gPips"></div>
     </div>
@@ -1378,8 +1386,6 @@ roller.name + "'s roll" : '\u2014';
   var diceArea = document.getElementById('gDiceArea');
   grid.style.display = USE_DICE ? 'none' : '';
   if (diceArea) diceArea.style.display = USE_DICE ? '' : 'none';
-  var diceToggle = document.getElementById('gDiceToggle');
-  if (diceToggle) diceToggle.classList.toggle('on', USE_DICE);
   if (USE_DICE) {
     // In dice mode: reset dice to neutral and re-enable roll button
     renderGameDie('gDie1', 1); renderGameDie('gDie2', 1);
@@ -1701,19 +1707,14 @@ function renderGameDie(id, val) {
     }
   }
 }
-function toggleDice() {
+function toggleDiceHome() {
   USE_DICE = !USE_DICE;
-  document.getElementById('gDiceToggle').classList.toggle('on', USE_DICE);
-  var grid = document.getElementById('gGrid');
-  var diceArea = document.getElementById('gDiceArea');
-  grid.style.display = USE_DICE ? 'none' : '';
-  diceArea.style.display = USE_DICE ? '' : 'none';
-  if (USE_DICE) {
-    renderGameDie('gDie1', 1); renderGameDie('gDie2', 1);
-    DICE_ROLLING = false;
-  }
-  showToast(USE_DICE ? 'Virtual dice on' : 'Virtual dice off');
+  var btn = document.getElementById('homeDiceBtn');
+  var sub = document.getElementById('homeDiceSub');
+  if (btn) btn.classList.toggle('active', USE_DICE);
+  if (sub) sub.textContent = USE_DICE ? 'On' : 'Off';
 }
+function toggleDice() { toggleDiceHome(); } // legacy alias
 function rollInGameDice() {
   if (DICE_ROLLING) return;
   DICE_ROLLING = true;
