@@ -13,17 +13,18 @@
 
 html, body {
   margin: 0; padding: 0; width: 100%;
-  height: 100%;
+  height: 100vh; /* Fallback for older iOS */
+  height: 100dvh; /* Forces it to the true bottom */
   background: #0d0d0d; overflow: hidden; -webkit-font-smoothing: antialiased;
 }
 
 .screen {
   display: none; 
-  position: fixed !important; /* must override theme class position:relative */
+  position: fixed !important; 
   inset: 0; 
+  height: 100dvh; /* Bring this back to lock the flex layout */
   flex-direction: column; 
   overflow: hidden;
-  /* Use max() to guarantee it always clears the dynamic island/notch */
   padding-top: max(env(safe-area-inset-top), 110px);
   padding-bottom: max(env(safe-area-inset-bottom), 24px);
 }
@@ -2222,7 +2223,7 @@ document.addEventListener('focusout', function(e) {
   if (e.target.tagName === 'INPUT') {
     setTimeout(function() {
       window.scrollTo(0, 0);
-      document.body.style.height = '99.9%';
+      document.body.style.height = '99.9dvh';
       setTimeout(function() { document.body.style.height = '100dvh'; }, 20);
     }, 10);
   }
