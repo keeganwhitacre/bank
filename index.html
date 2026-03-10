@@ -947,10 +947,7 @@ body.state-solo .g-intensity-label { opacity: .8; }
   0%, 100% { opacity: 1; box-shadow: none; }
   50% { opacity: .82; }
 }
-/* Bypass Safari's flexbox content-box bug by pinning textures to the viewport */
-.screen::before, .screen::after {
-  position: fixed !important;
-}
+
   
 /* ── THEME FLAVOR: DIVE BAR ── */
 body.state-duel.t-dive .g-vignette { background: radial-gradient(ellipse at center, transparent 42%, rgba(255,31,71,.1) 100%); }
@@ -1016,6 +1013,11 @@ body.state-solo.t-cas::after { content: ''; position: fixed; inset: 0; pointer-e
 .t-cas .sh-btn, .t-cas .sh-player-row { background: transparent; border: 1px solid rgba(212,175,55,.2); color: #d4af37; }
 .t-cas .rnd-status, .t-cas .rnd-name, .t-cas .rnd-stand-pts { color: #d4af37; }
 
+/* Bypass Safari's flexbox content-box bug by pinning textures to the viewport */
+.screen::before, .screen::after {
+  position: fixed !important;
+}
+  
 </style>
 </head>
 <body ontouchstart="">
