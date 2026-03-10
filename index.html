@@ -733,14 +733,13 @@ html, body {
 .again-btn:active { transform: translate(2px,2px); box-shadow: 2px 2px 0 #333;
 }
 
-/* Extend textured backgrounds through the bottom safe area */
+/* Symmetrically bleed textured backgrounds to defeat Safari layout bugs */
 .t-dive::before, .t-dive::after,
 .t-sb::before,
 .t-br::before,
 .t-term::before, .t-term::after,
 .t-cas::before {
-  /* Force it past the safe area; overflow: hidden on .screen will clip it cleanly */
-  bottom: -100px !important; 
+  inset: -50px !important; 
 }
 
 /* Base su-rbtn outside of theme (for modeSelect screen) */
