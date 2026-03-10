@@ -739,7 +739,8 @@ html, body {
 .t-br::before,
 .t-term::before, .t-term::after,
 .t-cas::before {
-  bottom: calc(-1 * env(safe-area-inset-bottom) - 10px) !important;
+  /* Force it past the safe area; overflow: hidden on .screen will clip it cleanly */
+  bottom: -100px !important; 
 }
 
 /* Base su-rbtn outside of theme (for modeSelect screen) */
