@@ -12,19 +12,26 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-  margin: 0; padding: 0; width: 100%;
-  height: 100vh; /* Fallback for older iOS */
-  height: 100dvh; /* Forces it to the true bottom */
-  background: #0d0d0d; overflow: hidden; -webkit-font-smoothing: antialiased;
+  margin: 0; 
+  padding: 0; 
+  width: 100%;
+  height: 100dvh; 
+  position: fixed;
+  inset: 0;
+  background: #0d0d0d; 
+  overflow: hidden; 
+  -webkit-font-smoothing: antialiased;
 }
 
 .screen {
   display: none; 
-  position: fixed !important; 
+  position: fixed !important; /* must override theme class position:relative */
   inset: 0; 
-  height: 100dvh; /* Bring this back to lock the flex layout */
+  width: 100%; 
+  height: 100dvh;
   flex-direction: column; 
   overflow: hidden;
+  /* Use max() to guarantee it always clears the dynamic island/notch */
   padding-top: max(env(safe-area-inset-top), 110px);
   padding-bottom: max(env(safe-area-inset-bottom), 24px);
 }
@@ -1333,6 +1340,234 @@ function initStats(names) {
 }
 var HISTORY = [];
 
+// ══ SOUND SYSTEM ══
+var AC = null;
+function getAC() {
+  if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+  if (AC.state === 'suspended') AC.resume();
+  return AC;
+}
+// Resume on any tap — iOS kills context aggressively
+document.addEventListener('touchstart', function() { if (AC) AC.resume(); }, { passive: true });
+
+var SFX = {
+
+  // Helper: shaped noise buffer — the core of all physical sounds
+  // decay controls how fast amplitude falls (higher = sharper attack/faster tail)
+  _noise: function(ac, dur, decay) {
+    var len = Math.floor(ac.sampleRate * dur);
+    var buf = ac.createBuffer(1, len, ac.sampleRate);
+    var d = buf.getChannelData(0);
+    for (var i = 0; i < len; i++)
+      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+    return buf;
+  },
+
+  // Dice on table — hard impact transient + brief rattle
+  // Two layers: low thud (body hitting surface) + mid rattle (edges/corners)
+  roll: function() {
+    var ac = getAC(), t = ac.currentTime;
+    // Thud: lowpass noise, sharp decay
+    var thud = ac.createBufferSource();
+    thud.buffer = SFX._noise(ac, 0.06, 12);
+    var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 280;
+    var tg = ac.createGain(); tg.gain.setValueAtTime(0.55, t); tg.gain.exponentialRampToValueAtTime(0.001, t + 0.055);
+    thud.connect(lp); lp.connect(tg); tg.connect(ac.destination);
+    thud.start(t);
+    // Rattle: bandpass noise, slightly delayed, faster decay
+    var rattle = ac.createBufferSource();
+    rattle.buffer = SFX._noise(ac, 0.04, 18);
+    var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1100; bp.Q.value = 1.2;
+    var rg = ac.createGain(); rg.gain.setValueAtTime(0.18, t + 0.005); rg.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+    rattle.connect(bp); bp.connect(rg); rg.connect(ac.destination);
+    rattle.start(t + 0.005);
+  },
+
+  // Two dice landing slightly apart — double-knock with resonance
+  doubles: function() {
+    var ac = getAC(), t = ac.currentTime;
+    [0, 0.055].forEach(function(offset) {
+      var src = ac.createBufferSource();
+      src.buffer = SFX._noise(ac, 0.07, 10);
+      var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 320;
+      var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 900; bp.Q.value = 1.0;
+      var g = ac.createGain(); g.gain.setValueAtTime(0.5, t + offset); g.gain.exponentialRampToValueAtTime(0.001, t + offset + 0.065);
+      // second hit slightly harder — feels like two dice meeting
+      if (offset > 0) g.gain.setValueAtTime(0.65, t + offset);
+      src.connect(lp); lp.connect(g);
+      var src2 = ac.createBufferSource();
+      src2.buffer = SFX._noise(ac, 0.05, 16);
+      src2.connect(bp); bp.connect(g);
+      g.connect(ac.destination);
+      src.start(t + offset); src2.start(t + offset);
+    });
+  },
+
+  // Safe 7 — chip sliding across felt then a soft click as it settles
+  // Scrape: highpass noise fading from left-ish frequency sweep + click transient at end
+  safeSeven: function() {
+    var ac = getAC(), t = ac.currentTime;
+    // Felt scrape: filtered noise with sweeping bandpass
+    var scrape = ac.createBufferSource();
+    scrape.buffer = SFX._noise(ac, 0.14, 2);
+    var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(600, t); bp.frequency.linearRampToValueAtTime(1800, t + 0.1); bp.Q.value = 2;
+    var sg = ac.createGain(); sg.gain.setValueAtTime(0.12, t); sg.gain.linearRampToValueAtTime(0.06, t + 0.1); sg.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
+    scrape.connect(bp); bp.connect(sg); sg.connect(ac.destination);
+    scrape.start(t);
+    // Click at landing
+    var click = ac.createBufferSource();
+    click.buffer = SFX._noise(ac, 0.025, 20);
+    var cp = ac.createBiquadFilter(); cp.type = 'bandpass'; cp.frequency.value = 2200; cp.Q.value = 0.8;
+    var cg = ac.createGain(); cg.gain.setValueAtTime(0.22, t + 0.1); cg.gain.exponentialRampToValueAtTime(0.001, t + 0.125);
+    click.connect(cp); cp.connect(cg); cg.connect(ac.destination);
+    click.start(t + 0.1);
+  },
+
+  // Bust — chips scattered/swept off table
+  // Heavy low impact + sustained mid scatter noise + high scatter ticks
+  bust: function() {
+    var ac = getAC(), t = ac.currentTime;
+    // Heavy table thud — like a fist or palm slap
+    var thud = ac.createBufferSource();
+    thud.buffer = SFX._noise(ac, 0.18, 6);
+    var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 160;
+    var tg = ac.createGain(); tg.gain.setValueAtTime(0.9, t); tg.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+    thud.connect(lp); lp.connect(tg); tg.connect(ac.destination);
+    thud.start(t);
+    // Mid scatter — chips tumbling
+    var scatter = ac.createBufferSource();
+    scatter.buffer = SFX._noise(ac, 0.32, 3);
+    var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 500; bp.Q.value = 0.6;
+    var scg = ac.createGain(); scg.gain.setValueAtTime(0.0, t); scg.gain.linearRampToValueAtTime(0.35, t + 0.02); scg.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
+    scatter.connect(bp); bp.connect(scg); scg.connect(ac.destination);
+    scatter.start(t);
+    // High ticks — individual chips skittering
+    var ticks = ac.createBufferSource();
+    ticks.buffer = SFX._noise(ac, 0.28, 2);
+    var hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 2000;
+    var hg = ac.createGain(); hg.gain.setValueAtTime(0.0, t + 0.01); hg.gain.linearRampToValueAtTime(0.14, t + 0.04); hg.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+    ticks.connect(hp); hp.connect(hg); hg.connect(ac.destination);
+    ticks.start(t + 0.01);
+  },
+
+  // Bank — chip stack set down firmly on table
+  // Sharp high click (tap) + low woody thud (stack weight) + brief resonance tail
+  bank: function() {
+    var ac = getAC(), t = ac.currentTime;
+    // Tap: sharp highish transient
+    var tap = ac.createBufferSource();
+    tap.buffer = SFX._noise(ac, 0.022, 22);
+    var tp = ac.createBiquadFilter(); tp.type = 'bandpass'; tp.frequency.value = 1800; tp.Q.value = 1.5;
+    var tg = ac.createGain(); tg.gain.setValueAtTime(0.45, t); tg.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
+    tap.connect(tp); tp.connect(tg); tg.connect(ac.destination);
+    tap.start(t);
+    // Thud: low body
+    var thud = ac.createBufferSource();
+    thud.buffer = SFX._noise(ac, 0.09, 8);
+    var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 240;
+    var lg = ac.createGain(); lg.gain.setValueAtTime(0.6, t); lg.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
+    thud.connect(lp); lp.connect(lg); lg.connect(ac.destination);
+    thud.start(t);
+    // Resonance: very quiet mid ring that fades slowly — felt on a hard surface
+    var ring = ac.createBufferSource();
+    ring.buffer = SFX._noise(ac, 0.22, 1.5);
+    var rp = ac.createBiquadFilter(); rp.type = 'bandpass'; rp.frequency.value = 380; rp.Q.value = 4;
+    var rg = ac.createGain(); rg.gain.setValueAtTime(0.07, t + 0.01); rg.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+    ring.connect(rp); rp.connect(rg); rg.connect(ac.destination);
+    ring.start(t + 0.01);
+  },
+
+  // Round clear — single chip placed down gently, lighter than bank
+  roundClear: function() {
+    var ac = getAC(), t = ac.currentTime;
+    var tap = ac.createBufferSource();
+    tap.buffer = SFX._noise(ac, 0.018, 24);
+    var tp = ac.createBiquadFilter(); tp.type = 'bandpass'; tp.frequency.value = 1600; tp.Q.value = 1.2;
+    var tg = ac.createGain(); tg.gain.setValueAtTime(0.28, t); tg.gain.exponentialRampToValueAtTime(0.001, t + 0.016);
+    tap.connect(tp); tp.connect(tg); tg.connect(ac.destination);
+    tap.start(t);
+    var thud = ac.createBufferSource();
+    thud.buffer = SFX._noise(ac, 0.06, 10);
+    var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 200;
+    var lg = ac.createGain(); lg.gain.setValueAtTime(0.3, t); lg.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
+    thud.connect(lp); lp.connect(lg); lg.connect(ac.destination);
+    thud.start(t);
+  },
+
+  // Card slapped face-down — sharp paper snap + brief air displacement
+  card: function() {
+    var ac = getAC(), t = ac.currentTime;
+    // Paper snap: very short highpass burst
+    var snap = ac.createBufferSource();
+    snap.buffer = SFX._noise(ac, 0.03, 25);
+    var hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3500;
+    var sg = ac.createGain(); sg.gain.setValueAtTime(0.38, t); sg.gain.exponentialRampToValueAtTime(0.001, t + 0.025);
+    snap.connect(hp); hp.connect(sg); sg.connect(ac.destination);
+    snap.start(t);
+    // Air/body: low-mid thud underneath
+    var body = ac.createBufferSource();
+    body.buffer = SFX._noise(ac, 0.05, 14);
+    var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 320; bp.Q.value = 1.0;
+    var bg = ac.createGain(); bg.gain.setValueAtTime(0.25, t); bg.gain.exponentialRampToValueAtTime(0.001, t + 0.045);
+    body.connect(bp); bp.connect(bg); bg.connect(ac.destination);
+    body.start(t);
+  },
+
+  // Tension state sounds
+  _droneNode: null,
+  _droneGain: null,
+  startDrone: function(intense) {
+    var ac = getAC(), t = ac.currentTime;
+    // Always fire the single tension thud on state change
+    var thud = ac.createBufferSource();
+    thud.buffer = SFX._noise(ac, intense ? 0.5 : 0.35, intense ? 1.8 : 2.2);
+    var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = intense ? 100 : 130;
+    var g = ac.createGain();
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(intense ? 0.55 : 0.35, t + 0.015);
+    g.gain.exponentialRampToValueAtTime(0.001, t + (intense ? 0.5 : 0.35));
+    thud.connect(lp); lp.connect(g); g.connect(ac.destination);
+    thud.start(t);
+    // Solo only: add sustained room-tone ambient — broadband noise, highs rolled way off
+    // Sits just below awareness, like a room going quiet and holding its breath
+    if (intense) {
+      if (!SFX._droneNode) {
+        var len = ac.sampleRate * 2; // 2s looping buffer of noise
+        var buf = ac.createBuffer(1, len, ac.sampleRate);
+        var d = buf.getChannelData(0);
+        for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+        var src = ac.createBufferSource();
+        src.buffer = buf; src.loop = true;
+        var lp2 = ac.createBiquadFilter(); lp2.type = 'lowpass'; lp2.frequency.value = 180;
+        var lp3 = ac.createBiquadFilter(); lp3.type = 'lowpass'; lp3.frequency.value = 180; // double-pole for steeper rolloff
+        var dg = ac.createGain(); dg.gain.setValueAtTime(0, t);
+        dg.gain.linearRampToValueAtTime(0.055, t + 2.5); // fades in slowly over 2.5s
+        src.connect(lp2); lp2.connect(lp3); lp3.connect(dg); dg.connect(ac.destination);
+        src.start(t);
+        SFX._droneNode = src; SFX._droneGain = dg;
+      } else {
+        // Already running — just make sure gain is up
+        SFX._droneGain.gain.cancelScheduledValues(t);
+        SFX._droneGain.gain.setValueAtTime(SFX._droneGain.gain.value || 0, t);
+        SFX._droneGain.gain.linearRampToValueAtTime(0.055, t + 1.0);
+      }
+    }
+  },
+  stopDrone: function() {
+    if (!SFX._droneGain || !SFX._droneNode) return;
+    var ac = getAC(), t = ac.currentTime;
+    SFX._droneGain.gain.cancelScheduledValues(t);
+    SFX._droneGain.gain.setValueAtTime(SFX._droneGain.gain.value || 0, t);
+    SFX._droneGain.gain.linearRampToValueAtTime(0, t + 1.8);
+    // Null out after fade so next solo gets a fresh node
+    var node = SFX._droneNode;
+    setTimeout(function() {
+      try { node.stop(); } catch(e) {}
+      SFX._droneNode = null; SFX._droneGain = null;
+    }, 2200);
+  }
+};
+
 function pushSnap() { HISTORY.push(JSON.stringify(G)); if (HISTORY.length > 20) HISTORY.shift(); }
 function undoLast() {
   if (!HISTORY.length) return;
@@ -1425,20 +1660,19 @@ keyEl.appendChild(rip); setTimeout(function() { if(rip.parentNode) rip.remove();
 
   if (inSafePhase) {
     if (total === 7) { G.pot += 70; doFlash('rgba(255,255,255,.15)'); potPulse();
+      SFX.safeSeven();
       showToast(name + ' rolled 7  \u2192  +70'); }
     else { G.pot += total; animatePot(prev, G.pot);
+      SFX.roll();
       showToast(name + ': ' + total + '  \u2192  +' + total); }
   } else {
     if (total === 7) {
       G.bustPot = prev;
-      // Insurance: insured players keep the pot
       var insuredPlayers = EFFECTS.insurance.slice();
-      // Track bust stats
       if (STATS[name]) { STATS[name].bustSevens++; }
       G.players.filter(function(p) { return !p.banked; }).forEach(function(p) {
         if (STATS[p.name]) STATS[p.name].pointsLost += prev;
         G.cumMiss[p.name] = (G.cumMiss[p.name] || 0) + prev;
-        // Insurance payout
         if (insuredPlayers.indexOf(p.name) !== -1) {
           p.score += prev;
           STATS[p.name].banks.push(prev);
@@ -1446,35 +1680,37 @@ keyEl.appendChild(rip); setTimeout(function() { if(rip.parentNode) rip.remove();
         }
       });
       if (insuredPlayers.length) showToast('💥 Bust! Insured players kept ' + prev.toLocaleString());
+      SFX.bust();
       doFlash('rgba(255,51,0,.22)'); shakeScreen(); showRoundEnd(true); return;
     }
-    // Double Down: even = double pot, odd = halve pot
     if (EFFECTS.doubledown) {
       EFFECTS.doubledown = false;
-      if (total === 7) { /* handled above */ }
-      else if (total % 2 === 0) {
+      if (total % 2 === 0) {
         G.pot *= 2; doFlash('rgba(255,255,255,.18)'); animatePot(prev, G.pot);
+        SFX.doubles();
         showToast('⚡ Double Down hit! Even roll — pot doubled → ' + G.pot.toLocaleString());
         nextRoller(); render(); return;
       } else {
         G.pot = Math.floor(G.pot / 2); doFlash('rgba(255,100,0,.25)'); animatePot(prev, G.pot);
+        SFX.bust();
         showToast('⚡ Double Down backfired! Odd roll — pot halved → ' + G.pot.toLocaleString());
         nextRoller(); render(); return;
       }
     }
-    // Cutthroat: 2 or 12 halves the pot
     else if (MODE === 'cutthroat' && (total === 2 || total === 12)) {
       var halved = Math.floor(G.pot / 2);
       G.pot = halved;
       doFlash('rgba(255,100,0,.25)');
       animatePot(prev, G.pot);
+      SFX.bust();
       showToast(name + ' rolled ' + total + '! Pot halved \u2192 ' + G.pot.toLocaleString());
     }
     else if (isDbl) {
       G.pot *= 2; doFlash('rgba(255,255,255,.12)'); animatePot(prev, G.pot);
+      SFX.doubles();
       showToast(name + ' doubles!  Pot \u2192 ' + G.pot.toLocaleString());
     }
-    else { G.pot += total; animatePot(prev, G.pot); showToast(name + ': ' + total + '  \u2192  +' + total); }
+    else { G.pot += total; animatePot(prev, G.pot); SFX.roll(); showToast(name + ': ' + total + '  \u2192  +' + total); }
   }
 
   // Roller's Cut: if only 1 player not banked, they get a 10% bonus
@@ -1527,6 +1763,7 @@ function bankPlayer(idx) {
     STATS[p.name].bankAmts.push(amt);
   }
   spawnConfetti(55, false);
+  SFX.bank();
   showToast(p.name + ' banked ' + amt.toLocaleString() + '!');
   if (MODE === 'race' && p.score >= RACE_TARGET) {
     showRaceWin(p.name, p.score);
@@ -1552,6 +1789,7 @@ function endRound() {
   G.pot = 0; G.rolls = 0;
   G.bankedThisRound = []; G.bustPot = 0; G.round++;
   resetEffects();
+  SFX.stopDrone();
   if (G.round > G.total) { showEndScreen(); return; }
   G.roller = (G.roller + 1) % G.players.length;
   maybeRoundDeal();
@@ -1684,12 +1922,15 @@ if (activeChip) setTimeout(function() { activeChip.scrollIntoView({ behavior: 's
     game.classList.add('state-duel');
     document.body.classList.add('state-duel');
     if (labelEl) labelEl.textContent = 'duel';
+    SFX.startDrone(false);
   } else if (intensityActive && unbankedCount === 1) {
     game.classList.add('state-solo');
     document.body.classList.add('state-solo');
     if (labelEl) labelEl.textContent = 'last one standing';
+    SFX.startDrone(true);
   } else {
     if (labelEl) labelEl.textContent = '';
+    SFX.stopDrone();
   }
 }
 
@@ -1762,6 +2003,7 @@ function showRaceWin(name, score) {
 }
 
 function showRoundEnd(bust) {
+  if (!bust) SFX.roundClear();
   var ov = document.createElement('div');
 ov.className = 'rnd-backdrop';
   var sh = document.createElement('div'); sh.className = 'rnd-sheet';
@@ -2111,6 +2353,7 @@ function playCard(cardKey, cardIdx, target) {
   // Remove card from hand
   CARDS[roller.name].splice(cardIdx, 1);
   var def = CARD_DEFS[cardKey];
+  SFX.card();
 
   switch (cardKey) {
     case 'kneecap':
@@ -2219,15 +2462,6 @@ function showScreen(id) {
   document.getElementById(id).classList.add('active');
 }
 
-document.addEventListener('focusout', function(e) {
-  if (e.target.tagName === 'INPUT') {
-    setTimeout(function() {
-      window.scrollTo(0, 0);
-      document.body.style.height = '99.9dvh';
-      setTimeout(function() { document.body.style.height = '100dvh'; }, 20);
-    }, 10);
-  }
-});
 addInput(); addInput(); addInput();
 </script>
 </body>
