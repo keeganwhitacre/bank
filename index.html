@@ -947,7 +947,11 @@ body.state-solo .g-intensity-label { opacity: .8; }
   0%, 100% { opacity: 1; box-shadow: none; }
   50% { opacity: .82; }
 }
-
+/* Bypass Safari's flexbox content-box bug by pinning textures to the viewport */
+.screen::before, .screen::after {
+  position: fixed !important;
+}
+  
 /* ── THEME FLAVOR: DIVE BAR ── */
 body.state-duel.t-dive .g-vignette { background: radial-gradient(ellipse at center, transparent 42%, rgba(255,31,71,.1) 100%); }
 body.state-duel.t-dive .g-intensity-label { color: rgba(255,31,71,.6); }
