@@ -44,10 +44,13 @@ function measureViewportGap() {
   }
   GAP_INFO = { probe: Math.round(probeH), full: Math.round(fullH) };
   VIEW_GAP = gap;
-  // iOS draws the bottom strip itself (tinted from the page background) and the page can't paint
-  // under it, so the home-bar padding would be counted twice. Drop it and let screens end flush.
-  document.documentElement.classList.toggle('ios-chin', gap > 0);
-  document.documentElement.style.setProperty('--gap', '0px');
+  // Fixed elements are clipped to the short viewport, but the page itself can still draw down there.
+  // So in this case full-screen layers switch from position:fixed to absolute inside a body that is
+  // exactly the screen's height (scrolling locked). See html.ios-fill in ui.css.
+  var root = document.documentElement;
+  root.classList.toggle('ios-fill', gap > 0);
+  root.style.setProperty('--app-h', Math.round(probeH + gap) + 'px');
+  if (gap > 0) window.scrollTo(0, 0);
   if (typeof resizeCV === 'function') resizeCV();
 }
 function displayCheck() {
@@ -58,8 +61,16 @@ function displayCheck() {
   probe.remove();
   return 'view ' + innerWidth + '\u00d7' + innerHeight + ' \u00b7 screen ' + screen.width + '\u00d7' + screen.height +
          ' \u00b7 fixed ' + GAP_INFO.probe + ' \u00b7 screenEl ' + Math.round((document.querySelector('.screen.active') || document.body).getBoundingClientRect().bottom) +
-         ' \u00b7 safe ' + top + '/' + bot + ' \u00b7 gap ' + VIEW_GAP + ' \u00b7 ' + (isStandalone() ? 'home screen' : 'browser');
+         ' \u00b7 safe ' + top + '/' + bot + ' \u00b7 gap ' + VIEW_GAP + (document.documentElement.classList.contains('ios-fill') ? ' \u00b7 fill' : '') + ' \u00b7 ' + (isStandalone() ? 'home screen' : 'browser');
 }
+// The locked page must never stay scrolled (focus, scrollIntoView…). Leave it alone while typing.
+addEventListener('scroll', function() {
+  if (!document.documentElement.classList.contains('ios-fill') || !window.scrollY) return;
+  var a = document.activeElement; if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA')) return;
+  window.scrollTo(0, 0);
+}, { passive: true });
+// Keyboard focus can nudge the locked page; put it back
+document.addEventListener('focusout', function() { if (document.documentElement.classList.contains('ios-fill')) setTimeout(function() { window.scrollTo(0, 0); }, 50); });
 ['resize', 'orientationchange'].forEach(function(ev) { addEventListener(ev, function() { setTimeout(measureViewportGap, 60); }); });
 function boot() {
   measureViewportGap();

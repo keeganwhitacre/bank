@@ -394,8 +394,6 @@ button.grp-save { padding: 6px 12px; background: transparent; color: inherit; cu
 .end-share { height: 46px; border: 2px solid var(--acc); background: transparent; color: var(--acc); font-family: 'Archivo Black', sans-serif; font-size: .82rem; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .end-share:disabled { opacity: .5; }
 
-/* ── iOS home-screen viewport gap (see measureViewportGap in main.js) ── */
-html, body, .screen, .backdrop, .rnd-backdrop, .card-deal-overlay, .mod-reveal, .bust-ov, .g-heat, .g-vignette, #flash { bottom: calc(-1 * var(--gap)); }
 .set-diag { display: inline-block; margin-top: 6px; color: #3a3a3a; }
 
 /* ── Home buttons: subtitle under the label so neither wraps or gets squeezed ── */
@@ -453,8 +451,12 @@ html, body, .screen, .backdrop, .rnd-backdrop, .card-deal-overlay, .mod-reveal, 
 .award-icon { color: var(--acc); font-size: 1.25rem; display: flex; }
 .pool-row .ico { flex: 0 0 auto; width: 26px; }
 
-/* iOS home-screen apps on 26+: the viewport stops above an iOS-drawn bottom strip, so the
-   home-bar inset is already outside the page. Screens end flush; the strip takes the page color. */
-html.ios-chin { --sab: 0px; }
-html.ios-chin #game { padding-bottom: 8px; }
+/* ── iOS home-screen apps (black-translucent status bar): fixed elements are clipped to a viewport
+   that ends one top-inset short of the screen, but normal page content still draws there.
+   So full-screen layers become absolute inside a body that is exactly the screen's height. ── */
+html.ios-fill { position: static !important; height: var(--app-h) !important; overflow: hidden !important; overscroll-behavior: none; }
+html.ios-fill body { position: relative !important; inset: auto !important; height: var(--app-h) !important; overflow: hidden !important; overscroll-behavior: none; }
+html.ios-fill .screen, html.ios-fill .backdrop, html.ios-fill .rnd-backdrop, html.ios-fill .card-deal-overlay,
+html.ios-fill .mod-reveal, html.ios-fill .bust-ov, html.ios-fill .g-heat, html.ios-fill .g-vignette, html.ios-fill #flash, html.ios-fill #cv {
+  position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: auto !important; height: var(--app-h) !important; }
 .set-diag-link { display: inline-block; margin-top: 8px; color: #666; text-decoration: underline; }
