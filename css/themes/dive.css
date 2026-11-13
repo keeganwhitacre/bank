@@ -1,0 +1,101 @@
+/* ══ DIVE BAR ══ */
+.t-dive { background: #1a1a18; font-family: 'Permanent Marker', cursive; color: #fff; position: relative;
+}
+.t-dive::before { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; }
+.t-dive::after { content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent 0px, transparent 7px, rgba(255,255,255,.008) 7px, rgba(255,255,255,.008) 8px); pointer-events: none; z-index: 0;
+}
+.t-dive .g-topbar { padding: 14px 16px 0; }
+.t-dive .g-title { font-size: 1.3rem; color: #ff1f47; text-shadow: 0 0 20px rgba(255,31,71,.4);
+  transform: rotate(-2deg); }
+.t-dive .g-rnd { font-family: 'Victor Mono', monospace; font-size: .5rem; color: rgba(255,255,255,.2); letter-spacing: .1em; }
+.t-dive .g-pips { gap: 4px;
+}
+.t-dive .g-pip { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.12); }
+.t-dive .g-pip.done { background: #ff1f47; border-color: #ff1f47;
+  opacity: .45; }
+.t-dive .g-pip.current { background: #ff1f47; border-color: #ff1f47; box-shadow: 0 0 6px rgba(255,31,71,.5); }
+.t-dive .g-pot { text-align: center;
+  padding: 4px 0 0; }
+.t-dive .g-pot-label { font-family: 'Victor Mono', monospace; font-size: .5rem; color: rgba(255,255,255,.2); letter-spacing: .2em; font-weight: 700;
+  display: block; }
+.t-dive .g-pot-value { font-size: clamp(3.8rem, 10dvh, 7rem); color: #fff; line-height: .88; text-shadow: 0 0 2px rgba(255,255,255,.3); transform: rotate(-1deg);
+}
+.t-dive .g-pot-value::after { content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%) rotate(1deg); width: 120px; height: 3px; background: #ff1f47;
+  box-shadow: 0 0 10px rgba(255,31,71,.4); border-radius: 2px; }
+.t-dive .g-pot-sub { font-family: 'Victor Mono', monospace; font-size: .5rem; color: rgba(255,255,255,.15); margin-top: 2px;
+  letter-spacing: .05em; display: block; }
+.t-dive .g-turn { font-size: .9rem; color: #38e878; text-align: center; margin: 2px 0 0;
+  text-shadow: 0 0 14px rgba(56,232,120,.3); transform: rotate(.5deg); }
+.t-dive .g-grid { gap: 4px; padding: 4px 8px 4px;
+}
+.t-dive .g-key { background: rgba(255,255,255,.04); border: 1.5px solid rgba(255,255,255,.08); border-radius: 10px; color: rgba(255,255,255,.65); font-family: 'Permanent Marker', cursive;
+  font-size: clamp(1.8rem, 5dvh, 3rem); transition: background .06s, color .06s; }
+.t-dive .g-key:active { background: rgba(255,255,255,.12); color: #fff;
+}
+.t-dive .g-key.k-seven-safe { background: rgba(56,232,120,.1); border-color: rgba(56,232,120,.3); color: #38e878; text-shadow: 0 0 10px rgba(56,232,120,.3); }
+.t-dive .g-key.k-seven-danger { background: rgba(255,31,71,.12);
+  border-color: rgba(255,31,71,.35); color: #ff1f47; text-shadow: 0 0 10px rgba(255,31,71,.3); animation: dangerPulse 1.2s ease-in-out infinite; }
+.t-dive .g-key.k-blocked { color: rgba(255,255,255,.07);
+  border-color: rgba(255,255,255,.03); background: transparent; pointer-events: none; }
+.t-dive .g-key.k-doubles { border-color: rgba(56,232,120,.2); background: rgba(56,232,120,.05); color: rgba(56,232,120,.6); font-size: clamp(1.3rem, 5vw, 2rem);
+}
+.t-dive .g-key.k-doubles.k-p2 { border-color: rgba(56,232,120,.35); background: rgba(56,232,120,.1); color: #38e878; }
+.t-dive .g-bank { background: transparent; border: 2px solid #ff1f47; border-radius: 10px;
+  color: #ff1f47; font-family: 'Permanent Marker', cursive; font-size: 1.2rem; padding: 10px; text-align: center; cursor: pointer; text-shadow: 0 0 12px rgba(255,31,71,.3);
+  box-shadow: 0 0 20px rgba(255,31,71,.1); margin: 0 8px 4px; transition: background .08s; -webkit-tap-highlight-color: transparent; }
+.t-dive .g-bank:active { background: rgba(255,31,71,.12);
+}
+.t-dive .g-bottom { gap: 10px; padding: 6px 12px 10px; }
+.t-dive .g-undo { background: transparent; border: 1px solid rgba(255,255,255,.08); border-radius: 6px;
+  color: rgba(255,255,255,.2); font-family: 'Victor Mono', monospace; font-size: .65rem; padding: 8px 14px; }
+.t-dive .g-undo.dim { opacity: .25; pointer-events: none;
+}
+.t-dive .g-scores-row { gap: 14px; padding: 6px 0; }
+.t-dive .g-chip-name { font-family: 'Victor Mono', monospace; font-size: .58rem; color: rgba(255,255,255,.12);
+  letter-spacing: .04em; }
+.t-dive .g-chip-pts { font-family: 'Permanent Marker', cursive; font-size: 1.3rem; color: rgba(255,255,255,.4); }
+.t-dive .g-chip.rolling .g-chip-name { color: rgba(56,232,120,.5);
+}
+.t-dive .g-chip.rolling .g-chip-pts { color: #38e878; text-shadow: 0 0 8px rgba(56,232,120,.3); }
+.t-dive .g-chip.banked { opacity: .3;
+}
+.t-dive .su-logo { font-family: 'Permanent Marker', cursive; font-size: 4rem; color: #ff1f47; transform: rotate(-2deg); text-shadow: 0 0 28px rgba(255,31,71,.4);
+}
+.t-dive .su-sub { font-family: 'Victor Mono', monospace; font-size: .55rem; color: rgba(255,255,255,.22); letter-spacing: .15em; }
+.t-dive .su-label { font-family: 'Victor Mono', monospace;
+  color: rgba(255,255,255,.28); }
+.t-dive .su-row input { flex: 1; height: 46px; background: rgba(255,255,255,.05); border: 1.5px solid rgba(255,255,255,.1); border-radius: 10px;
+  padding: 0 14px; font-family: 'Permanent Marker', cursive; font-size: 1rem; color: #fff; outline: none; }
+.t-dive .su-row input::placeholder { color: rgba(255,255,255,.22);
+}
+.t-dive .su-rm { width: 36px; height: 36px; flex-shrink: 0; background: transparent; border: 1.5px solid rgba(255,255,255,.1); border-radius: 6px; color: rgba(255,255,255,.3);
+  font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.t-dive .su-add { width: 100%; height: 40px; margin-top: 6px;
+  background: transparent; border: 1.5px dashed rgba(255,255,255,.12); border-radius: 10px; color: rgba(255,255,255,.24); font-family: 'Permanent Marker', cursive; font-size: .85rem; cursor: pointer;
+}
+.t-dive .su-rbtn { flex: 1; height: 46px; background: rgba(255,255,255,.04); border: 1.5px solid rgba(255,255,255,.1); border-radius: 10px; color: rgba(255,255,255,.3);
+  font-family: 'Permanent Marker', cursive; font-size: 1.2rem; cursor: pointer; transition: all .15s; }
+.t-dive .su-rbtn.on { background: rgba(255,31,71,.15); border-color: rgba(255,31,71,.4); color: #ff1f47;
+}
+.t-dive .su-start-btn { width: 100%; height: 52px; background: transparent; border: 2px solid #ff1f47; border-radius: 10px; color: #ff1f47;
+  font-family: 'Permanent Marker', cursive; font-size: 1.3rem; cursor: pointer; text-shadow: 0 0 12px rgba(255,31,71,.3); box-shadow: 0 0 20px rgba(255,31,71,.1); -webkit-tap-highlight-color: transparent;
+}
+
+/* ── DIVE BAR DICE ── */
+.t-dive .g-die { background: rgba(255,255,255,.06); border: 1.5px solid rgba(255,255,255,.12); box-shadow: 0 0 20px rgba(255,31,71,.08); }
+.t-dive .g-die-pip { background: #fff; box-shadow: 0 0 4px rgba(255,255,255,.4); }
+.t-dive .g-dice-roll-btn { background: transparent; border: 2px solid #ff1f47; border-radius: 10px; color: #ff1f47; font-family: 'Permanent Marker', cursive; font-size: 1.2rem; padding: 10px 28px; text-shadow: 0 0 12px rgba(255,31,71,.3); box-shadow: 0 0 20px rgba(255,31,71,.1); }
+/* Card btn per theme */
+.t-dive .g-card-btn { border-color: rgba(255,31,71,.25); color: rgba(255,31,71,.5); }
+.t-dive .g-back { border-color: rgba(255,255,255,.1); color: rgba(255,255,255,.3); }
+/* ── THEME FLAVOR: DIVE BAR ── */
+body.state-duel.t-dive .g-vignette { background: radial-gradient(ellipse at center, transparent 42%, rgba(255,31,71,.1) 100%); }
+body.state-duel.t-dive .g-intensity-label { color: rgba(255,31,71,.6); }
+body.state-solo.t-dive .g-vignette { background: radial-gradient(ellipse at center, transparent 22%, rgba(255,31,71,.22) 100%); }
+body.state-solo.t-dive .g-intensity-label { color: #ff1f47; text-shadow: 0 0 10px rgba(255,31,71,.4); }
+.t-dive.state-solo .g-title { animation: neonFlicker 2.2s ease-in-out infinite; }
+.t-dive.state-solo .g-bank { border-color: #ff1f47; box-shadow: 0 0 28px rgba(255,31,71,.35) !important; animation: bankPulse 1s ease-in-out infinite, diveGlow 1s ease-in-out infinite; }
+@keyframes neonFlicker { 0%,100%{opacity:1} 88%{opacity:1} 90%{opacity:.3} 92%{opacity:1} 96%{opacity:.6} 97%{opacity:1} }
+@keyframes diveGlow { 0%,100%{box-shadow:0 0 18px rgba(255,31,71,.2)} 50%{box-shadow:0 0 36px rgba(255,31,71,.5)} }
