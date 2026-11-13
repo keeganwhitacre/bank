@@ -59,6 +59,7 @@ function goSetup() {
   var noRounds = MODE === 'race' || MODE === 'lms';
   $('suRoundsSec').style.display = noRounds ? 'none' : '';
   $('suModeLine').textContent = 'Mode: ' + modeSummary() + houseSummary();
+  renderGroups();
   showScreen('setup');
 }
 

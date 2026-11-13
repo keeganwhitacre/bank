@@ -57,7 +57,9 @@ function showGameMenu() {
   };
   var quit = document.createElement('button'); quit.className = 'sh-menu-row'; quit.innerHTML = ico('exit') + 'Quit to menu (game is saved)';
   quit.onclick = function() { s.close(); quitToMenu(); };
-  [rules, end, quit].forEach(function(b) { s.sh.appendChild(b); });
+  var roster = document.createElement('button'); roster.className = 'sh-menu-row'; roster.innerHTML = ico('users') + 'Players (add or remove)';
+  roster.onclick = function() { s.close(); showRosterSheet(); };
+  [rules, roster, end, quit].forEach(function(b) { s.sh.appendChild(b); });
   addCancel(s);
 }
 function quitToMenu() {

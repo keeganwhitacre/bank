@@ -53,6 +53,10 @@
       <span class="home-btn-sub" id="homeModeSub">Standard</span>
     </button>
     <div class="home-row" id="homeRow">
+      <button class="home-btn home-btn-small" onclick="openHall()">
+        <span class="home-btn-icon" id="hIcoHall"></span>
+        <span class="home-btn-label">Hall of Fame</span>
+      </button>
       <button class="home-btn home-btn-small" onclick="openSettings()">
         <span class="home-btn-icon" id="hIcoSettings"></span>
         <span class="home-btn-label">Settings</span>
@@ -266,11 +270,24 @@ Red velvet &amp; gold trim.</span></div>
   <div class="set-list" id="settingsList"></div>
 </div>
 
+<!-- HALL OF FAME -->
+<div class="screen" id="hall">
+  <button class="g-back" onclick="showScreen('home')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <div class="pk-title">Hall of Fame</div>
+  <div class="hall-tabs" id="hallTabs">
+    <button data-t="players" onclick="hallTab('players')">Players</button>
+    <button data-t="records" onclick="hallTab('records')">Records</button>
+    <button data-t="games" onclick="hallTab('games')">Games</button>
+  </div>
+  <div class="hall-body" id="hallBody"></div>
+</div>
+
 <div class="screen" id="setup">
   <button class="g-back" onclick="showScreen('home')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
   <div class="su-logo" id="suLogo">Bank</div>
   <div class="su-sub" id="suSub">dont get greedy</div>
   <div class="su-mode-line" id="suModeLine"></div>
+  <div class="su-groups" id="suGroups"></div>
   <div class="su-section">
     <label class="su-label" id="suLblPlayers">Players</label>
     <div class="su-inputs" id="suInputs"></div>
@@ -339,6 +356,7 @@ Red velvet &amp; gold trim.</span></div>
   <div class="end-awards" id="endAwards"></div>
   <div class="end-btns">
     <button class="again-btn" onclick="playAgain()">Play Again</button>
+    <button class="end-share" id="shareBtn" onclick="shareResults()">Share results</button>
     <div class="end-btn-row">
       <button class="end-btn2" onclick="newGameFromEnd()">New Game</button>
       <button class="end-btn2" onclick="menuFromEnd()">Menu</button>
@@ -359,6 +377,10 @@ Red velvet &amp; gold trim.</span></div>
 <script src="js/sabotage.js"></script>
 <script src="js/dice.js"></script>
 <script src="js/settings.js"></script>
+<script src="js/groups.js"></script>
+<script src="js/hall.js"></script>
+<script src="js/share.js"></script>
+<script src="js/roster.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

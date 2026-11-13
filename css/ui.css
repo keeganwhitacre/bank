@@ -311,3 +311,69 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 }
 body.reduce-motion .bo-pot { display: none; }
 body.reduce-motion .bo-word { opacity: 1; }
+
+/* ── Saved groups (setup) ── */
+.su-groups { width: 100%; max-width: 340px; display: flex; flex-wrap: wrap; gap: 6px; margin: -6px 0 16px; }
+.grp-chip { display: inline-flex; align-items: center; border-radius: 999px; border: 1.5px solid currentColor; overflow: hidden; opacity: .75; font-family: 'DM Mono', monospace; font-size: .68rem; letter-spacing: .04em; }
+.grp-chip button { background: transparent; border: none; color: inherit; font: inherit; cursor: pointer; padding: 6px 10px; display: inline-flex; align-items: center; gap: 5px; -webkit-tap-highlight-color: transparent; }
+.grp-chip small { opacity: .55; margin-left: 2px; }
+.grp-del { padding: 6px 9px 6px 2px !important; opacity: .6; }
+.grp-del.armed { opacity: 1; color: #ff3b30; font-size: .62rem; padding-left: 6px !important; }
+button.grp-save { padding: 6px 12px; background: transparent; color: inherit; cursor: pointer; border-style: dashed; gap: 5px; }
+.grp-form { display: flex; flex-direction: column; gap: 10px; }
+.grp-names { font-family: 'DM Mono', monospace; font-size: .7rem; color: #888; line-height: 1.5; text-align: center; }
+.grp-form input, .roster-add input { width: 100%; height: 48px; border-radius: 10px; border: 1.5px solid #333; background: #111; color: #fff; padding: 0 14px; font-family: 'Archivo Black', sans-serif; font-size: 1rem; outline: none; }
+.grp-form input:focus, .roster-add input:focus { border-color: var(--acc); }
+
+/* ── Hall of Fame ── */
+#hall { background: #0d0d0d; align-items: center; }
+#hall .pk-title { margin-bottom: 14px; }
+.hall-tabs { display: flex; gap: 6px; width: 100%; max-width: 420px; padding: 0 20px; margin-bottom: 12px; flex-shrink: 0; }
+.hall-tabs button { flex: 1; height: 40px; border-radius: 9px; border: 1.5px solid #262626; background: #161616; color: #777; font-family: 'Archivo Black', sans-serif; font-size: .8rem; cursor: pointer; }
+.hall-tabs button.on { background: #fff; color: #0d0d0d; border-color: #fff; }
+.hall-body { width: 100%; max-width: 420px; padding: 0 20px 24px; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.hall-empty { margin-top: 30px; text-align: center; font-family: 'DM Mono', monospace; font-size: .74rem; color: #666; line-height: 1.6; padding: 0 20px; }
+.hall-empty .ico { font-size: 2.6rem; color: #333; display: flex; justify-content: center; margin-bottom: 10px; }
+.hall-empty b { display: block; font-family: 'Archivo Black', sans-serif; font-weight: 400; font-size: 1rem; color: #ccc; margin-bottom: 4px; }
+.hall-thead, .hall-row { display: grid; grid-template-columns: 26px 1fr 42px 42px 52px; align-items: center; gap: 6px; }
+.hall-thead { padding: 0 14px 6px; font-family: 'DM Mono', monospace; font-size: .6rem; letter-spacing: .14em; color: #555; text-transform: uppercase; }
+.hall-thead span:nth-child(n+3) { text-align: right; }
+.hall-row { width: 100%; padding: 12px 14px; margin-bottom: 6px; background: #141414; border: 1.5px solid #1e1e1e; border-radius: 10px; cursor: pointer; text-align: left; -webkit-tap-highlight-color: transparent; }
+.hall-row:first-of-type { border-color: var(--acc); }
+.hall-row:active { background: #1c1c1c; }
+.hr-rank { font-family: 'DM Mono', monospace; font-size: .7rem; color: #555; }
+.hr-name { font-family: 'Archivo Black', sans-serif; font-size: .95rem; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hr-num { font-family: 'Archivo Black', sans-serif; font-size: .95rem; color: #fff; text-align: right; }
+.hr-num.dim { color: #777; font-size: .82rem; }
+.hall-note { text-align: center; font-family: 'DM Mono', monospace; font-size: .6rem; color: #444; margin-top: 10px; letter-spacing: .06em; }
+.rec-row { display: flex; align-items: center; gap: 14px; padding: 12px 14px; margin-bottom: 6px; background: #141414; border-left: 4px solid var(--acc); }
+.rec-row > .ico { font-size: 1.3rem; color: var(--acc); }
+.rec-row small { display: block; font-family: 'DM Mono', monospace; font-size: .6rem; letter-spacing: .12em; text-transform: uppercase; color: #666; }
+.rec-row b { font-family: 'Archivo Black', sans-serif; font-weight: 400; font-size: 1.05rem; color: #fff; }
+.rec-row span { margin-left: 8px; font-family: 'DM Mono', monospace; font-size: .72rem; color: #aaa; }
+.game-row { padding: 12px 14px; margin-bottom: 6px; background: #141414; border-radius: 10px; }
+.gr-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.gr-top b { font-family: 'Archivo Black', sans-serif; font-weight: 400; font-size: .95rem; color: #fff; }
+.gr-top span { font-family: 'DM Mono', monospace; font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--acc); flex-shrink: 0; }
+.gr-scores { margin-top: 4px; font-family: 'DM Mono', monospace; font-size: .68rem; color: #999; line-height: 1.5; }
+.gr-when { margin-top: 3px; font-family: 'DM Mono', monospace; font-size: .6rem; color: #555; }
+.pc-name { font-family: 'Archivo Black', sans-serif; font-size: 1.5rem; color: #fff; text-align: center; margin-bottom: 4px; }
+.pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.pc-grid div { padding: 10px 12px; background: #252525; border-radius: 8px; }
+.pc-grid small { display: block; font-family: 'DM Mono', monospace; font-size: .58rem; letter-spacing: .08em; text-transform: uppercase; color: #777; }
+.pc-grid b { font-family: 'Archivo Black', sans-serif; font-weight: 400; font-size: .95rem; color: #fff; }
+.t-br .pc-name { color: #1a1a1a; }
+.t-br .pc-grid div { background: #1a1a1a; }
+
+/* ── Roster sheet ── */
+.roster-row { gap: 10px; }
+.roster-row span:first-child { flex: 1; }
+.roster-rm { flex-shrink: 0; height: 32px; padding: 0 12px; border-radius: 7px; border: 1.5px solid #3a3a3a; background: transparent; color: #999; font-family: 'DM Mono', monospace; font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; cursor: pointer; }
+.roster-rm.armed { border-color: #ff3b30; color: #ff3b30; }
+.roster-add { display: grid; grid-template-columns: 1fr 48px; gap: 8px; margin-top: 4px; }
+.roster-add-btn { height: 48px; border-radius: 10px; border: none; background: var(--acc); color: #111; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.roster-add small { grid-column: 1 / -1; font-family: 'DM Mono', monospace; font-size: .62rem; color: #777; }
+
+/* ── End screen share ── */
+.end-share { height: 46px; border: 2px solid var(--acc); background: transparent; color: var(--acc); font-family: 'Archivo Black', sans-serif; font-size: .82rem; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.end-share:disabled { opacity: .5; }

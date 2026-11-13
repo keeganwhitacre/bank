@@ -130,6 +130,7 @@ function endGame() {
   Rules.decideWinners(G);
   G.phase = 'over';
   commitRecords();
+  recordGameLifetime();
   saveGame();
   showEndScreen();
 }

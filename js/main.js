@@ -13,6 +13,8 @@ function boot() {
   $('hIcoPalette').innerHTML = ico('palette');
   $('hIcoBolt').innerHTML = ico('bolt');
   $('hIcoSettings').innerHTML = ico('gear');
+  $('hIcoHall').innerHTML = ico('trophy');
+  $('shareBtn').innerHTML = ico('share') + ' Share results';
   $('hIcoResume').innerHTML = ico('play');
   $('gCardBtn').innerHTML = ico('card', 'ico-lg');
   $('gMenuBtn').innerHTML = ICONS.menu;
