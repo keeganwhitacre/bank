@@ -44,7 +44,10 @@ function measureViewportGap() {
   }
   GAP_INFO = { probe: Math.round(probeH), full: Math.round(fullH) };
   VIEW_GAP = gap;
-  document.documentElement.style.setProperty('--gap', gap + 'px');
+  // iOS draws the bottom strip itself (tinted from the page background) and the page can't paint
+  // under it, so the home-bar padding would be counted twice. Drop it and let screens end flush.
+  document.documentElement.classList.toggle('ios-chin', gap > 0);
+  document.documentElement.style.setProperty('--gap', '0px');
   if (typeof resizeCV === 'function') resizeCV();
 }
 function displayCheck() {

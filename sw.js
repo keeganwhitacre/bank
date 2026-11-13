@@ -1,6 +1,6 @@
 // Bank service worker: makes the game load offline / on bad bar wifi.
 // Bump VERSION whenever you deploy so phones pick up the new build.
-var VERSION = 'bank-v2.6.0';
+var VERSION = 'bank-v2.7.0';
 var SHELL = [
   './',
   'index.html',
@@ -51,7 +51,7 @@ self.addEventListener('activate', function(e) {
 // old scripts. If the network is slow or gone (bar wifi), the cached copy answers after 2.5s.
 function networkFirst(req, key) {
   return caches.open(VERSION).then(function(c) {
-    var net = fetch(req).then(function(res) { if (res && res.ok) c.put(key || req, res.clone()); return res; });
+    var net = fetch(req.mode === 'navigate' ? req.url : req, { cache: 'no-cache' }).then(function(res) { if (res && res.ok) c.put(key || req, res.clone()); return res; });
     var slow = new Promise(function(resolve) { setTimeout(resolve, 2500); }).then(function() { return c.match(key || req); });
     return Promise.race([net.catch(function() { return c.match(key || req); }), slow.then(function(hit) { return hit || net; })]);
   });

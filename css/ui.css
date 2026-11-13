@@ -452,3 +452,9 @@ html, body, .screen, .backdrop, .rnd-backdrop, .card-deal-overlay, .mod-reveal, 
 /* ── End screen award icons were nearly invisible ── */
 .award-icon { color: var(--acc); font-size: 1.25rem; display: flex; }
 .pool-row .ico { flex: 0 0 auto; width: 26px; }
+
+/* iOS home-screen apps on 26+: the viewport stops above an iOS-drawn bottom strip, so the
+   home-bar inset is already outside the page. Screens end flush; the strip takes the page color. */
+html.ios-chin { --sab: 0px; }
+html.ios-chin #game { padding-bottom: 8px; }
+.set-diag-link { display: inline-block; margin-top: 8px; color: #666; text-decoration: underline; }

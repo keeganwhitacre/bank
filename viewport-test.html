@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Bank · screen-edge test</title>
+<!-- Diagnostic page: which techniques can actually paint down to the bottom edge of the screen
+     in an iOS home-screen app? Each colored bar is one technique; a screenshot settles it. -->
+<style>
+  html { background: #303030; height: 100%; overflow: hidden; }
+  body { margin: 0; height: 100%; overflow: hidden; font: 13px/1.45 ui-monospace, Menlo, monospace; color: #ddd; }
+  .info { position: absolute; top: calc(env(safe-area-inset-top) + 8px); left: 12px; right: 12px; }
+  .info b { color: #fff; }
+  .info a { color: #9cf; }
+  .bar { position: fixed; left: 0; height: 26px; display: flex; align-items: center; padding-left: 10px; font-weight: 700; color: #000; }
+  #a { bottom: 0; right: 0; background: #ff4d4d; }                         /* fixed bottom:0 */
+  #b { right: 0; background: #4da3ff; }                                     /* fixed, pushed past the viewport */
+  #c { position: absolute; right: 0; left: 0; background: #4dff88; }        /* in-page, at the screen's bottom */
+  #d { top: 0; width: 55%; height: 100lvh; background: none; outline: 3px solid #ffd84d; outline-offset: -3px; align-items: flex-end; padding-bottom: 4px; color: #ffd84d; }
+  #e { top: 0; left: auto; right: 0; width: 40%; height: 100dvh; background: none; outline: 3px solid #d84dff; outline-offset: -3px; align-items: flex-end; padding-bottom: 4px; color: #d84dff; }
+</style>
+</head>
+<body>
+<div id="d" class="bar">D 100lvh</div>
+<div id="e" class="bar">E 100dvh</div>
+<div class="info" id="info"></div>
+<div id="c" class="bar">C in-page at screen bottom</div>
+<div id="b" class="bar">B fixed, pushed down</div>
+<div id="a" class="bar">A fixed bottom:0</div>
+<script>
+  function px(css) { var d = document.createElement('div'); d.style.cssText = 'position:fixed;visibility:hidden;' + css; document.body.appendChild(d); var r = d.getBoundingClientRect(); d.remove(); return r; }
+  function draw() {
+    var sh = Math.max(screen.width, screen.height);
+    var fixedH = px('top:0;bottom:0;width:1px').height;
+    var top = parseInt(getComputedStyle(px2('padding-top:env(safe-area-inset-top)')).paddingTop) || 0;
+    var gap = Math.max(0, Math.round(sh - fixedH));
+    document.getElementById('b').style.bottom = (-gap) + 'px';
+    document.getElementById('c').style.top = (sh - 26) + 'px';
+    var lines = [
+      '<b>Screen-edge test</b> &middot; <a href="./">back to Bank</a>',
+      'Send a screenshot of this whole screen.',
+      '',
+      'screen ' + screen.width + '&times;' + screen.height + ' &middot; inner ' + innerWidth + '&times;' + innerHeight,
+      'visualViewport ' + (window.visualViewport ? Math.round(visualViewport.height) + ' @' + Math.round(visualViewport.offsetTop) : 'n/a'),
+      'fixed top/bottom 0 = ' + Math.round(fixedH) + ' &middot; 100lvh = ' + Math.round(px('height:100lvh').height) + ' &middot; 100dvh = ' + Math.round(px('height:100dvh').height) + ' &middot; 100vh = ' + Math.round(px('height:100vh').height),
+      'safe top ' + top + ' &middot; bottom ' + safeBottom() + ' &middot; standalone ' + (navigator.standalone === true || matchMedia('(display-mode: standalone)').matches),
+      'iOS ' + ((navigator.userAgent.match(/OS (\d+[_\d]*)/) || [])[1] || '?').replace(/_/g, '.'),
+      '',
+      'Bars that should touch the very bottom edge:',
+      '<span style="color:#ff4d4d">A</span> fixed bottom:0 &middot; <span style="color:#4da3ff">B</span> fixed, shifted down ' + gap + 'px &middot; <span style="color:#4dff88">C</span> placed in the page at y=' + (sh - 26),
+      '<span style="color:#ffd84d">D</span> 100lvh box &middot; <span style="color:#d84dff">E</span> 100dvh box (their bottom borders)'
+    ];
+    document.getElementById('info').innerHTML = lines.join('<br>');
+  }
+  function px2(css) { var d = document.createElement('div'); d.style.cssText = 'position:fixed;visibility:hidden;' + css; document.body.appendChild(d); setTimeout(function() { d.remove(); }, 0); return d; }
+  function safeBottom() { return parseInt(getComputedStyle(px2('padding-bottom:env(safe-area-inset-bottom)')).paddingBottom) || 0; }
+  draw(); addEventListener('resize', draw); setTimeout(draw, 600); setTimeout(draw, 1500);
+</script>
+</body>
+</html>

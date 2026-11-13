@@ -37,7 +37,7 @@ function renderSettings() {
     });
     h += '</div></div>';
   });
-  h += '<div class="set-foot">Bank · house rules apply to games you start from now on<br><span class="set-diag">Display check: ' + esc(displayCheck()) + '</span></div>';
+  h += '<div class="set-foot">Bank · house rules apply to games you start from now on<br><span class="set-diag">Display check: ' + esc(displayCheck()) + '</span><br><a class="set-diag-link" href="viewport-test.html">Open screen-edge test \u2192</a></div>';
   $('settingsList').innerHTML = h;
 }
 function pickSetting(i, j) { var d = SETTING_DEFS[i]; setSetting(d.key, d.opts[j][0]); if (d.key === 'prefs.sound' && PREFS.sound !== 'off') later(function() { SFX.bank(0); }, 30); }
