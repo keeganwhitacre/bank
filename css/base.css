@@ -1,23 +1,25 @@
 /* Base layout: reset, screens, theme picker previews, setup and game skeleton */
-/* Safe areas go through variables so they can be simulated in tests. --gap is the height iOS
-   home-screen apps fail to give fixed full-screen elements (WebKit bug); main.js measures it. */
-:root { --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px); --gap: 0px; }
+/* Safe areas go through variables so they can be simulated in tests. */
+:root { --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px); }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body {
-  margin: 0; 
-  padding: 0; 
-  position: fixed;
-  inset: 0;
-  background: #0d0d0d; 
-  overflow: hidden; 
-  -webkit-font-smoothing: antialiased;
+/* Layout follows the "Shelf method" (same as the Tasks app): the body has an explicit height
+   (the real screen height in a home-screen app, set as --vh by main.js) and nothing structural
+   is position:fixed. iOS home-screen apps sometimes shrink the viewport (e.g. after the keyboard),
+   and anything pinned to the viewport shrinks with it; the body and everything in it doesn't. */
+html { margin: 0; padding: 0; background: #0d0d0d; -webkit-font-smoothing: antialiased; }
+body {
+  margin: 0; padding: 0; position: relative;
+  display: flex; flex-direction: column; width: 100%;
+  height: 100vh; height: calc(var(--vh, 1vh) * 100);
+  overflow: hidden; overscroll-behavior: none;
+  background: #0d0d0d; -webkit-font-smoothing: antialiased;
 }
 
 .screen {
   display: none; 
-  position: fixed !important; /* must override theme class position:relative */
-  inset: 0; 
+  position: relative !important; /* a normal block filling the body (themes set position:relative too) */
+  flex: 1 1 auto; min-height: 0; width: 100%; 
   flex-direction: column; 
   overflow: hidden;
   /* Use max() to guarantee it always clears the dynamic island/notch */

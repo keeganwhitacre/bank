@@ -31,7 +31,7 @@ html { -webkit-text-size-adjust: 100%; }
 /* Brutalist is light but the iOS clock is white, and iOS blurs whatever sits at the top edge.
    So the top is a deliberate dark header, tall enough that the blur stays inside it,
    finished with the hazard stripe. Setup uses the strip; the game uses its top bar. */
-body.t-br:not(.ingame) #statusStrip { display: block; height: calc(var(--sat) + 22px);
+body.t-br[data-screen="setup"] #statusStrip { display: block; height: calc(var(--sat) + 22px);
   background: repeating-linear-gradient(-45deg, #ff3300 0 8px, #1a1a1a 8px 16px) left bottom / 100% 5px no-repeat, #1a1a1a; }
 #game.t-br::after, #setup.t-br::after, body.t-br:not(.state-solo)::after { display: none; }
 #game.t-br .g-topbar { margin: calc(-1 * (var(--sat) + 2px)) 0 0; padding: calc(var(--sat) + 16px) 14px 16px; align-items: center;
@@ -62,7 +62,7 @@ body.t-br:not(.ingame) #statusStrip { display: block; height: calc(var(--sat) + 
 .home-btn-sub { font-size: .62rem; }
 .g-chip-cards { font-size: .6rem; }
 .sh-title { font-size: .7rem; }
-.sheet { padding-bottom: calc(var(--sab) + 24px); max-height: 92dvh; overflow-y: auto; }
+.sheet { padding-bottom: calc(var(--sab) + 24px); max-height: 92%; overflow-y: auto; }
 
 /* ── Setup ── */
 .su-mode-line { width: 100%; max-width: 340px; margin: -16px 0 18px; font-family: 'DM Mono', monospace; font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; opacity: .55; }
@@ -213,7 +213,7 @@ body.lms-showdown.ingame .g-heat::after { animation: heatBreath 2.6s ease-in-out
 .sd-title { font-family: var(--disp); font-size: clamp(2.4rem, 13vw, 3.6rem); color: #ff3b30; text-transform: uppercase; line-height: 1; text-align: center; animation: boSlam .5s cubic-bezier(.2,1.5,.4,1) both; }
 
 /* ── Round end additions ── */
-.rnd-sheet { max-height: 90dvh; overflow-y: auto; }
+.rnd-sheet { max-height: 90%; overflow-y: auto; }
 .rnd-btns { display: flex; position: sticky; bottom: 0; padding-bottom: var(--sab); background: #ddd8ce; }
 .rnd-btns .rnd-next { flex: 1; }
 .rnd-undo { flex: 0 0 104px; background: #1a1a1a; color: #999; border: none; border-top: 3px solid #222; border-right: 3px solid #222; font-family: 'DM Mono', monospace; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; }
@@ -451,11 +451,8 @@ button.grp-save { padding: 6px 12px; background: transparent; color: inherit; cu
 .award-icon { color: var(--acc); font-size: 1.25rem; display: flex; }
 .pool-row .ico { flex: 0 0 auto; width: 26px; }
 
-/* ── iOS home-screen viewport shrink (see main.js). If the restore doesn't take, screens end flush
-   against the iOS band instead of padding for a home bar that's already outside the page. ── */
-html.ios-chin { --sab: 0px; }
-html.ios-chin #game { padding-bottom: 8px; }
-.vp-veil { position: fixed; inset: 0; z-index: 99990; pointer-events: none; opacity: 0; transition: opacity .16s ease;
-  background: rgba(13,13,13,.28); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
-.vp-veil.on { opacity: 1; }
+/* Full-screen layers are positioned inside the body (which has the real screen height), not
+   pinned to the viewport, so they always reach the bottom edge. */
+.backdrop, .rnd-backdrop, .card-deal-overlay, .mod-reveal, .bust-ov, .g-heat, .g-vignette, #flash, #cv,
+body.state-solo.t-br::after, body.state-solo.t-cas::after { position: absolute !important; }
 .set-diag-link { display: inline-block; margin-top: 8px; color: #666; text-decoration: underline; }
