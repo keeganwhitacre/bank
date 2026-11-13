@@ -5,8 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bank">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0d0d0d">
 <title>Bank</title>
-  <link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Victor+Mono:wght@400;700&family=Anybody:wght@400;700;900&family=DM+Mono:wght@400;500&family=Archivo+Black&family=Share+Tech+Mono&family=Playfair+Display:wght@700;900&display=swap');
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1063,6 +1069,272 @@ body.state-solo.t-cas::after { content: ''; position: fixed; inset: 0; pointer-e
 .t-cas .sh-btn, .t-cas .sh-player-row { background: rgba(255,255,255,.03); border: 1px solid rgba(212,175,55,.15); color: #d4af37; }
 .t-cas .rnd-status, .t-cas .rnd-name, .t-cas .rnd-stand-pts { color: #d4af37; }
 
+
+/* ══════════════════════════════════════════════════════════════
+   v2 — layout fixes, new modes, atmosphere, endings
+   Everything below layers on top of the five themes. New UI reads
+   the theme through these variables instead of per-theme rules.
+   ══════════════════════════════════════════════════════════════ */
+:root { --acc:#ff3300; --acc-soft:rgba(255,51,0,.16); --fg:#fff; --bg:#0d0d0d; --disp:'Archivo Black',sans-serif; --heart:#ff3b5c; }
+.t-dive { --acc:#ff1f47; --acc-soft:rgba(255,31,71,.16); --fg:#fff; --bg:#1a1a18; --disp:'Permanent Marker',cursive; }
+.t-sb   { --acc:#ffe14d; --acc-soft:rgba(255,225,77,.14); --fg:#fff; --bg:#111; --disp:'Anybody',sans-serif; }
+.t-br   { --acc:#ff3300; --acc-soft:rgba(255,51,0,.14); --fg:#1a1a1a; --bg:#ddd8ce; --disp:'Archivo Black',sans-serif; }
+.t-term { --acc:#00ff41; --acc-soft:rgba(0,255,65,.12); --fg:#00ff41; --bg:#080d08; --disp:'Share Tech Mono',monospace; }
+.t-cas  { --acc:#d4af37; --acc-soft:rgba(212,175,55,.14); --fg:#d4af37; --bg:#0b0b0b; --disp:'Playfair Display',serif; }
+
+/* iOS ignores user-scalable=no; this stops double-tap zoom on fast taps */
+html, body, button, .g-key, .g-die { touch-action: manipulation; }
+html { -webkit-text-size-adjust: 100%; }
+
+/* ── Layout fixes ── */
+/* Was max(safe-area, 110px): a 110px floor on every screen. Now safe area + a margin. */
+.screen { padding-top: calc(env(safe-area-inset-top) + 40px); padding-bottom: calc(env(safe-area-inset-bottom) + 16px); }
+#game { padding-top: calc(env(safe-area-inset-top) + 2px); padding-bottom: max(env(safe-area-inset-bottom), 6px); }
+/* justify-content:center + overflow clips the top of tall content. Auto margins
+   center when there's room and collapse to 0 when there isn't, so nothing is cut off. */
+#setup, #end, #home { justify-content: flex-start; }
+#setup .su-logo, #end .end-hero, #home .pk-title { margin-top: auto; }
+#setup .su-start, #end .end-btns, #home .home-menu { margin-bottom: auto; }
+#setup { padding-top: calc(env(safe-area-inset-top) + 60px); }
+#end { padding-top: calc(env(safe-area-inset-top) + 28px); }
+.g-back { top: calc(env(safe-area-inset-top) + 10px); }
+/* Brutalist is light, but the iOS status bar text is white: give it a dark band */
+#statusStrip { position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top); background: #1a1a1a; z-index: 9600; pointer-events: none; display: none; }
+body.t-br #statusStrip { display: block; }
+
+/* ── Readable small text (was .42–.5rem ≈ 7–8px) ── */
+.g-effect-banner { font-size: .64rem; padding: 3px 8px; line-height: 1.6; }
+.g-intensity-label { font-size: .58rem; top: calc(env(safe-area-inset-top) + 4px); }
+.g-tracker-item { font-size: .58rem; }
+.t-br .g-rnd { font-size: .62rem; }
+.mode-card-rule { font-size: .68rem; }
+.mode-card-tag { font-size: .56rem; }
+.mode-effect { font-size: .56rem; }
+.card-sheet-desc { font-size: .68rem; }
+.card-sheet-tag { font-size: .56rem; }
+.card-sheet-disabled-reason { font-size: .6rem; }
+.award-title { font-size: .6rem; }
+.award-detail { font-size: .62rem; color: #666; }
+.home-btn-sub { font-size: .62rem; }
+.g-chip-cards { font-size: .6rem; }
+.sh-title { font-size: .7rem; }
+.sheet { padding-bottom: calc(env(safe-area-inset-bottom) + 24px); max-height: 92dvh; overflow-y: auto; }
+
+/* ── Setup ── */
+.su-mode-line { width: 100%; max-width: 340px; margin: -16px 0 18px; font-family: 'DM Mono', monospace; font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; opacity: .55; }
+
+/* ── Home resume ── */
+.home-btn-resume { border-color: var(--acc); }
+.home-btn-resume .home-btn-icon { color: var(--acc); }
+.home-btn-resume .home-btn-sub { color: #888; }
+
+/* ── Mode options ── */
+.mode-opts { display: none; width: 100%; max-width: 400px; padding: 0 20px; margin-top: 10px; flex-shrink: 0; }
+.mode-opts.show { display: block; }
+.mode-opts-label { display: block; margin: 0 0 6px; font-family: 'DM Mono', monospace; font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: #666; }
+.mode-opts-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.mode-opts-row .su-rbtn { font-size: .85rem; }
+.mode-card-tag.party { color: #b56cff; }
+.mode-effect.party { background: rgba(181,108,255,.12); color: rgba(200,140,255,.85); }
+
+/* ── Topbar menu button ── */
+.g-menu-btn { width: 34px; height: 34px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: transparent; border: 1.5px solid currentColor; border-radius: 8px; color: inherit; opacity: .4; cursor: pointer; -webkit-tap-highlight-color: transparent; padding: 0; }
+.g-menu-btn:active { opacity: .8; }
+.g-menu-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+.t-br .g-menu-btn { border-radius: 0; border-width: 2px; }
+.t-term .g-menu-btn { border-radius: 0; border-width: 1px; }
+.g-topbar .g-right { gap: 10px; }
+.g-pot-sub .danger { color: #ff3b30; }
+
+/* ── Rule / info strip ── */
+.g-info { flex-shrink: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px; padding: 4px 10px 3px; position: relative; z-index: 2; font-family: 'DM Mono', monospace; font-size: .66rem; letter-spacing: .06em; text-transform: uppercase; color: var(--fg); }
+.g-info:empty { display: none; }
+.gi-mode { color: var(--acc); font-weight: 500; }
+.gi-txt { opacity: .62; }
+.gi-danger { color: #ff3b30; opacity: 1; }
+.gi-mod { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1.5px solid var(--acc); border-radius: 999px; background: var(--acc-soft); color: var(--fg); font: inherit; letter-spacing: .05em; cursor: pointer; -webkit-tap-highlight-color: transparent; animation: giIn .4s ease both; }
+.gi-mod b { color: var(--acc); font-weight: 500; }
+.gi-mod .gi-short { opacity: .78; }
+.gi-mod .ico { color: var(--acc); }
+.t-br .gi-mod { border-radius: 0; border-width: 2px; background: #1a1a1a; color: #ddd8ce; }
+@keyframes giIn { from { opacity: 0; transform: scale(.85); } to { opacity: 1; transform: none; } }
+.gi-showdown { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; font-family: var(--disp); font-size: 1.05rem; text-transform: uppercase; letter-spacing: .02em; }
+.gi-showdown i { font-style: normal; font-family: 'DM Mono', monospace; font-size: .62rem; color: #ff3b30; letter-spacing: .2em; }
+.gi-hearts { display: inline-flex; gap: 1px; color: var(--heart); font-size: .8rem; }
+.gi-hearts .dead { opacity: .2; }
+
+/* ── Chips: hearts, out, short labels ── */
+.g-chip-lives { display: flex; justify-content: center; gap: 1px; margin-top: 2px; font-size: .62rem; color: var(--heart); line-height: 1; }
+.g-chip-lives .dead { opacity: .2; }
+.g-chip.out { opacity: .26 !important; }
+.g-chip.out .g-chip-name { text-decoration: line-through; }
+.g-chip.out .g-chip-pts { filter: grayscale(1); }
+.g-chip { min-width: 44px; }
+
+/* ── Bank button states ── */
+.g-bank.bank-locked { opacity: .42; }
+.g-key.k-cut { box-shadow: inset 0 0 0 3px rgba(255,140,0,.75) !important; }
+.g-die-pip-grid.idle { opacity: .25; }
+
+/* ── Escalating heat (pot size) ── */
+.g-heat { position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: 0; display: none; transition: opacity 1.4s ease; background: radial-gradient(ellipse at 50% 38%, transparent 38%, rgba(255,40,0,.17) 100%); }
+.g-heat::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 38%, transparent 30%, rgba(255,20,0,.14) 100%); opacity: 0; }
+body.ingame .g-heat { display: block; }
+body[data-heat="1"] .g-heat { opacity: .35; }
+body[data-heat="2"] .g-heat { opacity: .6; }
+body[data-heat="3"] .g-heat { opacity: .85; }
+body[data-heat="4"] .g-heat { opacity: 1; }
+body[data-heat="3"] .g-heat::after { animation: heatBreath 2.2s ease-in-out infinite; }
+body[data-heat="4"] .g-heat::after { animation: heatBreath 1.2s ease-in-out infinite; }
+body.ingame[data-heat="2"] .g-pot { animation: heatGlow 3s ease-in-out infinite; }
+body.ingame[data-heat="3"] .g-pot { animation: heatGlow 2s ease-in-out infinite; }
+body.ingame[data-heat="4"] .g-pot { animation: heatGlow 1.1s ease-in-out infinite; }
+@keyframes heatBreath { 0%,100% { opacity: 0; } 50% { opacity: 1; } }
+@keyframes heatGlow { 0%,100% { filter: drop-shadow(0 0 0 transparent); } 50% { filter: drop-shadow(0 0 9px var(--acc-soft)) drop-shadow(0 0 3px var(--acc-soft)); } }
+/* Final two: the room stays warm even with a small pot */
+body.lms-showdown.ingame[data-heat="0"] .g-heat, body.lms-showdown.ingame[data-heat="1"] .g-heat { opacity: .6; }
+body.lms-showdown.ingame .g-heat::after { animation: heatBreath 2.6s ease-in-out infinite; }
+
+/* ── Toast (queued, wraps, sits at the top out of the way of scores) ── */
+.toast { position: fixed; top: calc(env(safe-area-inset-top) + 8px); left: 50%; transform: translate(-50%, -14px); width: max-content; max-width: min(92vw, 440px); padding: 9px 16px; border-radius: 6px; font-family: 'Archivo Black', sans-serif; font-size: .74rem; letter-spacing: .04em; line-height: 1.35; text-transform: uppercase; text-align: center; white-space: normal; opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; z-index: 9500; background: #1a1a1a; color: #ddd8ce; border: 2px solid #2a2a2a; border-left: 4px solid var(--acc); box-shadow: 3px 3px 0 rgba(0,0,0,.3); }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ── Announcements: big, brief, non-blocking ── */
+.announce { position: fixed; left: 0; right: 0; top: 33%; z-index: 6800; pointer-events: none; display: flex; justify-content: center; }
+.ann-band { width: 100%; padding: 14px 18px 16px; text-align: center; background: linear-gradient(90deg, transparent, rgba(0,0,0,.9) 10%, rgba(0,0,0,.9) 90%, transparent); border-top: 2px solid var(--acc); border-bottom: 2px solid var(--acc); animation: annIn .4s cubic-bezier(.2,1.4,.4,1) both; }
+.ann-title { font-family: var(--disp); font-size: clamp(1.9rem, 9.5vw, 2.9rem); color: var(--acc); text-transform: uppercase; line-height: 1; letter-spacing: .02em; text-shadow: 0 0 26px var(--acc-soft); animation: annTitle .55s .06s cubic-bezier(.2,1.2,.4,1) both; }
+.ann-sub { font-family: 'DM Mono', monospace; font-size: .74rem; color: #fff; opacity: .88; margin-top: 7px; letter-spacing: .08em; text-transform: uppercase; }
+.announce.out .ann-band { animation: annOut .32s ease-in both; }
+.ann-bad .ann-band { border-color: #ff3b30; } .ann-bad .ann-title { color: #ff3b30; }
+.ann-gold .ann-band { border-color: #ffd23f; } .ann-gold .ann-title { color: #ffd23f; text-shadow: 0 0 26px rgba(255,210,63,.35); }
+@keyframes annIn { from { transform: scaleY(0); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes annTitle { from { transform: translateX(-24px); letter-spacing: .3em; opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes annOut { to { transform: scaleY(.15); opacity: 0; } }
+
+/* ── Bust: the pot collapses ── */
+.bust-ov { position: fixed; inset: 0; z-index: 6600; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 24px 20px calc(env(safe-area-inset-bottom) + 24px); cursor: pointer; background: rgba(0,0,0,0); animation: boBg .45s ease forwards; overflow-y: auto; -webkit-tap-highlight-color: transparent; }
+@keyframes boBg { to { background: rgba(0,0,0,.88); } }
+.bo-stage { position: relative; width: 100%; height: clamp(5.5rem, 26vw, 8.5rem); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.bo-stage > * { position: absolute; }
+.bo-pot { font-family: var(--disp); font-size: clamp(4rem, 22vw, 7.5rem); color: #fff; line-height: .9; animation: boShake .5s ease, boFall .75s .5s cubic-bezier(.55,0,.9,.4) forwards; }
+.bo-word { font-family: var(--disp); font-size: clamp(3.2rem, 17vw, 5.8rem); color: #ff3b30; text-transform: uppercase; line-height: 1; opacity: 0; animation: boSlam .45s .62s cubic-bezier(.2,1.6,.4,1) forwards; text-shadow: 0 0 40px rgba(255,59,48,.4); }
+.bust-ov.small .bo-pot { animation: boShake .35s ease, boFall .5s .3s cubic-bezier(.55,0,.9,.4) forwards; }
+.bust-ov.small .bo-word { animation-delay: .38s; }
+.bo-lost { font-family: var(--disp); font-size: clamp(2.2rem, 11vw, 3.4rem); color: #ff3b30; line-height: 1; opacity: 0; animation: boUp .35s .9s ease forwards; }
+.bo-sub { font-family: 'DM Mono', monospace; font-size: .74rem; color: #aaa; letter-spacing: .08em; text-transform: uppercase; text-align: center; line-height: 1.5; opacity: 0; animation: boUp .35s 1s ease forwards; }
+.bo-tag { margin-top: 8px; padding: 4px 12px; border: 1.5px solid #ffd23f; border-radius: 999px; font-family: 'DM Mono', monospace; font-size: .66rem; letter-spacing: .14em; text-transform: uppercase; color: #ffd23f; opacity: 0; animation: boUp .35s 1.25s ease forwards; }
+.bo-lives { margin-top: 16px; display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 340px; }
+.bo-life-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 14px; background: rgba(255,255,255,.06); border-radius: 8px; font-family: 'Archivo Black', sans-serif; font-size: .9rem; color: #fff; opacity: 0; animation: boUp .3s ease forwards; }
+.bo-life-row .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bo-hearts { display: inline-flex; gap: 3px; font-size: 1.05rem; color: var(--heart); flex-shrink: 0; }
+.hslot { position: relative; display: inline-flex; }
+.hslot .hempty { opacity: .22; }
+.hslot .hfull { position: absolute; inset: 0; }
+.heart-break { animation: heartBreak .7s ease forwards; }
+@keyframes heartBreak { 0% { transform: none; opacity: 1; } 30% { transform: scale(1.5); } 55% { transform: rotate(-18deg); opacity: 1; } 100% { transform: translateY(16px) rotate(-45deg) scale(.5); opacity: 0; } }
+.bo-out { font-family: var(--disp); font-size: .9rem; color: #ff3b30; border: 2px solid #ff3b30; padding: 1px 8px; text-transform: uppercase; flex-shrink: 0; animation: stamp .35s ease both; }
+.bo-spared { font-family: 'DM Mono', monospace; font-size: .62rem; color: #ffd23f; text-transform: uppercase; letter-spacing: .1em; flex-shrink: 0; }
+@keyframes stamp { 0% { transform: scale(2.6) rotate(-6deg); opacity: 0; } 100% { transform: scale(1) rotate(-6deg); opacity: 1; } }
+.bo-tap { margin-top: 18px; font-family: 'DM Mono', monospace; font-size: .62rem; color: #666; letter-spacing: .2em; text-transform: uppercase; opacity: 0; animation: boUp .3s 1.5s forwards; }
+@keyframes boShake { 0%,100% { transform: translate(0); } 15% { transform: translate(-9px,2px) rotate(-2deg); } 30% { transform: translate(9px,-3px) rotate(2deg); } 45% { transform: translate(-7px,3px); } 60% { transform: translate(6px,-2px); } 75% { transform: translate(-3px,1px); } }
+@keyframes boFall { 0% { transform: none; opacity: 1; filter: none; } 100% { transform: translateY(42vh) rotate(16deg) scale(.55); opacity: 0; filter: blur(3px); } }
+@keyframes boSlam { 0% { opacity: 0; transform: scale(2.4); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes boUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ── Round intro: chaos card / showdown / sudden death ── */
+.mod-reveal { position: fixed; inset: 0; z-index: 6700; background: rgba(0,0,0,.9); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: calc(env(safe-area-inset-top) + 20px) 22px calc(env(safe-area-inset-bottom) + 22px); animation: bdIn .2s ease; overflow-y: auto; }
+.mr-label { font-family: 'DM Mono', monospace; font-size: .7rem; letter-spacing: .3em; text-transform: uppercase; color: #888; text-align: center; }
+.mr-cards { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 340px; perspective: 900px; }
+.mr-card { background: #141414; border: 2px solid var(--acc); border-radius: 18px; padding: 24px 20px 22px; text-align: center; box-shadow: 0 0 44px var(--acc-soft), 0 20px 50px rgba(0,0,0,.5); animation: cardFlip .75s cubic-bezier(.2,1.2,.4,1) both; }
+.mr-card + .mr-card { animation-delay: .28s; }
+.mr-card.compact { padding: 16px 18px; }
+.mr-card.compact .mr-icon { font-size: 2.2rem; }
+.mr-card.compact .mr-name { font-size: 1.6rem; }
+.mr-card.danger { border-color: #ff3b30; box-shadow: 0 0 44px rgba(255,59,48,.18), 0 20px 50px rgba(0,0,0,.5); }
+.mr-card.danger .mr-icon { color: #ff3b30; }
+.mr-card.gold { border-color: #ffd23f; box-shadow: 0 0 44px rgba(255,210,63,.16), 0 20px 50px rgba(0,0,0,.5); }
+.mr-card.gold .mr-icon { color: #ffd23f; }
+@keyframes cardFlip { 0% { transform: rotateY(95deg) scale(.6) translateY(40px); opacity: 0; } 55% { opacity: 1; } 100% { transform: none; opacity: 1; } }
+.mr-icon { font-size: 3.2rem; color: var(--acc); line-height: 1; }
+.mr-name { font-family: var(--disp); font-size: 2.1rem; color: #fff; text-transform: uppercase; margin-top: 10px; line-height: 1; }
+.mr-desc { font-family: 'DM Mono', monospace; font-size: .8rem; color: #bbb; line-height: 1.55; margin-top: 10px; }
+.mr-go { width: 100%; max-width: 340px; height: 54px; border: none; border-radius: 12px; background: var(--acc); color: #111; font-family: 'Archivo Black', sans-serif; font-size: .95rem; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; flex-shrink: 0; opacity: 0; animation: boUp .3s .6s ease forwards; }
+.mr-go:active { transform: scale(.98); }
+.sd-vs { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; max-width: 340px; }
+.sd-player { display: flex; flex-direction: column; align-items: center; gap: 6px; animation: boSlam .5s cubic-bezier(.2,1.5,.4,1) both; }
+.sd-player:last-child { animation-delay: .35s; }
+.sd-name { font-family: var(--disp); font-size: clamp(2rem, 11vw, 3.2rem); color: #fff; text-transform: uppercase; line-height: 1; text-align: center; word-break: break-word; }
+.sd-meta { font-family: 'DM Mono', monospace; font-size: .7rem; color: #888; letter-spacing: .1em; text-transform: uppercase; }
+.sd-x { font-family: 'DM Mono', monospace; font-size: .8rem; letter-spacing: .5em; color: #ff3b30; animation: boUp .3s .2s both; }
+.sd-title { font-family: var(--disp); font-size: clamp(2.4rem, 13vw, 3.6rem); color: #ff3b30; text-transform: uppercase; line-height: 1; text-align: center; animation: boSlam .5s cubic-bezier(.2,1.5,.4,1) both; }
+
+/* ── Round end additions ── */
+.rnd-sheet { max-height: 90dvh; overflow-y: auto; }
+.rnd-btns { display: flex; position: sticky; bottom: 0; padding-bottom: env(safe-area-inset-bottom); background: #ddd8ce; }
+.rnd-btns .rnd-next { flex: 1; }
+.rnd-undo { flex: 0 0 104px; background: #1a1a1a; color: #999; border: none; border-top: 3px solid #222; border-right: 3px solid #222; font-family: 'DM Mono', monospace; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; }
+.rnd-undo:active { color: #fff; }
+.rnd-pay { color: #ffd23f; }
+.rnd-hearts { display: inline-flex; gap: 2px; color: var(--heart); font-size: .78rem; margin-left: 6px; }
+.rnd-hearts .dead { opacity: .2; }
+.rnd-out { font-family: 'DM Mono', monospace; font-size: .6rem; color: #ff3b30; letter-spacing: .1em; text-transform: uppercase; margin-left: 6px; }
+.rnd-mods { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 20px 0; }
+.rnd-mods span { font-family: 'DM Mono', monospace; font-size: .6rem; letter-spacing: .08em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; border: 1px solid #333; color: #888; }
+
+/* ── Rules sheet ── */
+.rules-h { font-family: 'Archivo Black', sans-serif; font-size: 1.1rem; color: #fff; }
+.rules-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.rules-list li { font-family: 'DM Mono', monospace; font-size: .74rem; color: #aaa; line-height: 1.55; padding-left: 14px; position: relative; }
+.rules-list li::before { content: ''; position: absolute; left: 0; top: .6em; width: 6px; height: 6px; background: var(--acc); border-radius: 50%; }
+.rules-mod { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; background: #161616; border: 1.5px solid var(--acc); border-radius: 12px; }
+.rules-mod .ico { font-size: 1.5rem; color: var(--acc); }
+.rules-mod b { display: block; font-family: 'Archivo Black', sans-serif; font-size: .9rem; color: #fff; font-weight: 400; margin-bottom: 3px; }
+.rules-mod span { font-family: 'DM Mono', monospace; font-size: .7rem; color: #aaa; line-height: 1.5; }
+.sh-menu-row { height: 52px; width: 100%; cursor: pointer; background: #252525; border: none; border-radius: 10px; display: flex; align-items: center; gap: 12px; padding: 0 16px; font-family: 'Archivo Black', sans-serif; font-size: .95rem; color: #ddd8ce; text-align: left; -webkit-tap-highlight-color: transparent; }
+.sh-menu-row .ico { font-size: 1.1rem; opacity: .6; }
+.sh-menu-row.warn { color: #ff6a4d; }
+.sh-menu-row:active { opacity: .7; }
+.t-br .rules-h { color: #1a1a1a; }
+.t-br .rules-list li { color: #555; }
+.t-br .sh-menu-row { background: #1a1a1a; border-radius: 0; }
+.t-br .rules-mod { background: #1a1a1a; }
+.sh-player-row.disabled { opacity: .35; pointer-events: none; }
+
+/* ── End screen: hero, podium, moments ── */
+.end-hero { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; width: 100%; max-width: 360px; }
+.end-crown { font-size: 2.8rem; color: var(--acc); animation: crownDrop .75s cubic-bezier(.2,1.5,.4,1) both; }
+.end-crown .ico svg { width: 1em; height: 1em; }
+@keyframes crownDrop { from { transform: translateY(-70px) rotate(-25deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.end-kicker { font-family: 'DM Mono', monospace; font-size: .68rem; letter-spacing: .3em; text-transform: uppercase; color: #777; }
+.end-winner { font-family: var(--disp); font-size: clamp(2.3rem, 12vw, 3.6rem); color: #fff; line-height: 1; text-transform: uppercase; word-break: break-word; animation: boSlam .55s .25s cubic-bezier(.2,1.5,.4,1) both; }
+.end-winner em { font-style: normal; color: var(--acc); }
+.end-winsub { font-family: 'DM Mono', monospace; font-size: .72rem; color: #888; letter-spacing: .08em; text-transform: uppercase; animation: boUp .3s .6s both; }
+.end-winsub .gi-hearts { font-size: 1rem; vertical-align: -2px; }
+.podium { display: flex; align-items: flex-end; justify-content: center; gap: 8px; width: 100%; max-width: 340px; margin-top: 4px; }
+.pod { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.pod-name { font-family: 'Archivo Black', sans-serif; font-size: .82rem; color: #ccc; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; animation: boUp .3s both; }
+.pod-pts { font-family: 'DM Mono', monospace; font-size: .64rem; color: #777; animation: boUp .3s both; }
+.pod-block { width: 100%; display: flex; justify-content: center; padding-top: 6px; background: #1a1a1a; border-top: 3px solid #333; font-family: var(--disp); font-size: 1.5rem; color: #555; transform-origin: bottom; animation: podRise .6s cubic-bezier(.2,1.2,.4,1) both; }
+.pod.p1 .pod-block { height: 96px; border-top-color: var(--acc); color: var(--acc); background: #1f1a18; animation-delay: .55s; }
+.pod.p2 .pod-block { height: 68px; animation-delay: .35s; }
+.pod.p3 .pod-block { height: 46px; animation-delay: .15s; }
+.pod.p1 .pod-name { color: #fff; font-size: .95rem; animation-delay: .9s; }
+.pod.p1 .pod-pts { animation-delay: .9s; }
+.pod.p2 .pod-name, .pod.p2 .pod-pts { animation-delay: .7s; }
+.pod.p3 .pod-name, .pod.p3 .pod-pts { animation-delay: .5s; }
+@keyframes podRise { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+.end-section-h { width: 100%; max-width: 340px; margin-bottom: -10px; font-family: 'DM Mono', monospace; font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; color: #555; }
+.end-moments { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 6px; }
+.end-moments .end-section-h { margin-bottom: 2px; }
+.moment-row { padding: 10px 14px; background: #111; border-left: 4px solid var(--acc); font-family: 'DM Mono', monospace; font-size: .7rem; color: #aaa; line-height: 1.45; }
+.moment-row b { display: block; font-family: 'Archivo Black', sans-serif; font-weight: 400; font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin-bottom: 2px; }
+.end-btns { width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 8px; }
+.end-btn-row { display: flex; gap: 8px; }
+.end-btn2 { flex: 1; height: 44px; background: transparent; border: 2px solid #2a2a2a; color: #888; font-family: 'DM Mono', monospace; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; }
+.end-btn2:active { border-color: #555; color: #ccc; }
+.end-row .end-sub { font-family: 'DM Mono', monospace; font-size: .6rem; color: #555; margin-left: 6px; }
+.again-btn { max-width: none; }
+
 </style>
 </head>
 <body ontouchstart="">
@@ -1074,6 +1346,11 @@ body.state-solo.t-cas::after { content: ''; position: fixed; inset: 0; pointer-e
   <div class="pk-title">Bank</div>
   <div class="pk-sub">CHOOSE YOUR ACTION</div>
   <div class="home-menu">
+    <button class="home-btn home-btn-resume" id="homeResumeBtn" style="display:none" onclick="resumeGame()">
+      <span class="home-btn-icon" id="hIcoResume"></span>
+      <span class="home-btn-label">Resume Game</span>
+      <span class="home-btn-sub" id="homeResumeSub"></span>
+    </button>
     <button class="home-btn" onclick="goSetup()">
       <span class="home-btn-icon" id="hIcoPlay"></span>
       <span class="home-btn-label">Play</span>
@@ -1148,6 +1425,30 @@ Red velvet &amp; gold trim.</span></div>
   <div class="pk-title">Gamemode</div>
   <div class="pk-sub">PICK YOUR POISON</div>
   <div class="mode-list" id="modeList">
+    <div class="mode-card" id="mode-chaos" onclick="selectMode('chaos')">
+      <div class="mode-card-header">
+        <span class="mode-card-name">Chaos Bank</span>
+        <span class="mode-card-tag party">party mode</span>
+      </div>
+      <div class="mode-card-rule">Every round draws a random rule that changes how everyone plays: No Mercy, Golden Seven, Lockdown, Snake Eyes, Taxman and more. The rule is revealed before the round and stays on screen until it ends.</div>
+      <div class="mode-card-effects">
+        <span class="mode-effect party">13 rules</span>
+        <span class="mode-effect neutral">new rule every round</span>
+        <span class="mode-effect gold">1 or 2 at once</span>
+      </div>
+    </div>
+    <div class="mode-card" id="mode-lms" onclick="selectMode('lms')">
+      <div class="mode-card-header">
+        <span class="mode-card-name">Last Man Standing</span>
+        <span class="mode-card-tag danger">elimination</span>
+      </div>
+      <div class="mode-card-rule">Everyone has 3 lives. A bust costs everyone still in a life; lose them all and you're out. You can't bank until the pot hits the minimum. Last survivor wins.</div>
+      <div class="mode-card-effects">
+        <span class="mode-effect danger">3 lives</span>
+        <span class="mode-effect neutral">min bank</span>
+        <span class="mode-effect danger">sudden death</span>
+      </div>
+    </div>
     <div class="mode-card" id="mode-sabotage" onclick="selectMode('sabotage')">
       <div class="mode-card-header">
         <span class="mode-card-name">Sabotage</span>
@@ -1229,12 +1530,32 @@ Red velvet &amp; gold trim.</span></div>
       </div>
     </div>
   </div>
-  <div id="raceTargetWrap" style="display:none;padding:0 20px;max-width:400px;width:100%;margin-top:2px;flex-shrink:0">
-    <label style="display:block;margin-bottom:6px;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:#555">Target Score</label>
-    <div style="display:flex;gap:8px">
-      <button class="su-rbtn on" data-t="1500" onclick="pickRaceTarget(1500)">1,500</button>
-      <button class="su-rbtn" data-t="5000" onclick="pickRaceTarget(5000)">5,000</button>
-      <button class="su-rbtn" data-t="10000" onclick="pickRaceTarget(10000)">10,000</button>
+  <div class="mode-opts" id="optsRace">
+    <span class="mode-opts-label">Target score</span>
+    <div class="mode-opts-row">
+      <button class="su-rbtn" data-opt="race" data-val="1500" onclick="pickRaceTarget(1500)">1,500</button>
+      <button class="su-rbtn" data-opt="race" data-val="5000" onclick="pickRaceTarget(5000)">5,000</button>
+      <button class="su-rbtn" data-opt="race" data-val="10000" onclick="pickRaceTarget(10000)">10,000</button>
+    </div>
+  </div>
+  <div class="mode-opts" id="optsLms">
+    <span class="mode-opts-label">Minimum pot to bank</span>
+    <div class="mode-opts-row">
+      <button class="su-rbtn" data-opt="lmsMinBank" data-val="50" onclick="pickOpt('lmsMinBank',50)">50</button>
+      <button class="su-rbtn" data-opt="lmsMinBank" data-val="100" onclick="pickOpt('lmsMinBank',100)">100</button>
+      <button class="su-rbtn" data-opt="lmsMinBank" data-val="200" onclick="pickOpt('lmsMinBank',200)">200</button>
+    </div>
+    <span class="mode-opts-label">Sudden death after round 10</span>
+    <div class="mode-opts-row">
+      <button class="su-rbtn" data-opt="lmsSuddenDeath" data-val="true" onclick="pickOpt('lmsSuddenDeath',true)">On</button>
+      <button class="su-rbtn" data-opt="lmsSuddenDeath" data-val="false" onclick="pickOpt('lmsSuddenDeath',false)">Off</button>
+    </div>
+  </div>
+  <div class="mode-opts" id="optsChaos">
+    <span class="mode-opts-label">Rules per round</span>
+    <div class="mode-opts-row">
+      <button class="su-rbtn" data-opt="chaosCount" data-val="1" onclick="pickOpt('chaosCount',1)">1 rule</button>
+      <button class="su-rbtn" data-opt="chaosCount" data-val="2" onclick="pickOpt('chaosCount',2)">2 rules</button>
     </div>
   </div>
   <div class="pk-go"><button onclick="confirmMode()">Confirm Mode &#8594;</button></div>
@@ -1245,12 +1566,13 @@ Red velvet &amp; gold trim.</span></div>
   <button class="g-back" onclick="showScreen('home')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
   <div class="su-logo" id="suLogo">Bank</div>
   <div class="su-sub" id="suSub">dont get greedy</div>
+  <div class="su-mode-line" id="suModeLine"></div>
   <div class="su-section">
     <label class="su-label" id="suLblPlayers">Players</label>
     <div class="su-inputs" id="suInputs"></div>
     <button class="su-add" id="suAddBtn" onclick="addInput()">+ Add player</button>
   </div>
-  <div class="su-section">
+  <div class="su-section" id="suRoundsSec">
     <label class="su-label" id="suLblRounds">Rounds</label>
     <div class="su-rounds">
       <button class="su-rbtn on" data-r="10" onclick="pickR(10)">10</button>
@@ -1267,6 +1589,7 @@ Red velvet &amp; gold trim.</span></div>
     <div class="g-right">
       <div class="g-rnd" id="gRnd"></div>
       <div class="g-pips" id="gPips"></div>
+      <button class="g-menu-btn" id="gMenuBtn" onclick="showGameMenu()" aria-label="Game menu"></button>
     </div>
   </div>
   <div class="g-pot">
@@ -1274,6 +1597,7 @@ Red velvet &amp; gold trim.</span></div>
     <div class="g-pot-value" id="gPotValue">0</div>
     <div class="g-pot-sub" id="gPotSub">roll 1</div>
   </div>
+  <div class="g-info" id="gInfo"></div>
   <div class="g-turn" id="gTurn"></div>
   <div class="g-grid" id="gGrid"></div>
   <div class="g-dice-area" id="gDiceArea" style="display:none">
@@ -1299,15 +1623,33 @@ Red velvet &amp; gold trim.</span></div>
 </div>
 <!-- Intensity overlays: outside game flex flow to avoid phantom flex slots -->
 <div class="g-vignette" id="gVignette"></div>
+<div class="g-heat" id="gHeat"></div>
 <div class="g-intensity-label" id="gIntensityLabel"></div>
+<div id="statusStrip"></div>
 
 <div class="screen" id="end">
-  <div class="end-hed">Final<br>Score</div>
+  <div class="end-hero" id="endHero"></div>
+  <div class="podium" id="endPodium"></div>
   <div class="end-list" id="endList"></div>
+  <div class="end-moments" id="endMoments"></div>
   <div class="end-awards" id="endAwards"></div>
-  <button class="again-btn" onclick="playAgain()">Play Again</button>
+  <div class="end-btns">
+    <button class="again-btn" onclick="playAgain()">Play Again</button>
+    <div class="end-btn-row">
+      <button class="end-btn2" onclick="newGameFromEnd()">New Game</button>
+      <button class="end-btn2" onclick="menuFromEnd()">Menu</button>
+    </div>
+  </div>
 </div>
 <script>
+// ══════════════════════════════════════════════════════════════
+//  BANK v2
+//  All game state lives in G / STATS / EFFECTS / CARDS so that one
+//  JSON snapshot captures everything: that powers undo, and the same
+//  snapshot is written to localStorage after every action so a reload
+//  (or iOS evicting the home-screen app) resumes the game.
+// ══════════════════════════════════════════════════════════════
+
 // ══ SVG ICON SYSTEM ══
 var ICONS = {
   play:      '<svg viewBox="0 0 24 24"><polygon points="6,3 20,12 6,21" fill="currentColor" stroke="none"/></svg>',
@@ -1325,589 +1667,888 @@ var ICONS = {
   shield:    '<svg viewBox="0 0 24 24"><path d="M12 2l8 4v5c0 5.25-3.5 9.75-8 11-4.5-1.25-8-5.75-8-11V6z"/><path d="M9 12l2 2 4-4" stroke-width="2.5"/></svg>',
   snowflake: '<svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07"/><circle cx="12" cy="12" r="2"/></svg>',
   coins:     '<svg viewBox="0 0 24 24"><ellipse cx="10" cy="8" rx="7" ry="3"/><path d="M3 8v4c0 1.66 3.13 3 7 3s7-1.34 7-3V8"/><path d="M3 12v4c0 1.66 3.13 3 7 3"/><ellipse cx="16" cy="14" rx="5" ry="2"/><path d="M11 14v4c0 1.1 2.24 2 5 2s5-.9 5-2v-4"/></svg>',
+  heart:     '<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3.1 1.7-1.9 3.2-3.1 5.3-3.1 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" fill="currentColor" stroke="none"/></svg>',
+  heartO:    '<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 5.3 3.1 1.7-1.9 3.2-3.1 5.3-3.1 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg>',
+  crown:     '<svg viewBox="0 0 24 24"><path d="M3 7l4.5 4L12 4l4.5 7L21 7l-2 12H5z" fill="currentColor" stroke="none"/></svg>',
+  menu:      '<svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+  chaos:     '<svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/><circle cx="12" cy="12" r="3"/></svg>',
+  lock:      '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  eyeOff:    '<svg viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c5 0 9 4.5 10 7-.4 1-1.2 2.3-2.4 3.5M6.3 6.3C4.2 7.7 2.7 9.8 2 12c1 2.5 5 7 10 7 1.8 0 3.4-.6 4.8-1.4"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>',
+  flame:     '<svg viewBox="0 0 24 24"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5.5C10 10 11 11 12 11c0-3-1-6 0-9z" fill="currentColor" stroke="none"/></svg>',
+  copy:      '<svg viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>',
+  fuse:      '<svg viewBox="0 0 24 24"><circle cx="10" cy="15" r="6"/><path d="M14 10l3-3"/><path d="M18 3l.8 1.7L20.5 5.5l-1.7.8L18 8l-.8-1.7-1.7-.8 1.7-.8z" fill="currentColor" stroke="none"/></svg>',
+  star:      '<svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4.5 2 7.5-6.5-4.5L5.5 21l2-7.5L2 9h7z" fill="currentColor" stroke="none"/></svg>',
+  snake:     '<svg viewBox="0 0 24 24"><rect x="2" y="6" width="9" height="9" rx="2"/><rect x="13" y="9" width="9" height="9" rx="2"/><circle cx="6.5" cy="10.5" r="1.4" fill="currentColor" stroke="none"/><circle cx="17.5" cy="13.5" r="1.4" fill="currentColor" stroke="none"/></svg>',
+  trend:     '<svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>',
+  flag:      '<svg viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>',
+  rules:     '<svg viewBox="0 0 24 24"><path d="M4 4h12l4 4v12H4z"/><path d="M8 11h8M8 15h6"/></svg>',
+  stop:      '<svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>',
+  exit:      '<svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
 };
 function ico(name, cls) { return '<span class="ico' + (cls ? ' ' + cls : '') + '">' + (ICONS[name] || '') + '</span>'; }
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function fmt(n) { return Math.round(n).toLocaleString(); }
+function pad(n) { return n < 10 ? '0' + n : '' + n; }
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+function findP(name) { for (var i = 0; i < G.players.length; i++) if (G.players[i].name === name) return G.players[i]; return null; }
+function buzz(p) { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} }
 
+// ══ STORAGE ══
+var LS_SETTINGS = 'bank.settings.v2', LS_GAME = 'bank.game.v2', LS_RECORDS = 'bank.records.v1';
+function lsGet(k) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+function lsSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
+
+// ══ SETTINGS (what the next new game will use) ══
 var T = 'br';
-var MODE = 'standard'; // sabotage | turbo | race | blackout | cutthroat | rollerscut
+var MODE = 'standard';
 var RACE_TARGET = 1500;
+var USE_DICE = false;
+var SEL_R = 10;
+var OPTS = { chaosCount: 1, lmsMinBank: 100, lmsSuddenDeath: true };
+var LIVES_START = 3;
+var RECORDS = lsGet(LS_RECORDS) || { bestBank: 0, bestBankBy: '', biggestBust: 0, biggestPot: 0 };
+
 var THEME_MAP = {
   dive: { cls: 't-dive', bankText: 'Bank it', undoText: 'undo', bg: '#1a1a18' },
   sb:   { cls: 't-sb',   bankText: 'BANK',    undoText: 'UNDO', bg: '#111111' },
   br:   { cls: 't-br',   bankText: 'BANK',    undoText: 'UNDO', bg: '#ddd8ce' },
   term: { cls: 't-term', bankText: 'BANK_IT', undoText: 'UNDO', bg: '#080d08' },
-  cas:  { cls: 't-cas',  bankText: 'Bank',    undoText: 'undo', bg: '#0b0b0b' },
+  cas:  { cls: 't-cas',  bankText: 'Bank',    undoText: 'undo', bg: '#0b0b0b' }
 };
-function selectTheme(t) {
-  T = t;
+var MODE_LABELS = { standard: 'Standard', turbo: 'Turbo', race: 'Race to the Bank', blackout: 'Blackout', cutthroat: 'Cutthroat', rollerscut: "Roller's Cut", sabotage: 'Sabotage', chaos: 'Chaos Bank', lms: 'Last Man Standing' };
+var THEME_LABELS = { dive: 'Dive Bar', sb: 'Scoreboard', br: 'Brutalist', term: 'Terminal', cas: 'Casino' };
+
+var MODE_RULES = {
+  standard:   ['The first 3 rolls are safe. A 7 adds 70.', 'From roll 4, a 7 busts the round: everyone who hasn’t banked gets nothing.', 'From roll 4, doubles double the pot.', 'Anyone can bank at any time, then sits out the rest of the round.'],
+  turbo:      ['No safe rolls: a 7 busts from the very first roll.', 'Doubles double the pot.', 'Bank early or lose everything.'],
+  race:       ['No round limit.', 'The first player whose banked total reaches the target wins instantly.', 'Normal rules otherwise: 3 safe rolls, then 7 busts.'],
+  blackout:   ['After roll 3 the pot goes dark. Keep count in your heads.', 'Scores of players who banked stay hidden until the round ends.', 'Normal rules otherwise.'],
+  cutthroat:  ['From roll 4, a 2 or 12 halves the pot (even though they’re doubles).', 'Other doubles still double the pot.'],
+  rollerscut: ['When only one player is still in, each of their rolls earns 20% extra on top of what it adds.', 'A 7 still busts.'],
+  sabotage:   ['Everyone starts with a card. New cards are dealt every 5 rounds.', 'Only the current roller can play a card.', 'Insurance pays half the pot on a bust. Freeze shows up once per game.'],
+  chaos:      ['Every round draws a random rule (or two, if you chose that).', 'The active rules stay at the top of the screen all round. Tap one for details.', 'Normal rules otherwise.'],
+  lms:        ['Everyone starts with 3 lives.', 'A bust costs every player still in one life. Lose them all and you’re out.', 'Nobody can bank until the pot reaches the minimum.', 'If a bust would knock out everyone left, the highest score survives.', 'Sudden death (optional) after round 10: everyone drops to 1 life and the minimum climbs 100 each round.', 'Last player standing wins.']
+};
+
+// ══ CHAOS MODIFIERS ══
+var MODS = {
+  noMercy:       { name: 'No Mercy',       icon: 'skull',  tag: 'danger', short: 'No safe rolls',        desc: 'No safe rolls this round. A 7 busts from the very first roll.' },
+  doubleTrouble: { name: 'Double Trouble', icon: 'dice',   tag: 'gold',   short: 'Rolls add ×2',    desc: 'Normal rolls add double their value. Doubles still double the pot.' },
+  goldenSeven:   { name: 'Golden Seven',   icon: 'star',   tag: 'gold',   short: 'Safe 7 = +140',        desc: 'A 7 during the safe rolls adds 140 instead of 70.' },
+  lockdown:      { name: 'Lockdown',       icon: 'lock',   tag: 'danger', short: 'Bank on your turn',    desc: 'You can only bank when it’s your turn to roll. The Bank button banks the roller.' },
+  snakeEyes:     { name: 'Snake Eyes',     icon: 'snake',  tag: 'danger', short: '2 also busts',         desc: 'After the safe rolls, rolling a 2 busts the round just like a 7.' },
+  highStakes:    { name: 'High Stakes',    icon: 'trend',  tag: 'gold',   short: '10 or 11 = +50',       desc: 'Any roll that totals 10 or 11 adds a 50-point bonus to the pot.' },
+  finalStand:    { name: 'Final Stand',    icon: 'target', tag: 'gold',   short: 'Last one in +100',     desc: 'The last player still in gets a 100-point bonus if they bank.' },
+  taxman:        { name: 'Taxman',         icon: 'coins',  tag: 'danger', short: 'Banks lose 10%',       desc: 'Every bank this round loses 10% off the top.' },
+  hotHand:       { name: 'Hot Hand',       icon: 'flame',  tag: 'gold',   short: 'Doubles ×3',      desc: 'Doubles triple the pot instead of doubling it.' },
+  shortFuse:     { name: 'Short Fuse',     icon: 'fuse',   tag: 'danger', short: '1 safe roll',          desc: 'Only the first roll is safe. A 7 busts from roll 2.' },
+  firstIn:       { name: 'First In',       icon: 'flag',   tag: 'gold',   short: 'First bank +25%',      desc: 'The first player to bank this round gets 25% extra.' },
+  blind:         { name: 'Blind Round',    icon: 'eyeOff', tag: 'danger', short: 'Pot hidden',           desc: 'The pot goes dark after the safe rolls. Keep count in your heads.' },
+  copycat:       { name: 'Copycat',        icon: 'copy',   tag: 'gold',   short: 'Repeat a roll = ×2', desc: 'After the safe rolls, rolling the same total as the roll before doubles the pot.' }
+};
+// Pairs that would cancel out or make each other pointless
+var MOD_CONFLICTS = [['noMercy', 'shortFuse'], ['noMercy', 'goldenSeven']];
+function modsCompatible(a, b) {
+  if (a === b) return false;
+  return !MOD_CONFLICTS.some(function(c) { return (c[0] === a && c[1] === b) || (c[0] === b && c[1] === a); });
+}
+
+// ══ GAME STATE ══
+function newGameState(selR) {
+  return {
+    mode: 'standard', opts: {}, raceTarget: 1500,
+    players: [], roller: 0, pot: 0, rolls: 0, round: 1, total: selR || 10,
+    bankedThisRound: [], bustPot: 0, cumMiss: {},
+    phase: 'idle',          // idle | play | roundEnd | reveal | over
+    result: null,           // data for the round-end sheet
+    intro: null,            // pending round intro: ['chaos'|'showdown'|'sudden']
+    mods: [], prevMods: [],
+    lastRoll: null, lastDice: null,
+    firstBankDone: false, soloAnnounced: false, leaderAnnounced: false,
+    showdownShown: false, suddenDeath: false,
+    roundStartLast: null, heat: 0,
+    bestBank: 0, biggestBust: 0, peakPot: 0,
+    moments: [], elimOrder: [], winners: [], winReason: '',
+    recordsCommitted: false,
+    startedAt: Date.now(), updatedAt: Date.now()
+  };
+}
+var G = newGameState(10);
+var STATS = {};
+function initStats(names) {
+  STATS = {};
+  names.forEach(function(n) { STATS[n] = { sevens: 0, doubles: 0, bustSevens: 0, pointsLost: 0, banks: [], comebacks: 0, lastStanding: 0 }; });
+}
+var HISTORY = [];
+
+// ══ SNAPSHOT / UNDO / PERSISTENCE ══
+function snap() { return JSON.stringify({ G: G, STATS: STATS, EFFECTS: EFFECTS, CARDS: CARDS, FREEZE_DEALT: FREEZE_DEALT }); }
+function restoreSnap(str) {
+  var s = JSON.parse(str);
+  G = s.G; STATS = s.STATS || {}; EFFECTS = s.EFFECTS || blankEffects(); CARDS = s.CARDS || {}; FREEZE_DEALT = !!s.FREEZE_DEALT;
+}
+function pushSnap() { HISTORY.push(snap()); if (HISTORY.length > 30) HISTORY.shift(); }
+function undoLast() {
+  if (!HISTORY.length) return;
+  restoreSnap(HISTORY.pop());
+  clearOverlays();
+  SFX._state = 'none';
+  render();
+  showToast('Undone');
+}
+function saveGame() {
+  if (!G.players.length || G.phase === 'idle') return;
+  G.updatedAt = Date.now();
+  lsSet(LS_GAME, { v: 2, state: snap(), history: HISTORY.slice(-12) });
+}
+function clearSavedGame() { lsDel(LS_GAME); }
+function peekSaved() {
+  var s = lsGet(LS_GAME); if (!s || !s.state) return null;
+  try { return JSON.parse(s.state).G; } catch (e) { return null; }
+}
+function loadSavedGame() {
+  var s = lsGet(LS_GAME); if (!s || !s.state) return false;
+  try { restoreSnap(s.state); } catch (e) { return false; }
+  HISTORY = s.history || [];
+  return true;
+}
+function commitRecords() {
+  if (G.recordsCommitted) return;
+  G.recordsCommitted = true;
+  G.players.forEach(function(p) {
+    (STATS[p.name] ? STATS[p.name].banks : []).forEach(function(a) {
+      if (a > RECORDS.bestBank) { RECORDS.bestBank = a; RECORDS.bestBankBy = p.name; }
+    });
+  });
+  if (G.biggestBust > RECORDS.biggestBust) RECORDS.biggestBust = G.biggestBust;
+  if (G.peakPot > RECORDS.biggestPot) RECORDS.biggestPot = G.peakPot;
+  lsSet(LS_RECORDS, RECORDS);
+}
+
+// Timers that belong to the current moment of play (cleared on undo/quit)
+var PENDING = [];
+function later(fn, ms) { var id = setTimeout(fn, ms); PENDING.push(id); return id; }
+function clearPending() {
+  PENDING.forEach(clearTimeout); PENDING = [];
+  if (DICE_IV) { clearInterval(DICE_IV); DICE_IV = null; }
+  DICE_ROLLING = false;
+  ['gDie1', 'gDie2'].forEach(function(id) { var d = $(id); if (d) d.classList.remove('rolling'); });
+}
+function clearOverlays() {
+  clearPending();
+  document.querySelectorAll('.backdrop, .rnd-backdrop, .card-deal-overlay, .mod-reveal, .bust-ov, .announce').forEach(function(e) { e.remove(); });
+  ANN_Q = []; ANN_BUSY = false;
+  TQ = []; if (TOAST) TOAST.classList.remove('show');
+}
+function anyOverlay() { return !!document.querySelector('.backdrop, .rnd-backdrop, .card-deal-overlay, .mod-reveal, .bust-ov'); }
+
+// ══ RULES HELPERS ══
+function hasMod(id) { return G.mode === 'chaos' && G.mods.indexOf(id) !== -1; }
+function safeRollCount() {
+  if (G.mode === 'turbo' || hasMod('noMercy')) return 0;
+  if (hasMod('shortFuse')) return 1;
+  return 3;
+}
+function nextRollDanger() { return G.rolls >= safeRollCount(); }
+function potHidden() { return (G.mode === 'blackout' || hasMod('blind')) && G.phase === 'play' && G.rolls >= safeRollCount() && G.rolls > 0; }
+function activePlayers() { return G.players.filter(function(p) { return !p.out; }); }
+function activeUnbanked() { return G.players.filter(function(p) { return !p.out && !p.banked; }); }
+function lmsMinBank() {
+  var base = (G.opts && G.opts.lmsMinBank) || 100;
+  return G.suddenDeath ? base + 100 * Math.max(1, G.round - 10) : base;
+}
+function bankLockedByMin() { return G.mode === 'lms' && G.pot < lmsMinBank(); }
+// Doubles need an exact total when a rule cares which doubles it was
+function needsDoublesTotal() { return G.mode === 'cutthroat' || hasMod('snakeEyes') || hasMod('highStakes') || hasMod('copycat'); }
+function leaderName() {
+  var best = null, bestS = -1, tie = false;
+  activePlayers().forEach(function(p) { if (p.score > bestS) { bestS = p.score; best = p.name; tie = false; } else if (p.score === bestS) tie = true; });
+  return (tie || bestS <= 0) ? null : best;
+}
+function displayScore(p) { return (potHidden() && p.banked && p.bankedAmt != null) ? p.score - p.bankedAmt : p.score; }
+function shortLabels() {
+  var names = G.players.map(function(p) { return p.name; });
+  return names.map(function(n) {
+    var up = n.toUpperCase();
+    for (var L = 3; L <= Math.min(8, n.length); L++) {
+      var pre = up.slice(0, L);
+      if (names.every(function(o) { return o === n || o.toUpperCase().slice(0, L) !== pre; })) return pre;
+    }
+    return up.slice(0, 8);
+  });
+}
+function addMoment(kind, text, value) {
+  G.moments.push({ kind: kind, text: text, value: value, round: G.round });
+  if (G.moments.length > 40) { G.moments.sort(function(a, b) { return b.value - a.value; }); G.moments.length = 30; }
+}
+function standingsLast() {
+  var act = activePlayers(); if (act.length < 3) return null;
+  var s = act.slice().sort(function(a, b) { return a.score - b.score; });
+  var top = s[s.length - 1].score;
+  if (s[0].score === s[1].score || top - s[0].score < 150) return null;
+  return s[0].name;
+}
+
+// ══ THEME / MODE / OPTIONS UI ══
+function selectTheme(t) { T = t; syncThemeCards(); }
+function syncThemeCards() {
   document.querySelectorAll('.pk-card').forEach(function(c) { c.classList.remove('sel'); });
-  document.getElementById('card-' + t).classList.add('sel');
+  var c = $('card-' + T); if (c) c.classList.add('sel');
 }
 function applyTheme(el) {
-  Object.values(THEME_MAP).forEach(function(v) { 
-    el.classList.remove(v.cls); 
-    document.body.classList.remove(v.cls);
-  });
+  Object.values(THEME_MAP).forEach(function(v) { el.classList.remove(v.cls); document.body.classList.remove(v.cls); });
   el.classList.add(THEME_MAP[T].cls);
   document.body.classList.add(THEME_MAP[T].cls);
   document.body.style.backgroundColor = THEME_MAP[T].bg;
   document.documentElement.style.backgroundColor = THEME_MAP[T].bg;
+  var meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', THEME_MAP[T].bg);
 }
-function confirmTheme() {
-  updateHomeLabels();
-  showScreen('home');
-}
+function confirmTheme() { saveSettings(); updateHomeLabels(); showScreen('home'); }
 function selectMode(m) {
   MODE = m;
   document.querySelectorAll('#modeList .mode-card').forEach(function(c) { c.classList.remove('sel'); });
-  var el = document.getElementById('mode-' + m);
-  if (el) el.classList.add('sel');
-  document.getElementById('raceTargetWrap').style.display = m === 'race' ? '' : 'none';
+  var el = $('mode-' + m); if (el) el.classList.add('sel');
+  [['optsRace', 'race'], ['optsLms', 'lms'], ['optsChaos', 'chaos']].forEach(function(x) { var e = $(x[0]); if (e) e.classList.toggle('show', m === x[1]); });
 }
-function confirmMode() {
-  updateHomeLabels();
-  showScreen('home');
-}
-function pickRaceTarget(t) {
-  RACE_TARGET = t;
-  document.querySelectorAll('#raceTargetWrap .su-rbtn').forEach(function(b) {
-    b.classList.toggle('on', +b.dataset.t === t);
+function confirmMode() { saveSettings(); updateHomeLabels(); showScreen('home'); }
+function pickRaceTarget(t) { RACE_TARGET = t; syncOptButtons(); }
+function pickOpt(k, v) { OPTS[k] = v; syncOptButtons(); }
+function syncOptButtons() {
+  document.querySelectorAll('[data-opt]').forEach(function(b) {
+    var k = b.dataset.opt, cur = k === 'race' ? RACE_TARGET : OPTS[k];
+    b.classList.toggle('on', String(cur) === b.dataset.val);
   });
 }
-var MODE_LABELS = { standard: 'Standard', turbo: 'Turbo Mode', race: 'Race to the Bank', blackout: 'Blackout', cutthroat: 'Cutthroat', rollerscut: "Roller's Cut", sabotage: 'Sabotage' };
-var THEME_LABELS = { dive: 'Dive Bar', sb: 'Scoreboard', br: 'Brutalist', term: 'Terminal', cas: 'Casino' };
+function modeSummary(mode, opts, race) {
+  mode = mode || MODE; opts = opts || OPTS; race = race || RACE_TARGET;
+  var l = MODE_LABELS[mode] || mode;
+  if (mode === 'race') return l + ' (' + fmt(race) + ')';
+  if (mode === 'chaos') return l + ' · ' + (opts.chaosCount === 2 ? '2 rules' : '1 rule') + '/round';
+  if (mode === 'lms') return l + ' · min ' + fmt(opts.lmsMinBank) + (opts.lmsSuddenDeath ? ' · SD' : '');
+  return l;
+}
 function updateHomeLabels() {
   var tl = THEME_LABELS[T] || T;
-  var ml = MODE_LABELS[MODE] || MODE;
-  var sub1 = document.getElementById('homeThemeSub');
-  var sub2 = document.getElementById('homeThemeSub2');
-  var msub = document.getElementById('homeModeSub');
-  if (sub1) sub1.textContent = 'Theme: ' + tl;
-  if (sub2) sub2.textContent = tl;
-  if (msub) msub.textContent = MODE === 'race' ? ml + ' (' + RACE_TARGET.toLocaleString() + ')' : ml;
+  $('homeThemeSub').textContent = 'Theme: ' + tl;
+  $('homeThemeSub2').textContent = tl;
+  $('homeModeSub').textContent = modeSummary();
+  $('homeDiceSub').textContent = USE_DICE ? 'On' : 'Off';
+  $('homeDiceBtn').classList.toggle('active', USE_DICE);
+  var s = peekSaved(), rb = $('homeResumeBtn');
+  if (s && s.players && s.players.length && s.phase !== 'over' && s.phase !== 'idle') {
+    rb.style.display = '';
+    $('homeResumeSub').textContent = (MODE_LABELS[s.mode] || '') + ' · Rnd ' + s.round + ' · ' + s.players.length + 'P';
+  } else rb.style.display = 'none';
 }
-function goSetup() { applyTheme(document.getElementById('setup')); showScreen('setup'); }
+function goSetup() {
+  applyTheme($('setup'));
+  var noRounds = MODE === 'race' || MODE === 'lms';
+  $('suRoundsSec').style.display = noRounds ? 'none' : '';
+  $('suModeLine').textContent = 'Mode: ' + modeSummary();
+  showScreen('setup');
+}
+function toggleDiceHome() { USE_DICE = !USE_DICE; saveSettings(); updateHomeLabels(); }
 
-var G = { players: [], roller: 0, pot: 0, rolls: 0, round: 1, total: 10, selR: 10, bankedThisRound: [], bustPot: 0, cumMiss: {} };
-// stat tracking (outside G so undo doesn't revert them easily — we track deliberately)
-var STATS = {};
-function initStats(names) {
-  STATS = {};
-  names.forEach(function(n) {
-    STATS[n] = { sevens: 0, doubles: 0, bustSevens: 0, pointsLost: 0, banks: [], bankAmts: [] };
-  });
+function currentInputNames() { return Array.from($('suInputs').querySelectorAll('input')).map(function(i) { return i.value.trim(); }); }
+function saveSettings() {
+  lsSet(LS_SETTINGS, { T: T, MODE: MODE, RACE_TARGET: RACE_TARGET, USE_DICE: USE_DICE, OPTS: OPTS, selR: SEL_R, names: currentInputNames().filter(Boolean) });
 }
-var HISTORY = [];
+function loadSettings() {
+  var s = lsGet(LS_SETTINGS); if (!s) return null;
+  if (s.T && THEME_MAP[s.T]) T = s.T;
+  if (s.MODE && MODE_LABELS[s.MODE]) MODE = s.MODE;
+  if (s.RACE_TARGET) RACE_TARGET = s.RACE_TARGET;
+  USE_DICE = !!s.USE_DICE;
+  if (s.OPTS) for (var k in s.OPTS) if (k in OPTS) OPTS[k] = s.OPTS[k];
+  if (s.selR) SEL_R = s.selR;
+  return s;
+}
+
+// ══ SETUP ══
+function addInput(val) {
+  var el = $('suInputs');
+  if (el.children.length >= 8) return;
+  var n = el.children.length + 1;
+  var row = document.createElement('div'); row.className = 'su-row';
+  row.innerHTML = '<input type="text" placeholder="Player ' + n + '" maxlength="20" autocomplete="off" autocapitalize="words"><button class="su-rm" onclick="rmInput(this)">&#215;</button>';
+  if (typeof val === 'string') row.querySelector('input').value = val;
+  el.appendChild(row);
+  $('suAddBtn').style.display = el.children.length >= 8 ? 'none' : '';
+}
+function rmInput(btn) {
+  var el = $('suInputs');
+  if (el.children.length <= 2) return;
+  btn.closest('.su-row').remove();
+  $('suAddBtn').style.display = '';
+}
+function pickR(n) {
+  SEL_R = n;
+  document.querySelectorAll('.su-rbtn[data-r]').forEach(function(b) { b.classList.toggle('on', +b.dataset.r === n); });
+}
+function startGame() {
+  var names = currentInputNames().filter(Boolean);
+  if (names.length < 2) { showToast('Need at least 2 players'); return; }
+  var seen = {};
+  for (var i = 0; i < names.length; i++) {
+    var k = names[i].toLowerCase();
+    if (seen[k]) { showToast('Two players can’t share the name “' + names[i] + '”'); return; }
+    seen[k] = 1;
+  }
+  saveSettings();
+  beginGame(names, MODE, OPTS, RACE_TARGET, SEL_R);
+}
+function beginGame(names, mode, opts, raceTarget, selR) {
+  clearOverlays();
+  G = newGameState(selR);
+  G.mode = mode; G.opts = JSON.parse(JSON.stringify(opts)); G.raceTarget = raceTarget;
+  G.players = names.map(function(n) { return { name: n, score: 0, banked: false, bankedAmt: null, lives: mode === 'lms' ? LIVES_START : 0, out: false, outRound: 0 }; });
+  names.forEach(function(n) { G.cumMiss[n] = 0; });
+  HISTORY = [];
+  initStats(names);
+  if (mode === 'sabotage') initCards(names); else { CARDS = {}; resetEffects(); FREEZE_DEALT = false; }
+  G.showdownShown = names.length <= 2;   // a 2-player game is a showdown from the start
+  G.phase = 'play';
+  if (mode === 'chaos') { rollMods(); G.phase = 'reveal'; G.intro = ['chaos']; }
+  enterGame();
+}
+function enterGame() {
+  applyTheme($('game'));
+  showScreen('game');
+  SFX._state = 'none';
+  render();
+  if (G.phase === 'roundEnd') { if (G.result) showRoundEnd(); else { G.phase = 'play'; render(); } }
+  else if (G.phase === 'reveal') showRoundIntro();
+  else if (G.phase === 'over') showEndScreen();
+}
+function resumeGame() {
+  if (!loadSavedGame()) { updateHomeLabels(); return; }
+  enterGame();
+}
+function playAgain() {
+  var names = G.players.map(function(p) { return p.name; });
+  beginGame(names, G.mode, G.opts, G.raceTarget, G.total);
+}
+function newGameFromEnd() { clearSavedGame(); goSetup(); }
+function menuFromEnd() { clearSavedGame(); updateHomeLabels(); showScreen('home'); }
 
 // ══ SOUND SYSTEM ══
-var AC = null;
+var AC = null, AUDIO_OK = false;
 function getAC() {
-  if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)();
+  if (!AUDIO_OK) return null;
+  if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } }
   if (AC.state === 'suspended') AC.resume();
   return AC;
 }
-// Resume on any tap — iOS kills context aggressively
-document.addEventListener('touchstart', function() { if (AC) AC.resume(); }, { passive: true });
+// Audio can only start from a user gesture (iOS especially)
+['pointerdown', 'touchend', 'click'].forEach(function(ev) {
+  document.addEventListener(ev, function() { AUDIO_OK = true; if (AC && AC.state === 'suspended') AC.resume(); }, { capture: true, passive: true });
+});
 
 var SFX = {
-
-  // Helper: shaped noise buffer — the core of all physical sounds
-  // decay controls how fast amplitude falls (higher = sharper attack/faster tail)
   _noise: function(ac, dur, decay) {
-    var len = Math.floor(ac.sampleRate * dur);
+    var len = Math.max(1, Math.floor(ac.sampleRate * dur));
     var buf = ac.createBuffer(1, len, ac.sampleRate);
     var d = buf.getChannelData(0);
-    for (var i = 0; i < len; i++)
-      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+    for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
     return buf;
   },
-
-  // Dice on table — hard impact transient + brief rattle
-  // Two layers: low thud (body hitting surface) + mid rattle (edges/corners)
-  roll: function() {
-    var ac = getAC(), t = ac.currentTime;
-    // Thud: lowpass noise, sharp decay
-    var thud = ac.createBufferSource();
-    thud.buffer = SFX._noise(ac, 0.06, 12);
-    var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 280;
-    var tg = ac.createGain(); tg.gain.setValueAtTime(0.55, t); tg.gain.exponentialRampToValueAtTime(0.001, t + 0.055);
-    thud.connect(lp); lp.connect(tg); tg.connect(ac.destination);
-    thud.start(t);
-    // Rattle: bandpass noise, slightly delayed, faster decay
-    var rattle = ac.createBufferSource();
-    rattle.buffer = SFX._noise(ac, 0.04, 18);
-    var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1100; bp.Q.value = 1.2;
-    var rg = ac.createGain(); rg.gain.setValueAtTime(0.18, t + 0.005); rg.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
-    rattle.connect(bp); bp.connect(rg); rg.connect(ac.destination);
-    rattle.start(t + 0.005);
+  _tone: function(ac, type, f0, f1, t0, dur, gain, filt) {
+    var o = ac.createOscillator(); o.type = type;
+    o.frequency.setValueAtTime(f0, t0);
+    if (f1 && f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t0 + dur);
+    var g = ac.createGain(); g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(gain, t0 + Math.min(0.012, dur / 4));
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    if (filt) { var f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = filt; o.connect(f); f.connect(g); } else o.connect(g);
+    g.connect(ac.destination); o.start(t0); o.stop(t0 + dur + 0.05);
+  },
+  _hit: function(ac, t, dur, decay, type, freq, q, gain) {
+    var s = ac.createBufferSource(); s.buffer = SFX._noise(ac, dur, decay);
+    var f = ac.createBiquadFilter(); f.type = type; f.frequency.value = freq; if (q) f.Q.value = q;
+    var g = ac.createGain(); g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    s.connect(f); f.connect(g); g.connect(ac.destination); s.start(t);
   },
 
-  // Two dice landing slightly apart — double-knock with resonance
-  doubles: function() {
+  // Dice on table. Heat (0–4) deepens the thud and adds a sub as the pot grows.
+  roll: function(heat) {
+    heat = heat || 0;
     var ac = getAC(), t = ac.currentTime;
-    [0, 0.055].forEach(function(offset) {
-      var src = ac.createBufferSource();
-      src.buffer = SFX._noise(ac, 0.07, 10);
-      var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 320;
-      var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 900; bp.Q.value = 1.0;
-      var g = ac.createGain(); g.gain.setValueAtTime(0.5, t + offset); g.gain.exponentialRampToValueAtTime(0.001, t + offset + 0.065);
-      // second hit slightly harder — feels like two dice meeting
-      if (offset > 0) g.gain.setValueAtTime(0.65, t + offset);
-      src.connect(lp); lp.connect(g);
-      var src2 = ac.createBufferSource();
-      src2.buffer = SFX._noise(ac, 0.05, 16);
-      src2.connect(bp); bp.connect(g);
-      g.connect(ac.destination);
-      src.start(t + offset); src2.start(t + offset);
+    SFX._hit(ac, t, 0.06 + heat * 0.01, 12 - heat, 'lowpass', 280 - heat * 35, 0, 0.55 + heat * 0.07);
+    SFX._hit(ac, t + 0.005, 0.04, 18, 'bandpass', 1100, 1.2, 0.18);
+    if (heat >= 2) SFX._tone(ac, 'sine', 75, 42, t, 0.2, 0.12 * (heat - 1));
+  },
+  doubles: function(heat) {
+    heat = heat || 0;
+    var ac = getAC(), t = ac.currentTime;
+    [0, 0.055].forEach(function(o) {
+      SFX._hit(ac, t + o, 0.07, 10, 'lowpass', 320, 0, o ? 0.65 : 0.5);
+      SFX._hit(ac, t + o, 0.05, 16, 'bandpass', 900, 1, 0.3);
     });
+    if (heat >= 1) SFX._tone(ac, 'sine', 220, 440 + heat * 120, t + 0.08, 0.28, 0.07 + heat * 0.03);
+    if (heat >= 3) SFX._tone(ac, 'sine', 60, 38, t, 0.35, 0.3);
   },
-
-  // Safe 7 — chip sliding across felt then a soft click as it settles
-  // Scrape: highpass noise fading from left-ish frequency sweep + click transient at end
-  safeSeven: function() {
+  safeSeven: function(golden) {
     var ac = getAC(), t = ac.currentTime;
-    // Felt scrape: filtered noise with sweeping bandpass
-    var scrape = ac.createBufferSource();
-    scrape.buffer = SFX._noise(ac, 0.14, 2);
+    var s = ac.createBufferSource(); s.buffer = SFX._noise(ac, 0.14, 2);
     var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(600, t); bp.frequency.linearRampToValueAtTime(1800, t + 0.1); bp.Q.value = 2;
     var sg = ac.createGain(); sg.gain.setValueAtTime(0.12, t); sg.gain.linearRampToValueAtTime(0.06, t + 0.1); sg.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
-    scrape.connect(bp); bp.connect(sg); sg.connect(ac.destination);
-    scrape.start(t);
-    // Click at landing
-    var click = ac.createBufferSource();
-    click.buffer = SFX._noise(ac, 0.025, 20);
-    var cp = ac.createBiquadFilter(); cp.type = 'bandpass'; cp.frequency.value = 2200; cp.Q.value = 0.8;
-    var cg = ac.createGain(); cg.gain.setValueAtTime(0.22, t + 0.1); cg.gain.exponentialRampToValueAtTime(0.001, t + 0.125);
-    click.connect(cp); cp.connect(cg); cg.connect(ac.destination);
-    click.start(t + 0.1);
+    s.connect(bp); bp.connect(sg); sg.connect(ac.destination); s.start(t);
+    SFX._hit(ac, t + 0.1, 0.025, 20, 'bandpass', 2200, 0.8, 0.22);
+    if (golden) { SFX._tone(ac, 'triangle', 880, 880, t + 0.1, 0.4, 0.07); SFX._tone(ac, 'triangle', 1320, 1320, t + 0.18, 0.5, 0.05); }
   },
-
-  // Bust — chips scattered/swept off table
-  // Heavy low impact + sustained mid scatter noise + high scatter ticks
-  bust: function() {
+  // Bust. Magnitude (0–1) scales with the pot: big pots get a deep falling boom.
+  bust: function(mag) {
+    mag = mag || 0;
     var ac = getAC(), t = ac.currentTime;
-    // Heavy table thud — like a fist or palm slap
-    var thud = ac.createBufferSource();
-    thud.buffer = SFX._noise(ac, 0.18, 6);
-    var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 160;
-    var tg = ac.createGain(); tg.gain.setValueAtTime(0.9, t); tg.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
-    thud.connect(lp); lp.connect(tg); tg.connect(ac.destination);
-    thud.start(t);
-    // Mid scatter — chips tumbling
-    var scatter = ac.createBufferSource();
-    scatter.buffer = SFX._noise(ac, 0.32, 3);
+    SFX._hit(ac, t, 0.18, 6, 'lowpass', 160, 0, 0.9);
+    var sc = ac.createBufferSource(); sc.buffer = SFX._noise(ac, 0.32 + mag * 0.4, 3);
     var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 500; bp.Q.value = 0.6;
-    var scg = ac.createGain(); scg.gain.setValueAtTime(0.0, t); scg.gain.linearRampToValueAtTime(0.35, t + 0.02); scg.gain.exponentialRampToValueAtTime(0.001, t + 0.32);
-    scatter.connect(bp); bp.connect(scg); scg.connect(ac.destination);
-    scatter.start(t);
-    // High ticks — individual chips skittering
-    var ticks = ac.createBufferSource();
-    ticks.buffer = SFX._noise(ac, 0.28, 2);
-    var hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 2000;
-    var hg = ac.createGain(); hg.gain.setValueAtTime(0.0, t + 0.01); hg.gain.linearRampToValueAtTime(0.14, t + 0.04); hg.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
-    ticks.connect(hp); hp.connect(hg); hg.connect(ac.destination);
-    ticks.start(t + 0.01);
+    var g = ac.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.35, t + 0.02); g.gain.exponentialRampToValueAtTime(0.001, t + 0.32 + mag * 0.4);
+    sc.connect(bp); bp.connect(g); g.connect(ac.destination); sc.start(t);
+    SFX._hit(ac, t + 0.01, 0.28, 2, 'highpass', 2000, 0, 0.14);
+    if (mag > 0.15) {
+      SFX._tone(ac, 'sine', 110, 26, t, 0.6 + mag * 0.7, 0.35 + mag * 0.5);
+      SFX._tone(ac, 'sawtooth', 160, 40, t + 0.05, 0.5 + mag * 0.4, 0.06 + mag * 0.08, 400);
+    }
+    if (mag > 0.6) SFX._hit(ac, t + 0.15, 1.2, 1.5, 'lowpass', 90, 0, 0.5);
   },
-
-  // Bank — chip stack set down firmly on table
-  // Sharp high click (tap) + low woody thud (stack weight) + brief resonance tail
-  bank: function() {
+  halve: function() {
     var ac = getAC(), t = ac.currentTime;
-    // Tap: sharp highish transient
-    var tap = ac.createBufferSource();
-    tap.buffer = SFX._noise(ac, 0.022, 22);
-    var tp = ac.createBiquadFilter(); tp.type = 'bandpass'; tp.frequency.value = 1800; tp.Q.value = 1.5;
-    var tg = ac.createGain(); tg.gain.setValueAtTime(0.45, t); tg.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
-    tap.connect(tp); tp.connect(tg); tg.connect(ac.destination);
-    tap.start(t);
-    // Thud: low body
-    var thud = ac.createBufferSource();
-    thud.buffer = SFX._noise(ac, 0.09, 8);
-    var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 240;
-    var lg = ac.createGain(); lg.gain.setValueAtTime(0.6, t); lg.gain.exponentialRampToValueAtTime(0.001, t + 0.09);
-    thud.connect(lp); lp.connect(lg); lg.connect(ac.destination);
-    thud.start(t);
-    // Resonance: very quiet mid ring that fades slowly — felt on a hard surface
-    var ring = ac.createBufferSource();
-    ring.buffer = SFX._noise(ac, 0.22, 1.5);
-    var rp = ac.createBiquadFilter(); rp.type = 'bandpass'; rp.frequency.value = 380; rp.Q.value = 4;
-    var rg = ac.createGain(); rg.gain.setValueAtTime(0.07, t + 0.01); rg.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
-    ring.connect(rp); rp.connect(rg); rg.connect(ac.destination);
-    ring.start(t + 0.01);
+    SFX._hit(ac, t, 0.12, 6, 'lowpass', 200, 0, 0.6);
+    SFX._tone(ac, 'triangle', 440, 220, t, 0.3, 0.08);
   },
-
-  // Round clear — single chip placed down gently, lighter than bank
+  bank: function(amt) {
+    amt = amt || 0;
+    var ac = getAC(), t = ac.currentTime;
+    SFX._hit(ac, t, 0.022, 22, 'bandpass', 1800, 1.5, 0.45);
+    SFX._hit(ac, t, 0.09, 8, 'lowpass', 240, 0, 0.6);
+    SFX._hit(ac, t + 0.01, 0.22, 1.5, 'bandpass', 380, 4, 0.07);
+    if (amt >= 250) [0.06, 0.12, 0.19, 0.27].forEach(function(o, i) { SFX._hit(ac, t + o, 0.03, 18, 'bandpass', 2600 + i * 400, 3, 0.12); });
+  },
   roundClear: function() {
     var ac = getAC(), t = ac.currentTime;
-    var tap = ac.createBufferSource();
-    tap.buffer = SFX._noise(ac, 0.018, 24);
-    var tp = ac.createBiquadFilter(); tp.type = 'bandpass'; tp.frequency.value = 1600; tp.Q.value = 1.2;
-    var tg = ac.createGain(); tg.gain.setValueAtTime(0.28, t); tg.gain.exponentialRampToValueAtTime(0.001, t + 0.016);
-    tap.connect(tp); tp.connect(tg); tg.connect(ac.destination);
-    tap.start(t);
-    var thud = ac.createBufferSource();
-    thud.buffer = SFX._noise(ac, 0.06, 10);
-    var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 200;
-    var lg = ac.createGain(); lg.gain.setValueAtTime(0.3, t); lg.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
-    thud.connect(lp); lp.connect(lg); lg.connect(ac.destination);
-    thud.start(t);
+    SFX._hit(ac, t, 0.018, 24, 'bandpass', 1600, 1.2, 0.28);
+    SFX._hit(ac, t, 0.06, 10, 'lowpass', 200, 0, 0.3);
   },
-
-  // Card slapped face-down — sharp paper snap + brief air displacement
   card: function() {
     var ac = getAC(), t = ac.currentTime;
-    // Paper snap: very short highpass burst
-    var snap = ac.createBufferSource();
-    snap.buffer = SFX._noise(ac, 0.03, 25);
-    var hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3500;
-    var sg = ac.createGain(); sg.gain.setValueAtTime(0.38, t); sg.gain.exponentialRampToValueAtTime(0.001, t + 0.025);
-    snap.connect(hp); hp.connect(sg); sg.connect(ac.destination);
-    snap.start(t);
-    // Air/body: low-mid thud underneath
-    var body = ac.createBufferSource();
-    body.buffer = SFX._noise(ac, 0.05, 14);
-    var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 320; bp.Q.value = 1.0;
-    var bg = ac.createGain(); bg.gain.setValueAtTime(0.25, t); bg.gain.exponentialRampToValueAtTime(0.001, t + 0.045);
-    body.connect(bp); bp.connect(bg); bg.connect(ac.destination);
-    body.start(t);
+    SFX._hit(ac, t, 0.03, 25, 'highpass', 3500, 0, 0.38);
+    SFX._hit(ac, t, 0.05, 14, 'bandpass', 320, 1, 0.25);
+  },
+  announce: function(kind) {
+    var ac = getAC(), t = ac.currentTime;
+    if (kind === 'bad') { SFX._tone(ac, 'triangle', 330, 330, t, 0.18, 0.08); SFX._tone(ac, 'triangle', 247, 247, t + 0.12, 0.3, 0.08); return; }
+    SFX._tone(ac, 'triangle', 660, 660, t, 0.16, 0.07);
+    SFX._tone(ac, 'triangle', 990, 990, t + 0.1, 0.32, 0.07);
+    if (kind === 'gold') SFX._tone(ac, 'triangle', 1320, 1320, t + 0.2, 0.45, 0.06);
+  },
+  reveal: function() {
+    var ac = getAC(), t = ac.currentTime;
+    var s = ac.createBufferSource(); s.buffer = SFX._noise(ac, 0.4, 1.5);
+    var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.4; bp.frequency.setValueAtTime(400, t); bp.frequency.exponentialRampToValueAtTime(2600, t + 0.35);
+    var g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.16, t + 0.2); g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+    s.connect(bp); bp.connect(g); g.connect(ac.destination); s.start(t);
+    SFX._tone(ac, 'sine', 880, 880, t + 0.32, 0.9, 0.09);
+    SFX._tone(ac, 'sine', 1320, 1320, t + 0.36, 0.8, 0.05);
+  },
+  elim: function() {
+    var ac = getAC(), t = ac.currentTime;
+    SFX._tone(ac, 'sine', 95, 30, t, 0.8, 0.6);
+    SFX._tone(ac, 'sawtooth', 240, 70, t, 0.55, 0.1, 700);
+    SFX._hit(ac, t, 0.25, 5, 'lowpass', 140, 0, 0.7);
+  },
+  heartbreak: function() {
+    var ac = getAC(), t = ac.currentTime;
+    SFX._tone(ac, 'sine', 560, 260, t, 0.28, 0.09);
+  },
+  showdown: function() {
+    var ac = getAC(), t = ac.currentTime;
+    SFX._tone(ac, 'sine', 80, 40, t, 1.0, 0.5);
+    SFX._tone(ac, 'triangle', 196, 196, t + 0.05, 0.5, 0.08);
+    SFX._tone(ac, 'triangle', 185, 185, t + 0.45, 0.8, 0.08);
+  },
+  victory: function() {
+    var ac = getAC(), t = ac.currentTime;
+    [523, 659, 784, 1047].forEach(function(f, i) { SFX._tone(ac, 'triangle', f, f, t + i * 0.11, 0.6, 0.09); });
+    [523, 784, 1047].forEach(function(f) { SFX._tone(ac, 'sine', f, f, t + 0.5, 1.4, 0.05); });
+  },
+  heatUp: function(level) {
+    var ac = getAC(), t = ac.currentTime;
+    var s = ac.createBufferSource(); s.buffer = SFX._noise(ac, 1.1, 0.6);
+    var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 110;
+    var g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.12 + level * 0.05, t + 0.5); g.gain.exponentialRampToValueAtTime(0.001, t + 1.1);
+    s.connect(lp); lp.connect(g); g.connect(ac.destination); s.start(t);
   },
 
-  // Tension state sounds
-  _droneNode: null,
-  _droneGain: null,
+  // Tension state sounds. Only called on a state CHANGE (see render).
+  _droneNode: null, _droneGain: null, _stopTimer: null, _state: 'none',
   startDrone: function(intense) {
     var ac = getAC(), t = ac.currentTime;
-    // Always fire the single tension thud on state change
-    var thud = ac.createBufferSource();
-    thud.buffer = SFX._noise(ac, intense ? 0.5 : 0.35, intense ? 1.8 : 2.2);
+    var thud = ac.createBufferSource(); thud.buffer = SFX._noise(ac, intense ? 0.5 : 0.35, intense ? 1.8 : 2.2);
     var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = intense ? 100 : 130;
-    var g = ac.createGain();
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(intense ? 0.55 : 0.35, t + 0.015);
-    g.gain.exponentialRampToValueAtTime(0.001, t + (intense ? 0.5 : 0.35));
-    thud.connect(lp); lp.connect(g); g.connect(ac.destination);
-    thud.start(t);
-    // Solo only: add sustained room-tone ambient — broadband noise, highs rolled way off
-    // Sits just below awareness, like a room going quiet and holding its breath
-    if (intense) {
-      if (!SFX._droneNode) {
-        var len = ac.sampleRate * 2; // 2s looping buffer of noise
-        var buf = ac.createBuffer(1, len, ac.sampleRate);
-        var d = buf.getChannelData(0);
-        for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
-        var src = ac.createBufferSource();
-        src.buffer = buf; src.loop = true;
-        var lp2 = ac.createBiquadFilter(); lp2.type = 'lowpass'; lp2.frequency.value = 180;
-        var lp3 = ac.createBiquadFilter(); lp3.type = 'lowpass'; lp3.frequency.value = 180; // double-pole for steeper rolloff
-        var dg = ac.createGain(); dg.gain.setValueAtTime(0, t);
-        dg.gain.linearRampToValueAtTime(0.055, t + 2.5); // fades in slowly over 2.5s
-        src.connect(lp2); lp2.connect(lp3); lp3.connect(dg); dg.connect(ac.destination);
-        src.start(t);
-        SFX._droneNode = src; SFX._droneGain = dg;
-      } else {
-        // Already running — just make sure gain is up
-        SFX._droneGain.gain.cancelScheduledValues(t);
-        SFX._droneGain.gain.setValueAtTime(SFX._droneGain.gain.value || 0, t);
-        SFX._droneGain.gain.linearRampToValueAtTime(0.055, t + 1.0);
-      }
+    var g = ac.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(intense ? 0.55 : 0.35, t + 0.015); g.gain.exponentialRampToValueAtTime(0.001, t + (intense ? 0.5 : 0.35));
+    thud.connect(lp); lp.connect(g); g.connect(ac.destination); thud.start(t);
+    if (!intense) return;
+    // A pending stop would kill the drone we're about to reuse
+    if (SFX._stopTimer) { clearTimeout(SFX._stopTimer); SFX._stopTimer = null; }
+    if (!SFX._droneNode) {
+      var len = ac.sampleRate * 2, buf = ac.createBuffer(1, len, ac.sampleRate), d = buf.getChannelData(0);
+      for (var i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      var src = ac.createBufferSource(); src.buffer = buf; src.loop = true;
+      var a = ac.createBiquadFilter(); a.type = 'lowpass'; a.frequency.value = 180;
+      var b = ac.createBiquadFilter(); b.type = 'lowpass'; b.frequency.value = 180;
+      var dg = ac.createGain(); dg.gain.setValueAtTime(0, t); dg.gain.linearRampToValueAtTime(0.055, t + 2.5);
+      src.connect(a); a.connect(b); b.connect(dg); dg.connect(ac.destination); src.start(t);
+      SFX._droneNode = src; SFX._droneGain = dg;
+    } else {
+      SFX._droneGain.gain.cancelScheduledValues(t);
+      SFX._droneGain.gain.setValueAtTime(SFX._droneGain.gain.value || 0, t);
+      SFX._droneGain.gain.linearRampToValueAtTime(0.055, t + 1.0);
     }
   },
   stopDrone: function() {
-    if (!SFX._droneGain || !SFX._droneNode) return;
+    if (!SFX._droneGain || !SFX._droneNode || SFX._stopTimer) return;
     var ac = getAC(), t = ac.currentTime;
     SFX._droneGain.gain.cancelScheduledValues(t);
     SFX._droneGain.gain.setValueAtTime(SFX._droneGain.gain.value || 0, t);
     SFX._droneGain.gain.linearRampToValueAtTime(0, t + 1.8);
-    // Null out after fade so next solo gets a fresh node
     var node = SFX._droneNode;
-    setTimeout(function() {
-      try { node.stop(); } catch(e) {}
-      SFX._droneNode = null; SFX._droneGain = null;
+    SFX._stopTimer = setTimeout(function() {
+      try { node.stop(); } catch (e) {}
+      if (SFX._droneNode === node) { SFX._droneNode = null; SFX._droneGain = null; }
+      SFX._stopTimer = null;
     }, 2200);
   }
 };
+// Every public sound is a no-op without audio, and can never throw into game logic
+Object.keys(SFX).forEach(function(k) {
+  if (k.charAt(0) === '_' || typeof SFX[k] !== 'function') return;
+  var f = SFX[k];
+  SFX[k] = function() { try { if (!getAC()) return; return f.apply(SFX, arguments); } catch (e) {} };
+});
 
-function pushSnap() { HISTORY.push(JSON.stringify(G)); if (HISTORY.length > 20) HISTORY.shift(); }
-function undoLast() {
-  if (!HISTORY.length) return;
-var s = JSON.parse(HISTORY.pop());
-  G.players = s.players; G.roller = s.roller; G.pot = s.pot; G.rolls = s.rolls;
-  G.round = s.round;
-G.total = s.total; G.selR = s.selR;
-  G.bankedThisRound = s.bankedThisRound; G.bustPot = s.bustPot;
-  if (s.cumMiss) G.cumMiss = s.cumMiss;
-['dblPicker','bankPicker'].forEach(function(id) { var e = document.getElementById(id); if (e) e.remove(); });
-  render(); showToast('Undone');
-}
-
-function addInput() {
-  var el = document.getElementById('suInputs');
-if (el.children.length >= 8) return;
-  var n = el.children.length + 1;
-  var row = document.createElement('div'); row.className = 'su-row';
-row.innerHTML = '<input type="text" placeholder="Player ' + n + '" maxlength="20"><button class="su-rm" onclick="rmInput(this)">&#215;</button>';
-  el.appendChild(row);
-  document.getElementById('suAddBtn').style.display = el.children.length >= 8 ?
-'none' : '';
-}
-function rmInput(btn) {
-  var el = document.getElementById('suInputs');
-  if (el.children.length <= 2) return;
-  btn.closest('.su-row').remove();
-  document.getElementById('suAddBtn').style.display = '';
-}
-function pickR(n) {
-  G.selR = n;
-  document.querySelectorAll('.su-rbtn').forEach(function(b) { b.classList.toggle('on', +b.dataset.r === n); });
-}
-function startGame() {
-  var names = Array.from(document.getElementById('suInputs').querySelectorAll('input')).map(function(i) { return i.value.trim(); }).filter(Boolean);
-if (names.length < 2) { showToast('Need at least 2 players'); return;
-}
-  G.players = names.map(function(n) { return { name: n, score: 0, banked: false, bankedAmt: null }; });
-G.total = G.selR; G.round = 1; G.roller = 0; G.pot = 0; G.rolls = 0;
-  G.bankedThisRound = [];
-G.bustPot = 0; G.cumMiss = {}; HISTORY = [];
-  names.forEach(function(n) { G.cumMiss[n] = 0; });
-  initStats(names);
-  if (MODE === 'sabotage') initCards(names);
-  var game = document.getElementById('game');
-  applyTheme(game);
-  document.getElementById('gBank').textContent = THEME_MAP[T].bankText;
-  // mode badge
-  var oldBadge = document.getElementById('gModeBadge');
-  if (oldBadge) oldBadge.remove();
-  if (MODE !== 'standard') {
-    var badge = document.createElement('div');
-    badge.id = 'gModeBadge'; badge.className = 'g-mode-badge';
-    badge.textContent = MODE_LABELS[MODE] || MODE;
-    game.appendChild(badge);
-  }
-  // race target bar
-  var oldRaceBar = document.getElementById('gRaceBar');
-  if (oldRaceBar) oldRaceBar.remove();
-  if (MODE === 'race') {
-    var rb = document.createElement('div');
-    rb.id = 'gRaceBar'; rb.className = 'race-target-bar';
-    rb.textContent = 'First to ' + RACE_TARGET.toLocaleString() + ' wins';
-    var bankBtn = document.getElementById('gBank');
-    bankBtn.parentNode.insertBefore(rb, bankBtn);
-  }
-  showScreen('game'); render();
-}
-
-function submitRoll(isDbl, total, keyEl) {
+// ══ ROLLING ══
+function submitRoll(isDbl, total, keyEl, dice) {
+  if (G.phase !== 'play' || anyOverlay()) return;
   pushSnap();
   if (keyEl) {
     var rip = document.createElement('div'); rip.className = 'key-ripple';
-keyEl.appendChild(rip); setTimeout(function() { if(rip.parentNode) rip.remove(); }, 400);
+    keyEl.appendChild(rip); setTimeout(function() { if (rip.parentNode) rip.remove(); }, 400);
   }
-  var name = G.players[G.roller].name;
-  var prev = G.pot;
+  var roller = G.players[G.roller], name = roller.name, st = STATS[name];
+  var prev = G.pot, prevRoll = G.lastRoll;
+  var heat = computeHeat();
   G.rolls++;
+  G.lastRoll = total; G.lastDice = dice || null;
+  var danger = G.rolls > safeRollCount();
+  if (isDbl) st.doubles++;
+  if (total === 7) st.sevens++;
 
-  // Track doubles/sevens for STATS
-  if (isDbl) {
-    if (STATS[name]) STATS[name].doubles++;
-  }
-  if (total === 7) {
-    if (STATS[name]) STATS[name].sevens++;
-  }
+  if (danger && (total === 7 || (total === 2 && hasMod('snakeEyes')))) { resolveBust(name, total, prev); return; }
 
-  // Determine safe phase — turbo has no safe phase
-  var inSafePhase = (MODE !== 'turbo') && (G.rolls <= 3);
-
-  if (inSafePhase) {
-    if (total === 7) { G.pot += 70; doFlash('rgba(255,255,255,.15)'); potPulse();
-      SFX.safeSeven();
-      showToast(name + ' rolled 7  \u2192  +70'); }
-    else { G.pot += total; animatePot(prev, G.pot);
-      SFX.roll();
-      showToast(name + ': ' + total + '  \u2192  +' + total); }
-  } else {
+  var msg = [], kind = 'roll', mult = hasMod('doubleTrouble') ? 2 : 1, add;
+  if (!danger) {
     if (total === 7) {
-      G.bustPot = prev;
-      var insuredPlayers = EFFECTS.insurance.slice();
-      var bountyActive = EFFECTS.bounty;
-      if (STATS[name]) { STATS[name].bustSevens++; }
-
-      // Check if bounty target busted (still rolling, not banked)
-      var bountyHit = bountyActive && !G.players.find(function(p) { return p.name === bountyActive.target; }).banked;
-
-      if (bountyHit) {
-        // Bounty payout: split pot among all players EXCEPT the bounty target
-        var recipients = G.players.filter(function(p) { return p.name !== bountyActive.target; });
-        var share = Math.floor(prev / recipients.length);
-        recipients.forEach(function(p) {
-          p.score += share;
-          if (STATS[p.name]) {
-            STATS[p.name].banks.push(share);
-            STATS[p.name].bankAmts.push(share);
-          }
-        });
-        // Bounty target gets nothing and loses the pot
-        var bountyTarget = G.players.find(function(p) { return p.name === bountyActive.target; });
-        if (STATS[bountyActive.target]) STATS[bountyActive.target].pointsLost += prev;
-        G.cumMiss[bountyActive.target] = (G.cumMiss[bountyActive.target] || 0) + prev;
-        // Other unbanked non-target players still lost the pot opportunity but got bounty share
-        G.players.filter(function(p) { return !p.banked && p.name !== bountyActive.target; }).forEach(function(p) {
-          // They got the bounty share, but track cumMiss for the difference
-          G.cumMiss[p.name] = (G.cumMiss[p.name] || 0) + (prev - share);
-        });
-        showToast('Bounty collected! ' + bountyActive.target + ' busted — ' + share.toLocaleString() + ' each to everyone else!');
-      } else {
-        // Normal bust: no bounty or bounty target already banked
-        G.players.filter(function(p) { return !p.banked; }).forEach(function(p) {
-          if (STATS[p.name]) STATS[p.name].pointsLost += prev;
-          G.cumMiss[p.name] = (G.cumMiss[p.name] || 0) + prev;
-          if (insuredPlayers.indexOf(p.name) !== -1) {
-            p.score += prev;
-            STATS[p.name].banks.push(prev);
-            STATS[p.name].bankAmts.push(prev);
-          }
-        });
-        if (insuredPlayers.length) showToast('Bust! Insured players kept ' + prev.toLocaleString());
-      }
-      SFX.bust();
-      doFlash('rgba(255,51,0,.22)'); shakeScreen(); showRoundEnd(true); return;
+      add = hasMod('goldenSeven') ? 140 : 70; G.pot += add; kind = 'seven';
+      msg.push(name + ' rolled 7 → +' + add + (hasMod('goldenSeven') ? ' golden' : ''));
+    } else {
+      add = total * mult; G.pot += add;
+      msg.push(name + ': ' + total + ' → +' + add);
     }
-    if (EFFECTS.doubledown) {
-      EFFECTS.doubledown = false;
-      if (total % 2 === 0) {
-        G.pot *= 2; doFlash('rgba(255,255,255,.18)'); animatePot(prev, G.pot);
-        SFX.doubles();
-        showToast('Double Down hit! Even roll \u2014 pot doubled \u2192 ' + G.pot.toLocaleString());
-        nextRoller(); render(); return;
-      } else {
-        G.pot = Math.floor(G.pot / 2); doFlash('rgba(255,100,0,.25)'); animatePot(prev, G.pot);
-        SFX.bust();
-        showToast('Double Down backfired! Odd roll \u2014 pot halved \u2192 ' + G.pot.toLocaleString());
-        nextRoller(); render(); return;
-      }
-    }
-    else if (MODE === 'cutthroat' && (total === 2 || total === 12)) {
-      var halved = Math.floor(G.pot / 2);
-      G.pot = halved;
-      doFlash('rgba(255,100,0,.25)');
-      animatePot(prev, G.pot);
-      SFX.bust();
-      showToast(name + ' rolled ' + total + '! Pot halved \u2192 ' + G.pot.toLocaleString());
-    }
-    else if (isDbl) {
-      G.pot *= 2; doFlash('rgba(255,255,255,.12)'); animatePot(prev, G.pot);
-      SFX.doubles();
-      showToast(name + ' doubles!  Pot \u2192 ' + G.pot.toLocaleString());
-    }
-    else { G.pot += total; animatePot(prev, G.pot); SFX.roll(); showToast(name + ': ' + total + '  \u2192  +' + total); }
+  } else if (EFFECTS.doubledown) {
+    EFFECTS.doubledown = false;
+    if (isDbl || total % 2 === 0) { G.pot *= 2; kind = 'double'; msg.push('Double Down hit! Pot doubled'); }
+    else { G.pot = Math.floor(G.pot / 2); kind = 'halve'; msg.push('Double Down backfired! Pot halved'); }
+  } else if (G.mode === 'cutthroat' && (total === 2 || total === 12)) {
+    G.pot = Math.floor(G.pot / 2); kind = 'halve';
+    msg.push(name + ' rolled ' + total + '! Pot halved');
+  } else if (isDbl) {
+    var m = hasMod('hotHand') ? 3 : 2; G.pot *= m; kind = 'double';
+    msg.push(name + ' doubles! Pot ×' + m);
+  } else if (hasMod('copycat') && prevRoll != null && prevRoll === total) {
+    G.pot *= 2; kind = 'double';
+    msg.push('Copycat! ' + total + ' again → pot ×2');
+  } else {
+    add = total * mult; G.pot += add;
+    msg.push(name + ': ' + total + ' → +' + add);
   }
-
-  // Roller's Cut: if only 1 player not banked, they get a 10% bonus
-  if (MODE === 'rollerscut') {
-    var unbankedCount = G.players.filter(function(p) { return !p.banked; }).length;
-    if (unbankedCount === 1) {
-      var bonus = Math.floor(G.pot * 0.20);
-      if (bonus > 0) {
-        G.pot += bonus;
-        showToast("Roller's cut! +" + bonus.toLocaleString() + ' bonus');
-        animatePot(G.pot - bonus, G.pot);
-      }
-    }
+  if (hasMod('highStakes') && (total === 10 || total === 11)) { G.pot += 50; msg.push('High Stakes +50'); }
+  // Roller's Cut: 20% of what this roll added (it used to be 20% of the whole pot, compounding every roll)
+  if (G.mode === 'rollerscut' && activeUnbanked().length === 1) {
+    var gain = G.pot - prev;
+    if (gain > 0) { var bonus = Math.max(1, Math.round(gain * 0.2)); G.pot += bonus; msg.push("Roller's Cut +" + bonus); }
   }
+  if (G.pot > G.peakPot) G.peakPot = G.pot;
 
-  nextRoller(); render();
+  var jump = G.pot - prev;
+  var newHeat = computeHeat();
+  if (kind === 'seven') { doFlash(hasMod('goldenSeven') ? 'rgba(255,210,63,.25)' : 'rgba(255,255,255,.15)'); potPulse(); SFX.safeSeven(hasMod('goldenSeven')); }
+  else if (kind === 'double') {
+    animatePot(prev, G.pot); SFX.doubles(newHeat);
+    var mag = clamp(jump / 900, 0, 1);
+    doFlash('rgba(255,255,255,' + (0.12 + mag * 0.2).toFixed(2) + ')');
+    if (jump >= 120) potSlam(mag);
+    if (jump >= 250 && !potHidden()) addMoment('double', name + ' doubled the pot to ' + fmt(G.pot), jump);
+    if (jump >= 400) { spawnConfetti(30 + Math.round(mag * 40), false); buzz(30); }
+  }
+  else if (kind === 'halve') { animatePot(prev, G.pot); doFlash('rgba(255,100,0,.25)'); SFX.halve(); }
+  else { animatePot(prev, G.pot); SFX.roll(heat); }
+
+  showToast(msg.join(' · '));
+  nextRoller();
+  render();
 }
 
-function bankPlayer(idx) {
-  pushSnap();
-  var p = G.players[idx]; if (p.banked) return;
-  // Freeze: block banking
-  if (EFFECTS.freeze === p.name) {
-    showToast(p.name + ' is frozen and can\'t bank!');
-    return;
+function resolveBust(name, total, prev) {
+  G.bustPot = prev;
+  STATS[name].bustSevens++;
+  var victims = activeUnbanked();
+  var shares = {}, payouts = [];
+  function pay(p, amt, why) { if (amt <= 0) return; p.score += amt; shares[p.name] = (shares[p.name] || 0) + amt; payouts.push({ name: p.name, amt: amt, why: why }); }
+
+  // Bounty: everyone else still in splits the pot; if nobody else is in, the bounty-setter takes it
+  var bounty = EFFECTS.bounty;
+  if (bounty && victims.some(function(v) { return v.name === bounty.target; })) {
+    var rec = victims.filter(function(v) { return v.name !== bounty.target; });
+    if (!rec.length) { var by = findP(bounty.by); if (by) rec = [by]; }
+    if (rec.length) { var share = Math.floor(prev / rec.length); rec.forEach(function(r) { pay(r, share, 'bounty'); }); }
   }
-  var amt = G.pot;
-  // Tax: 20% to tax player
-  if (EFFECTS.tax !== null && EFFECTS.tax !== p.name) {
-    var taxAmt = Math.floor(amt * 0.20);
-    var taxPlayer = G.players.find(function(q) { return q.name === EFFECTS.tax; });
-    if (taxPlayer) {
-      taxPlayer.score += taxAmt;
-      amt -= taxAmt;
-      showToast(p.name + ' taxed ' + taxAmt.toLocaleString() + ' \u2192 ' + EFFECTS.tax);
+  // Insurance: half the pot to insured players still in
+  EFFECTS.insurance.forEach(function(n) {
+    var p = findP(n); if (p && !p.banked && !p.out) pay(p, Math.floor(prev / 2), 'insurance');
+  });
+
+  var lost = 0;
+  victims.forEach(function(v) {
+    var l = Math.max(0, prev - (shares[v.name] || 0));
+    STATS[v.name].pointsLost += l;
+    G.cumMiss[v.name] = (G.cumMiss[v.name] || 0) + l;
+    lost += l;
+  });
+
+  // Last Man Standing: lives
+  var lifeLost = [], elims = [], spared = [];
+  if (G.mode === 'lms') {
+    var alive = activePlayers();
+    var dying = victims.filter(function(v) { return v.lives <= 1; });
+    if (dying.length && dying.length === alive.length) {
+      // Everyone left would go out: the highest score survives (ties all survive)
+      var top = Math.max.apply(null, dying.map(function(v) { return v.score; }));
+      spared = dying.filter(function(v) { return v.score === top; }).map(function(v) { return v.name; });
     }
-    EFFECTS.tax = null;
+    victims.forEach(function(v) {
+      var before = v.lives;
+      if (spared.indexOf(v.name) !== -1) { lifeLost.push({ name: v.name, before: before, after: before, spared: true }); return; }
+      v.lives = Math.max(0, v.lives - 1);
+      var out = v.lives === 0;
+      if (out) { v.out = true; v.outRound = G.round; G.elimOrder.push(v.name); elims.push(v.name); }
+      lifeLost.push({ name: v.name, before: before, after: v.lives, out: out });
+    });
+    var left = activePlayers();
+    if (left.length === 1) G.winners = [left[0].name];
   }
-  p.score += amt; p.banked = true; p.bankedAmt = amt;
-  G.bankedThisRound.push({ name: p.name, amt: amt });
-  if (STATS[p.name]) {
-    STATS[p.name].banks.push(amt);
-    STATS[p.name].bankAmts.push(amt);
-  }
-  // Bounty fizzle: if the bounty target banks, the bounty is wasted
-  if (EFFECTS.bounty && EFFECTS.bounty.target === p.name) {
-    showToast('Bounty on ' + p.name + ' fizzled — they banked!');
-    EFFECTS.bounty = null;
-  }
-  spawnConfetti(55, false);
-  SFX.bank();
-  showToast(p.name + ' banked ' + amt.toLocaleString() + '!');
-  if (MODE === 'race' && p.score >= RACE_TARGET) {
-    showRaceWin(p.name, p.score);
-    return;
-  }
-  if (idx === G.roller) nextRoller();
-  if (G.players.every(function(q) { return q.banked; })) { showRoundEnd(false); return; }
+
+  var biggest = lost >= 150 && lost > G.biggestBust && G.biggestBust > 0;
+  var record = lost >= 300 && RECORDS.biggestBust > 0 && lost > RECORDS.biggestBust && lost > G.biggestBust;
+  if (lost > G.biggestBust) G.biggestBust = lost;
+  if (lost >= 150) addMoment('bust', name + ' rolled a ' + total + ' on a ' + fmt(prev) + ' pot. ' + fmt(lost) + ' points gone.', lost);
+
+  G.result = { bust: true, pot: prev, roller: name, total: total, lost: lost, victims: victims.map(function(v) { return v.name; }), payouts: payouts, lifeLost: lifeLost, elims: elims, spared: spared, biggest: biggest, record: record };
+  G.phase = 'roundEnd';
+
+  var mag = clamp(prev / 800, 0, 1);
+  SFX.bust(mag);
+  buzz(mag > 0.4 ? [80, 40, 160] : 60);
+  shakeScreen(mag);
+  doFlash('rgba(255,51,0,' + (0.2 + mag * 0.2).toFixed(2) + ')');
   render();
+  playBustSequence(G.result, showRoundEnd);
 }
 
 function nextRoller() {
-  var tries = 0;
-do { G.roller = (G.roller + 1) % G.players.length; tries++; }
-  while (G.players[G.roller].banked && tries < G.players.length);
+  var n = G.players.length, tries = 0;
+  do { G.roller = (G.roller + 1) % n; tries++; }
+  while ((G.players[G.roller].banked || G.players[G.roller].out) && tries < n);
 }
 
-function endRound() {
-  // For clear rounds (not bust), accumulate miss for players who didn't bank
-  G.players.filter(function(p) { return !p.banked; }).forEach(function(p) {
-    G.cumMiss[p.name] = (G.cumMiss[p.name] || 0) + G.pot;
-  });
-  G.players.forEach(function(p) { p.banked = false; p.bankedAmt = null; });
-  G.pot = 0; G.rolls = 0;
-  G.bankedThisRound = []; G.bustPot = 0; G.round++;
-  resetEffects();
-  SFX.stopDrone();
-  if (G.round > G.total) { showEndScreen(); return; }
-  G.roller = (G.roller + 1) % G.players.length;
-  maybeRoundDeal();
+// ══ BANKING ══
+// What a bank would pay right now (before the Tax card)
+function previewBank(idx) {
+  var amt = G.pot, notes = [];
+  if (hasMod('firstIn') && !G.firstBankDone) { var b = Math.round(amt * 0.25); amt += b; notes.push('First In +' + b); }
+  if (hasMod('finalStand') && activeUnbanked().length === 1 && activePlayers().length > 1) { amt += 100; notes.push('Final Stand +100'); }
+  if (hasMod('taxman')) { var t = Math.floor(amt * 0.10); amt -= t; notes.push('Taxman −' + t); }
+  return { amt: amt, notes: notes };
+}
+function bankPlayer(idx) {
+  if (G.phase !== 'play') return;
+  var p = G.players[idx]; if (!p || p.banked || p.out) return;
+  if (EFFECTS.freeze === p.name) { showToast(p.name + ' is frozen and can’t bank!'); return; }
+  if (bankLockedByMin()) { showToast('The pot needs ' + fmt(lmsMinBank()) + ' before anyone can bank'); return; }
+  if (hasMod('lockdown') && idx !== G.roller) { showToast('Lockdown: only the roller can bank'); return; }
+  pushSnap();
+  var hidden = potHidden();
+  var wasSolo = activeUnbanked().length === 1 && activePlayers().length > 1;
+  var leaderBefore = leaderName();
+  var hadScores = G.players.some(function(q) { return q.score > 0; });
+  var pv = previewBank(idx), amt = pv.amt, notes = pv.notes.slice();
+  if (EFFECTS.tax && EFFECTS.tax !== p.name) {
+    var taxAmt = Math.floor(amt * 0.20), taxP = findP(EFFECTS.tax);
+    if (taxP) { taxP.score += taxAmt; amt -= taxAmt; notes.push('taxed ' + taxAmt + ' → ' + EFFECTS.tax); }
+    EFFECTS.tax = null;
+  }
+  G.firstBankDone = true;
+  p.score += amt; p.banked = true; p.bankedAmt = amt;
+  G.bankedThisRound.push({ name: p.name, amt: amt });
+  STATS[p.name].banks.push(amt);
+  if (wasSolo) STATS[p.name].lastStanding++;
+  if (EFFECTS.bounty && EFFECTS.bounty.target === p.name) { notes.push('bounty fizzled'); EFFECTS.bounty = null; }
+
+  showToast(p.name + ' banked' + (hidden ? '' : ' ' + fmt(amt)) + (notes.length && !hidden ? ' · ' + notes.join(' · ') : '') + '!');
+  var big = clamp(amt / 600, 0, 1);
+  spawnConfetti(40 + Math.round(big * 80), big > 0.5);
+  SFX.bank(amt);
+  if (amt >= 200 && !hidden) addMoment('bank', p.name + ' banked ' + fmt(amt) + ' in round ' + G.round, amt);
+  if (!hidden) bankAnnouncements(p, amt, leaderBefore, hadScores);
+  if (amt > G.bestBank) G.bestBank = amt;
+
+  if (G.mode === 'race' && p.score >= G.raceTarget) {
+    G.winners = [p.name]; G.winReason = 'race';
+    G.phase = 'over';
+    render();
+    later(function() { endGame(); }, 1100);
+    return;
+  }
+  if (idx === G.roller) nextRoller();
+  if (activeUnbanked().length === 0) { roundClear(); return; }
   render();
 }
-
-function render() {
-  var p2 = (MODE === 'turbo') ? true : (G.rolls >= 3);
-var roller = G.players[G.roller];
-  // Blackout: hide pot value after roll 3
-  var potEl = document.getElementById('gPotValue');
-  if (MODE === 'blackout' && G.rolls >= 3) {
-    potEl.textContent = G.pot.toLocaleString(); // keep real value for bust logic
-    potEl.classList.add('pot-hidden');
-  } else {
-    potEl.textContent = G.pot.toLocaleString();
-    potEl.classList.remove('pot-hidden');
-    potEl.style.opacity = '';
+function bankAnnouncements(p, amt, leaderBefore, hadScores) {
+  var leaderAfter = leaderName(), pick = null;
+  var allBanks = []; Object.keys(STATS).forEach(function(n) { allBanks = allBanks.concat(STATS[n].banks); });
+  var avg = allBanks.length ? allBanks.reduce(function(a, b) { return a + b; }, 0) / allBanks.length : 0;
+  if (RECORDS.bestBank > 0 && amt >= 200 && amt > RECORDS.bestBank && amt > G.bestBank) {
+    pick = ['New Record', p.name + ' · ' + fmt(amt) + ' · best bank ever', 'gold'];
+    addMoment('record', p.name + ' set an all-time record bank: ' + fmt(amt), amt + 1000);
+  } else if (G.roundStartLast === p.name && leaderAfter === p.name) {
+    pick = ['Comeback', p.name + ' goes from last to first', 'gold'];
+    STATS[p.name].comebacks++;
+    addMoment('comeback', p.name + ' went from last place to the lead in round ' + G.round, amt + 500);
+  } else if (leaderAfter && leaderAfter !== leaderBefore && hadScores && G.round >= 2 && !G.leaderAnnounced) {
+    pick = ['New Leader', p.name + ' takes the lead · ' + fmt(p.score), ''];
+    G.leaderAnnounced = true;
+  } else if (amt >= 300 && allBanks.length >= 3 && amt >= avg * 2.2) {
+    pick = ['Big Bank', p.name + ' · ' + fmt(amt), ''];
   }
-  document.getElementById('gPotSub').textContent = 'roll ' + (G.rolls + 1);
+  if (pick) announce(pick[0], pick[1], pick[2]);
+}
+function roundClear() {
+  G.result = { bust: false, pot: G.pot };
+  G.phase = 'roundEnd';
+  SFX.roundClear();
+  render();
+  later(showRoundEnd, 800);
+}
 
-  var rndEl = document.getElementById('gRnd');
-  var pipsEl = document.getElementById('gPips');
-  if (MODE === 'race') {
-    rndEl.textContent = '';
-    pipsEl.innerHTML = '';
+// ══ ROUND FLOW ══
+function endRound() {
+  if (G.phase !== 'roundEnd') return;
+  if (G.mode === 'lms' && activePlayers().length <= 1) { endGame(); return; }
+  if (G.mode !== 'race' && G.mode !== 'lms' && G.round >= G.total) { endGame(); return; }
+  G.players.forEach(function(p) { p.banked = false; p.bankedAmt = null; });
+  G.pot = 0; G.rolls = 0; G.lastRoll = null; G.lastDice = null;
+  G.bankedThisRound = []; G.bustPot = 0; G.result = null;
+  G.firstBankDone = false; G.soloAnnounced = false; G.leaderAnnounced = false; G.heat = 0;
+  G.round++;
+  resetEffects();
+  SFX.stopDrone(); SFX._state = 'none';
+  var intro = [];
+  if (G.mode === 'lms') {
+    if (G.opts.lmsSuddenDeath && !G.suddenDeath && G.round > 10) {
+      G.suddenDeath = true;
+      activePlayers().forEach(function(p) { p.lives = 1; });
+      intro.push('sudden');
+    }
+    if (activePlayers().length === 2 && !G.showdownShown) { G.showdownShown = true; intro.push('showdown'); }
+  }
+  // Next round starts with the player after whoever rolled last
+  var n = G.players.length, tries = 0;
+  do { G.roller = (G.roller + 1) % n; tries++; } while (G.players[G.roller].out && tries < n);
+  G.roundStartLast = standingsLast();
+  G.phase = 'play';
+  maybeRoundDeal();
+  if (G.mode === 'chaos') { rollMods(); intro.push('chaos'); }
+  if (intro.length) { G.phase = 'reveal'; G.intro = intro; }
+  render();
+  if (G.phase === 'reveal') showRoundIntro();
+}
+function rollMods() {
+  var count = G.opts.chaosCount === 2 ? 2 : 1;
+  var keys = Object.keys(MODS).filter(function(k) { return G.prevMods.indexOf(k) === -1; });
+  for (var i = keys.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = keys[i]; keys[i] = keys[j]; keys[j] = t; }
+  var picked = [keys[0]];
+  if (count === 2) { for (var k = 1; k < keys.length; k++) if (modsCompatible(picked[0], keys[k])) { picked.push(keys[k]); break; } }
+  G.prevMods = picked.slice();
+  G.mods = picked;
+}
+function endGame() {
+  clearOverlays();
+  if (!G.winners || !G.winners.length) {
+    if (G.mode === 'lms') {
+      var left = activePlayers();
+      var pool = left.length ? left : G.players;
+      var bestL = Math.max.apply(null, pool.map(function(p) { return p.lives; }));
+      pool = pool.filter(function(p) { return p.lives === bestL; });
+      var bestS = Math.max.apply(null, pool.map(function(p) { return p.score; }));
+      G.winners = pool.filter(function(p) { return p.score === bestS; }).map(function(p) { return p.name; });
+    } else {
+      var top = Math.max.apply(null, G.players.map(function(p) { return p.score; }));
+      G.winners = G.players.filter(function(p) { return p.score === top; }).map(function(p) { return p.name; });
+    }
+  }
+  G.phase = 'over';
+  commitRecords();
+  saveGame();
+  showEndScreen();
+}
+
+// ══ RENDER ══
+function computeHeat() {
+  if (G.phase !== 'play' && G.phase !== 'roundEnd') return 0;
+  var v = potHidden() ? G.rolls * 45 : G.pot;
+  var lv = v >= 1200 ? 4 : v >= 600 ? 3 : v >= 300 ? 2 : v >= 120 ? 1 : 0;
+  if (G.rolls < safeRollCount()) lv = Math.min(lv, 1);
+  return lv;
+}
+function render() {
+  if (!G.players.length) return;
+  var roller = G.players[G.roller];
+  var danger = nextRollDanger();
+  var hidden = potHidden();
+  var labels = shortLabels();
+
+  // Pot
+  var potEl = $('gPotValue');
+  potEl.textContent = fmt(G.pot);
+  potEl.classList.toggle('pot-hidden', hidden);
+  if (!hidden) potEl.style.opacity = '';
+  $('gPotSub').innerHTML = 'roll ' + (G.rolls + 1) + ' · ' + (danger ? '<span class="danger">danger</span>' : 'safe');
+
+  // Round counter
+  var rndEl = $('gRnd'), pipsEl = $('gPips');
+  pipsEl.innerHTML = '';
+  if (G.mode === 'race' || G.mode === 'lms') {
+    var sd = G.suddenDeath ? ' · SD' : '';
+    if (T === 'sb') rndEl.innerHTML = 'RND <span class="rnd-num">' + pad(G.round) + '</span>' + sd;
+    else if (T === 'term') rndEl.textContent = 'rnd[' + pad(G.round) + ']' + sd;
+    else rndEl.textContent = 'rnd ' + G.round + sd;
   } else {
     if (T === 'sb') rndEl.innerHTML = 'RND <span class="rnd-num">' + pad(G.round) + '</span>/' + G.total;
     else if (T === 'br') rndEl.textContent = 'roll_' + pad(G.round);
     else if (T === 'term') rndEl.textContent = 'rnd[' + pad(G.round) + '/' + G.total + ']';
     else rndEl.textContent = G.round + '/' + G.total;
-    pipsEl.innerHTML = '';
     for (var i = 1; i <= G.total; i++) {
       var pip = document.createElement('div');
       pip.className = 'g-pip' + (i < G.round ? ' done' : '') + (i === G.round ? ' current' : '');
@@ -1915,463 +2556,641 @@ var roller = G.players[G.roller];
     }
   }
 
-  var turnEl = document.getElementById('gTurn');
-  if (T === 'sb') turnEl.innerHTML = '<span class="live-dot"></span>' + (roller ? roller.name.toUpperCase() + "'S ROLL" : '\u2014');
-else if (T === 'br') turnEl.innerHTML = '<span class="arrow">\u2192</span>' + (roller ? roller.name.toUpperCase() + "'S ROLL" : '\u2014');
-else if (T === 'term') turnEl.textContent = roller ? roller.name.toLowerCase() + '.roll()' : '\u2014';
-else if (T === 'cas') turnEl.textContent = roller ? roller.name + "'s turn" : '\u2014';
-  else turnEl.textContent = roller ?
-roller.name + "'s roll" : '\u2014';
+  $('gInfo').innerHTML = infoHTML();
 
-  var grid = document.getElementById('gGrid'); grid.innerHTML = '';
-  var diceArea = document.getElementById('gDiceArea');
+  // Turn
+  var turnEl = $('gTurn'), rn = roller ? esc(roller.name) : '—';
+  if (T === 'sb') turnEl.innerHTML = '<span class="live-dot"></span>' + (roller ? rn.toUpperCase() + "'S ROLL" : rn);
+  else if (T === 'br') turnEl.innerHTML = '<span class="arrow">→</span>' + (roller ? rn.toUpperCase() + "'S ROLL" : rn);
+  else if (T === 'term') turnEl.textContent = roller ? roller.name.toLowerCase() + '.roll()' : '—';
+  else if (T === 'cas') turnEl.textContent = roller ? roller.name + "'s turn" : '—';
+  else turnEl.textContent = roller ? roller.name + "'s roll" : '—';
+
+  // Number pad / dice
+  var grid = $('gGrid'); grid.innerHTML = '';
+  var diceArea = $('gDiceArea');
   grid.style.display = USE_DICE ? 'none' : '';
-  if (diceArea) diceArea.style.display = USE_DICE ? '' : 'none';
-  if (USE_DICE) {
-    // In dice mode: reset dice to neutral and re-enable roll button
-    renderGameDie('gDie1', 1); renderGameDie('gDie2', 1);
-    DICE_ROLLING = false;
-    var btn = document.getElementById('gDiceRollBtn');
-    if (btn) btn.disabled = false;
-    // Still build the key grid off-screen so blocked logic works (not shown)
+  diceArea.style.display = USE_DICE ? '' : 'none';
+  if (USE_DICE && !DICE_ROLLING) {
+    var ld = G.lastDice;
+    renderGameDie('gDie1', ld ? ld[0] : 0); renderGameDie('gDie2', ld ? ld[1] : 0);
+    $('gDiceRollBtn').disabled = G.phase !== 'play';
   }
-for (var t = 2; t <= 12; t++) {
-    (function(total) {
+  if (!USE_DICE) {
+    for (var t = 2; t <= 12; t++) (function(total) {
       var btn = document.createElement('button'); btn.className = 'g-key'; btn.textContent = total;
-      if (total === 7) btn.classList.add(p2 ? 'k-seven-danger' : 'k-seven-safe');
-      // Block 2 and 12 only in non-cutthroat modes when in danger phase
-      if (p2 && (total === 2 || total === 12) && MODE !== 'cutthroat') btn.classList.add('k-blocked');
-      btn.addEventListener('click', function() { submitRoll(false, total, btn); });
+      var blocked = false;
+      if (total === 7) btn.classList.add(danger ? 'k-seven-danger' : 'k-seven-safe');
+      if (danger && (total === 2 || total === 12)) {
+        if (G.mode === 'cutthroat') btn.classList.add('k-cut');
+        else if (total === 2 && hasMod('snakeEyes')) btn.classList.add('k-seven-danger');
+        else blocked = true;   // 2 and 12 are always doubles: use the ×2 key
+      }
+      if (blocked) btn.classList.add('k-blocked');
+      else btn.addEventListener('click', function() { submitRoll(false, total, btn); });
       grid.appendChild(btn);
     })(t);
-}
-  var dblBtn = document.createElement('button');
-  dblBtn.className = 'g-key k-doubles' + (p2 ? ' k-p2' : '');
-if (T === 'br') dblBtn.innerHTML = '<span style="display:flex;align-items:baseline;gap:0"><span style="font-size:1.1rem;opacity:.6">\u00d7</span><span style="font-size:2.5rem">2</span></span>';
-  else if (T === 'term') dblBtn.textContent = '*2';
-else dblBtn.textContent = '\u00d72';
-  dblBtn.addEventListener('click', p2 ? function() { submitRoll(true, 4, dblBtn); } : showDblPicker);
-  grid.appendChild(dblBtn);
+    var dblBtn = document.createElement('button');
+    dblBtn.className = 'g-key k-doubles' + (danger ? ' k-p2' : '');
+    if (T === 'br') dblBtn.innerHTML = '<span style="display:flex;align-items:baseline;gap:0"><span style="font-size:1.1rem;opacity:.6">×</span><span style="font-size:2.5rem">2</span></span>';
+    else if (T === 'term') dblBtn.textContent = '*2';
+    else dblBtn.textContent = '×2';
+    dblBtn.addEventListener('click', function() {
+      if (nextRollDanger() && !needsDoublesTotal()) submitRoll(true, null, dblBtn);
+      else showDblPicker();
+    });
+    grid.appendChild(dblBtn);
+  }
 
-  var undoEl = document.getElementById('gUndo');
-undoEl.className = 'g-undo' + (HISTORY.length ? '' : ' dim');
+  // Bank button
+  var bankBtn = $('gBank'), base = THEME_MAP[T].bankText;
+  var locked = bankLockedByMin();
+  bankBtn.classList.toggle('bank-locked', locked);
+  if (locked) bankBtn.textContent = base + ' · min ' + fmt(lmsMinBank());
+  else if (hasMod('lockdown') && roller) bankBtn.textContent = base + ' · ' + labels[G.roller];
+  else bankBtn.textContent = base;
+
+  var undoEl = $('gUndo');
+  undoEl.className = 'g-undo' + (HISTORY.length ? '' : ' dim');
   undoEl.textContent = THEME_MAP[T].undoText;
 
-  // Card button — sabotage mode only, enabled only for current roller who has cards
-  var cardBtn = document.getElementById('gCardBtn');
-  if (cardBtn) {
-    if (MODE !== 'sabotage') {
-      cardBtn.style.display = 'none';
-    } else {
-      cardBtn.style.display = '';
-      var rollerHand = CARDS[roller ? roller.name : ''] || [];
-      cardBtn.classList.toggle('dim', rollerHand.length === 0);
-    }
-  }
+  var cardBtn = $('gCardBtn');
+  if (G.mode !== 'sabotage') cardBtn.style.display = 'none';
+  else { cardBtn.style.display = ''; cardBtn.classList.toggle('dim', !(CARDS[roller ? roller.name : ''] || []).length); }
   renderEffectBanner();
 
-  // Freeze indicator on frozen player's chip handled via effect banner
-  var scoresEl = document.getElementById('gScores'); scoresEl.innerHTML = '';
-var activeChip = null;
+  // Score chips
+  var scoresEl = $('gScores'); scoresEl.innerHTML = '';
+  var activeChip = null;
   G.players.forEach(function(p, i) {
-    var isRoller = (i === G.roller) && !p.banked;
+    var isRoller = i === G.roller && !p.banked && !p.out;
     var chip = document.createElement('div');
-    chip.className = 'g-chip' + (isRoller ? ' rolling' : '') + (p.banked ? ' banked' : '') + (EFFECTS.freeze === p.name ? ' frozen' : '');
+    chip.className = 'g-chip' + (isRoller ? ' rolling' : '') + (p.banked ? ' banked' : '') + (EFFECTS.freeze === p.name ? ' frozen' : '') + (p.out ? ' out' : '');
     var handCount = (CARDS[p.name] || []).length;
-    var cardDots = handCount > 0 ? '<div class="g-chip-cards">' + ico('card','ico-sm').repeat(Math.min(handCount,3)) + '</div>' : '';
-    chip.innerHTML = '<div class="g-chip-name">' + p.name.slice(0,3).toUpperCase() + '</div><div class="g-chip-pts">' + p.score.toLocaleString() + '</div>' + cardDots;
+    var cardDots = (G.mode === 'sabotage' && handCount > 0) ? '<div class="g-chip-cards">' + ico('card', 'ico-sm').repeat(Math.min(handCount, 3)) + '</div>' : '';
+    var lives = G.mode === 'lms' ? '<div class="g-chip-lives">' + heartsHTML(p.lives, p.out ? LIVES_START : Math.max(p.lives, G.suddenDeath ? 1 : LIVES_START)) + '</div>' : '';
+    chip.innerHTML = '<div class="g-chip-name">' + esc(labels[i]) + '</div><div class="g-chip-pts">' + (p.out ? ico('skull') : fmt(displayScore(p))) + '</div>' + lives + cardDots;
     scoresEl.appendChild(chip);
     if (isRoller) activeChip = chip;
   });
-if (activeChip) setTimeout(function() { activeChip.scrollIntoView({ behavior: 'smooth', inline: 'center' }); }, 50);
+  // Scroll only the score strip horizontally (scrollIntoView can also shift parent containers vertically)
+  if (activeChip) {
+    var wrap = scoresEl.parentNode;
+    var target = activeChip.offsetLeft - (wrap.clientWidth - activeChip.offsetWidth) / 2;
+    try { wrap.scrollTo({ left: Math.max(0, target), behavior: 'smooth' }); } catch (e) { wrap.scrollLeft = target; }
+  }
 
   // Trackers
   var names = G.players.map(function(p) { return p.name; });
   function topBy(fn) {
     var best = null, bestVal = -1;
     names.forEach(function(n) { var v = fn(n); if (v > bestVal) { bestVal = v; best = n; } });
-    return bestVal > 0 ? best + ' (' + bestVal + ')' : '—';
+    return bestVal > 0 ? esc(best) + ' (' + bestVal + ')' : '—';
   }
-  var t7 = document.getElementById('trk7s');
-  var tDbl = document.getElementById('trkDbl');
-  if (t7) t7.innerHTML = ico('target','ico-sm') + ' 7s: <span class="trk-val">' + topBy(function(n){ return STATS[n] ? STATS[n].sevens : 0; }) + '</span>';
-  if (tDbl) tDbl.innerHTML = ico('dice','ico-sm') + ' Dbls: <span class="trk-val">' + topBy(function(n){ return STATS[n] ? STATS[n].doubles : 0; }) + '</span>';
+  $('trk7s').innerHTML = ico('target', 'ico-sm') + ' 7s: <span class="trk-val">' + topBy(function(n) { return STATS[n] ? STATS[n].sevens : 0; }) + '</span>';
+  $('trkDbl').innerHTML = ico('dice', 'ico-sm') + ' Dbls: <span class="trk-val">' + topBy(function(n) { return STATS[n] ? STATS[n].doubles : 0; }) + '</span>';
 
-  // Intensity state — only triggers after rolls have begun (not at round start)
-  var game = document.getElementById('game');
-  var unbankedCount = G.players.filter(function(p) { return !p.banked; }).length;
-  var intensityActive = G.rolls > 0 && G.players.length > 1;
-  game.classList.remove('state-duel', 'state-solo');
-  document.body.classList.remove('state-duel', 'state-solo');
-  var labelEl = document.getElementById('gIntensityLabel');
-  if (intensityActive && unbankedCount === 2) {
-    game.classList.add('state-duel');
-    document.body.classList.add('state-duel');
-    if (labelEl) labelEl.textContent = 'duel';
-    SFX.startDrone(false);
-  } else if (intensityActive && unbankedCount === 1) {
-    game.classList.add('state-solo');
-    document.body.classList.add('state-solo');
-    if (labelEl) labelEl.textContent = 'last one standing';
-    SFX.startDrone(true);
-  } else {
-    if (labelEl) labelEl.textContent = '';
-    SFX.stopDrone();
+  // Intensity (duel / last one standing). Sounds fire only when the state changes.
+  var game = $('game');
+  var act = activePlayers(), un = activeUnbanked();
+  var on = G.phase === 'play' && G.rolls > 0 && act.length > 1;
+  var stt = on && un.length === 2 && act.length > 2 ? 'duel' : on && un.length === 1 ? 'solo' : 'none';
+  game.classList.toggle('state-duel', stt === 'duel'); document.body.classList.toggle('state-duel', stt === 'duel');
+  game.classList.toggle('state-solo', stt === 'solo'); document.body.classList.toggle('state-solo', stt === 'solo');
+  $('gIntensityLabel').textContent = stt === 'duel' ? 'duel' : stt === 'solo' ? 'last one standing' : '';
+  if (stt !== SFX._state) {
+    SFX._state = stt;
+    if (stt === 'duel') { SFX.stopDrone(); SFX.startDrone(false); }
+    else if (stt === 'solo') SFX.startDrone(true);
+    else SFX.stopDrone();
   }
+  if (stt === 'solo' && act.length >= 3 && !G.soloAnnounced) {
+    G.soloAnnounced = true;
+    announce('Last One Standing', un[0].name + (hidden ? ' is alone' : ' · ' + fmt(G.pot) + ' on the line'), '');
+  }
+
+  // Heat: the room warms up as the pot grows
+  var h = computeHeat();
+  if (h > (G.heat || 0) && h >= 3) SFX.heatUp(h);
+  G.heat = h;
+  document.body.setAttribute('data-heat', String(h));
+  document.body.classList.toggle('lms-showdown', G.mode === 'lms' && act.length === 2 && G.phase !== 'over');
+
+  saveGame();
+}
+function heartsHTML(lives, slots) {
+  var s = '';
+  for (var i = 0; i < slots; i++) s += i < lives ? ico('heart') : '<span class="dead">' + ico('heartO') + '</span>';
+  return s;
+}
+function infoHTML() {
+  var m = G.mode;
+  if (m === 'standard') return '';
+  if (m === 'lms' && activePlayers().length === 2) {
+    var a = activePlayers();
+    return '<div class="gi-showdown"><span>' + esc(a[0].name) + ' <span class="gi-hearts">' + heartsHTML(a[0].lives, a[0].lives) + '</span></span><i>vs</i><span><span class="gi-hearts">' + heartsHTML(a[1].lives, a[1].lives) + '</span> ' + esc(a[1].name) + '</span></div>';
+  }
+  var h = '<span class="gi-mode">' + esc(MODE_LABELS[m]) + '</span>';
+  if (m === 'chaos') {
+    return h + G.mods.map(function(k) { var d = MODS[k]; return '<button class="gi-mod" onclick="showRulesSheet()">' + ico(d.icon) + '<b>' + esc(d.name) + '</b><span class="gi-short">' + esc(d.short) + '</span></button>'; }).join('');
+  }
+  var txt = { race: 'First to ' + fmt(G.raceTarget) + ' wins', turbo: '7 busts every roll', blackout: 'Pot hidden after roll 3', cutthroat: '2 or 12 halves the pot', rollerscut: 'Last one in: +20% per roll', sabotage: 'Cards every 5 rounds' }[m];
+  if (m === 'lms') txt = 'Min bank ' + fmt(lmsMinBank()) + (G.suddenDeath ? '</span><span class="gi-txt gi-danger">Sudden death' : '');
+  return h + '<span class="gi-txt">' + txt + '</span>';
 }
 
-function pad(n) { return n < 10 ?
-'0' + n : '' + n; }
-
-function showDblPicker() {
-  var ex = document.getElementById('dblPicker'); if (ex) ex.remove();
-var bd = document.createElement('div'); bd.id = 'dblPicker'; bd.className = 'backdrop';
+// ══ SHEETS ══
+function makeSheet(id, title) {
+  var ex = $(id); if (ex) ex.remove();
+  var bd = document.createElement('div'); bd.id = id; bd.className = 'backdrop';
   var sh = document.createElement('div'); sh.className = 'sheet';
-sh.innerHTML = '<div class="sh-handle"></div><div class="sh-title">Which doubles?</div>';
+  sh.innerHTML = '<div class="sh-handle"></div>' + (title ? '<div class="sh-title">' + esc(title) + '</div>' : '');
+  bd.appendChild(sh);
+  bd.addEventListener('click', function(e) { if (e.target === bd) bd.remove(); });
+  return { bd: bd, sh: sh, close: function() { bd.remove(); } };
+}
+function addCancel(s) {
+  var sc = document.createElement('button'); sc.className = 'sh-cancel'; sc.textContent = 'Cancel';
+  sc.onclick = s.close; s.sh.appendChild(sc);
+  document.body.appendChild(s.bd);
+}
+function showDblPicker() {
+  if (G.phase !== 'play') return;
+  var s = makeSheet('dblPicker', 'Which doubles?');
   var sg = document.createElement('div'); sg.className = 'sh-grid';
-[2,4,6,8,10,12].forEach(function(total) {
+  [2, 4, 6, 8, 10, 12].forEach(function(total) {
     var b = document.createElement('button'); b.className = 'sh-btn'; b.textContent = total;
-    b.addEventListener('click', function() { bd.remove(); submitRoll(true, total, b); });
+    b.addEventListener('click', function() { s.close(); submitRoll(true, total, b); });
     sg.appendChild(b);
   });
-sh.appendChild(sg);
-  var sc = document.createElement('button'); sc.className = 'sh-cancel'; sc.textContent = 'Cancel';
-  sc.onclick = function() { bd.remove(); };
-  sh.appendChild(sc); bd.appendChild(sh);
-bd.addEventListener('click', function(e) { if (e.target === bd) bd.remove(); });
-  document.body.appendChild(bd);
+  s.sh.appendChild(sg);
+  addCancel(s);
 }
-
 function showBankPicker() {
-  var ex = document.getElementById('bankPicker');
-if (ex) ex.remove();
-  var unbanked = G.players.map(function(p,i) { return {p:p,i:i}; }).filter(function(x) { return !x.p.banked; });
-if (!unbanked.length) { showToast('Everyone already banked'); return; }
-  var bd = document.createElement('div'); bd.id = 'bankPicker'; bd.className = 'backdrop';
-var sh = document.createElement('div'); sh.className = 'sheet';
-  sh.innerHTML = '<div class="sh-handle"></div><div class="sh-title">Who\'s banking?</div>';
+  if (G.phase !== 'play' || anyOverlay()) return;
+  if (bankLockedByMin()) { showToast('The pot needs ' + fmt(lmsMinBank()) + ' before anyone can bank'); return; }
+  if (hasMod('lockdown')) { bankPlayer(G.roller); return; }
+  var unbanked = G.players.map(function(p, i) { return { p: p, i: i }; }).filter(function(x) { return !x.p.banked && !x.p.out; });
+  if (!unbanked.length) { showToast('Everyone already banked'); return; }
+  var s = makeSheet('bankPicker', 'Who’s banking?');
   var pg = document.createElement('div'); pg.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
-unbanked.forEach(function(x) {
-    var b = document.createElement('button'); b.className = 'sh-player-row';
-    b.innerHTML = '<span>' + x.p.name + '</span><span class="sh-player-row-amt">+' + G.pot.toLocaleString() + '</span>';
-    b.addEventListener('click', function() { bd.remove(); bankPlayer(x.i); });
+  var hidden = potHidden();
+  unbanked.forEach(function(x) {
+    var frozen = EFFECTS.freeze === x.p.name;
+    var b = document.createElement('button'); b.className = 'sh-player-row' + (frozen ? ' disabled' : '');
+    var amt = hidden ? '+???' : '+' + fmt(previewBank(x.i).amt);
+    b.innerHTML = '<span>' + esc(x.p.name) + '</span><span class="sh-player-row-amt">' + (frozen ? ico('snowflake', 'ico-sm') + ' frozen' : amt) + '</span>';
+    if (!frozen) b.addEventListener('click', function() { s.close(); bankPlayer(x.i); });
     pg.appendChild(b);
   });
-sh.appendChild(pg);
-  var sc = document.createElement('button'); sc.className = 'sh-cancel'; sc.textContent = 'Cancel';
-  sc.onclick = function() { bd.remove(); };
-  sh.appendChild(sc); bd.appendChild(sh);
-bd.addEventListener('click', function(e) { if (e.target === bd) bd.remove(); });
-  document.body.appendChild(bd);
+  s.sh.appendChild(pg);
+  addCancel(s);
+}
+function showGameMenu() {
+  if (anyOverlay()) return;
+  var s = makeSheet('gameMenu', 'Game');
+  var rules = document.createElement('button'); rules.className = 'sh-menu-row'; rules.innerHTML = ico('rules') + 'Rules for this game';
+  rules.onclick = function() { s.close(); showRulesSheet(); };
+  var end = document.createElement('button'); end.className = 'sh-menu-row warn'; end.innerHTML = ico('stop') + '<span>End game &amp; see results</span>';
+  end.onclick = function() {
+    if (!end.dataset.armed) { end.dataset.armed = '1'; end.querySelector('span').textContent = 'Tap again to end the game'; return; }
+    s.close(); endGame();
+  };
+  var quit = document.createElement('button'); quit.className = 'sh-menu-row'; quit.innerHTML = ico('exit') + 'Quit to menu (game is saved)';
+  quit.onclick = function() { s.close(); quitToMenu(); };
+  [rules, end, quit].forEach(function(b) { s.sh.appendChild(b); });
+  addCancel(s);
+}
+function quitToMenu() {
+  clearOverlays();
+  saveGame();
+  clearIntensity();
+  updateHomeLabels();
+  showScreen('home');
+}
+function showRulesSheet() {
+  var s = makeSheet('rulesSheet', '');
+  var h = '<div class="rules-h">' + esc(MODE_LABELS[G.mode]) + '</div>';
+  if (G.mode === 'chaos' && G.mods.length) {
+    h += G.mods.map(function(k) { var d = MODS[k]; return '<div class="rules-mod">' + ico(d.icon) + '<div><b>' + esc(d.name) + '</b><span>' + esc(d.desc) + '</span></div></div>'; }).join('');
+  }
+  var list = (MODE_RULES[G.mode] || []).slice();
+  if (G.mode === 'lms') list[2] = 'Nobody can bank until the pot reaches ' + fmt(lmsMinBank()) + '.';
+  if (G.mode === 'race') list[1] = 'The first player whose banked total reaches ' + fmt(G.raceTarget) + ' wins instantly.';
+  h += '<ul class="rules-list">' + list.map(function(r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul>';
+  var div = document.createElement('div'); div.style.cssText = 'display:flex;flex-direction:column;gap:12px;'; div.innerHTML = h;
+  s.sh.appendChild(div);
+  var ok = document.createElement('button'); ok.className = 'sh-cancel'; ok.textContent = 'Got it'; ok.onclick = s.close;
+  s.sh.appendChild(ok);
+  document.body.appendChild(s.bd);
 }
 
-function showRaceWin(name, score) {
+// ══ BUST SEQUENCE: the pot collapses ══
+function playBustSequence(res, done) {
+  var lms = G.mode === 'lms' && res.lifeLost && res.lifeLost.length;
+  var small = res.pot < 60;
+  if (small && !lms) { later(done, 520); return; }
+  var ov = document.createElement('div'); ov.className = 'bust-ov' + (small ? ' small' : '');
+  var mult = res.victims.length;
+  var sub = res.total === 2 ? 'Snake eyes' : 'Seven';
+  sub += ' · ' + fmt(res.pot) + (mult > 1 ? ' × ' + mult + ' players' : ' pot');
+  var payNote = res.payouts.map(function(p) { return esc(p.name) + ' +' + fmt(p.amt) + ' (' + p.why + ')'; }).join(' · ');
+  var h = '<div class="bo-stage"><div class="bo-pot">' + fmt(res.pot) + '</div><div class="bo-word">Bust</div></div>';
+  if (res.lost > 0) h += '<div class="bo-lost">−<span class="bo-count">0</span></div>';
+  h += '<div class="bo-sub">' + esc(sub) + (payNote ? '<br>' + payNote : '') + '</div>';
+  if (res.record) h += '<div class="bo-tag">All-time biggest bust</div>';
+  else if (res.biggest) h += '<div class="bo-tag">Biggest bust of the night</div>';
+  var extra = 0;
+  if (lms) {
+    h += '<div class="bo-lives">';
+    res.lifeLost.forEach(function(l, i) {
+      var d = 1.15 + i * 0.32;
+      var hearts = '';
+      for (var k = 0; k < l.before; k++) {
+        var breaking = !l.spared && k === l.before - 1;
+        hearts += '<span class="hslot"><span class="ico hempty">' + ICONS.heartO + '</span>' + '<span class="ico hfull' + (breaking ? ' heart-break' : '') + '" style="animation-delay:' + (d + 0.25).toFixed(2) + 's">' + ICONS.heart + '</span></span>';
+      }
+      var tail = l.out ? '<span class="bo-out" style="animation-delay:' + (d + 0.55).toFixed(2) + 's">Out</span>' : l.spared ? '<span class="bo-spared">spared · top score</span>' : '<span class="bo-hearts">' + hearts + '</span>';
+      h += '<div class="bo-life-row" style="animation-delay:' + d.toFixed(2) + 's"><span class="nm">' + esc(l.name) + '</span>' + tail + '</div>';
+      later(function() { if (l.out) SFX.elim(); else if (!l.spared) SFX.heartbreak(); }, (d + (l.out ? 0.55 : 0.25)) * 1000);
+    });
+    h += '</div>';
+    extra = res.lifeLost.length * 320 + (res.elims.length ? 600 : 0);
+  }
+  h += '<div class="bo-tap">tap to continue</div>';
+  ov.innerHTML = h;
+  document.body.appendChild(ov);
+  var potY = innerHeight * 0.42;
+  later(function() { spawnConfetti(small ? 18 : 46, false, { y: potY, colors: ['#777', '#999', '#ff3b30', '#555', '#bbb'], shape: 'shard', up: 2 }); }, small ? 320 : 520);
+  var cnt = ov.querySelector('.bo-count');
+  if (cnt) later(function() { countUp(cnt, res.lost, 650); }, 900);
+  var finished = false, ready = false;
+  function finish() { if (finished) return; finished = true; ov.remove(); done(); }
+  later(function() { ready = true; }, 350);
+  ov.addEventListener('click', function() { if (ready) finish(); });
+  later(finish, (small ? 1700 : 2700) + extra);
+}
+function countUp(el, to, dur) {
+  var start = performance.now();
+  function step(now) {
+    var t = Math.min((now - start) / dur, 1); t = 1 - Math.pow(1 - t, 3);
+    el.textContent = fmt(to * t);
+    if (t < 1 && el.isConnected) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// ══ ROUND END SHEET ══
+function showRoundEnd() {
+  var res = G.result; if (!res || G.phase !== 'roundEnd') return;
+  document.querySelectorAll('.rnd-backdrop').forEach(function(e) { e.remove(); });
+  var lms = G.mode === 'lms';
   var ov = document.createElement('div'); ov.className = 'rnd-backdrop';
   var sh = document.createElement('div'); sh.className = 'rnd-sheet';
-  sh.innerHTML = '<div class="rnd-handle"></div>';
-  var hd = document.createElement('div'); hd.className = 'rnd-header';
-  hd.innerHTML = '<div class="rnd-label">Race to the Bank</div><div class="rnd-status clear">' + name + ' Wins!</div>';
-  sh.appendChild(hd);
-  var msg = document.createElement('div'); msg.className = 'rnd-bust-msg';
-  msg.style.borderColor = 'rgba(93,222,93,.25)'; msg.style.background = 'rgba(93,222,93,.08)'; msg.style.color = 'rgba(93,222,93,.8)';
-  msg.textContent = name + ' reached ' + score.toLocaleString() + ' \u2014 target was ' + RACE_TARGET.toLocaleString();
-  sh.appendChild(msg);
-  var sHead = document.createElement('div'); sHead.className = 'rnd-stand-head'; sHead.textContent = 'Final Standings'; sh.appendChild(sHead);
-  G.players.slice().sort(function(a,b) { return b.score - a.score; }).forEach(function(p, i) {
-    var row = document.createElement('div'); row.className = 'rnd-stand-row' + (i === 0 ? ' lead' : '');
-    row.innerHTML = '<div class="rnd-stand-pos">' + (i+1) + '</div><div class="rnd-stand-name">' + p.name + '</div><div class="rnd-stand-pts">' + p.score.toLocaleString() + '</div>';
-    sh.appendChild(row);
+  var h = '<div class="rnd-handle"></div>';
+  h += '<div class="rnd-header"><div class="rnd-label">Round ' + G.round + '</div><div class="rnd-status ' + (res.bust ? 'bust' : 'clear') + '">' + (res.bust ? 'Bust' : 'Clear') + '</div></div>';
+  if (G.mode === 'chaos' && G.mods.length) h += '<div class="rnd-mods">' + G.mods.map(function(k) { return '<span>' + esc(MODS[k].name) + '</span>'; }).join('') + '</div>';
+  if (res.bust) {
+    h += '<div class="rnd-bust-msg">' + esc(res.roller) + ' rolled ' + (res.total === 2 ? 'snake eyes' : 'a 7') + ' — pot was ' + fmt(res.pot) + (res.lost ? ' · ' + fmt(res.lost) + ' lost' : '') + '</div>';
+  }
+  G.bankedThisRound.slice().sort(function(a, b) { return b.amt - a.amt; }).forEach(function(b, i) {
+    h += '<div class="rnd-row"><div class="rnd-rank">' + (i + 1) + '</div><div class="rnd-name">' + esc(b.name) + '</div><div class="rnd-earn">+' + fmt(b.amt) + '</div></div>';
   });
-  var btn = document.createElement('button'); btn.className = 'rnd-next'; btn.textContent = 'Game Over';
-  btn.onclick = function() { ov.remove(); showEndScreen(); };
-  sh.appendChild(btn); ov.appendChild(sh); document.body.appendChild(ov);
-  spawnConfetti(180, true);
+  if (res.bust) {
+    (res.payouts || []).forEach(function(p) {
+      h += '<div class="rnd-row"><div class="rnd-rank">' + ico(p.why === 'insurance' ? 'shield' : 'bounty', 'ico-sm') + '</div><div class="rnd-name">' + esc(p.name) + '</div><div class="rnd-earn rnd-pay">+' + fmt(p.amt) + ' ' + p.why + '</div></div>';
+    });
+    res.victims.forEach(function(n) {
+      var cum = G.cumMiss[n] || 0;
+      var cumStr = cum > res.pot ? '<span class="rnd-miss-total">(' + fmt(cum) + ' total)</span>' : '';
+      var ll = lms ? (res.lifeLost || []).filter(function(l) { return l.name === n; })[0] : null;
+      var lifeStr = ll ? (ll.out ? '<span class="rnd-out">out</span>' : ll.spared ? '<span class="rnd-out" style="color:#ffd23f">spared</span>' : '<span class="rnd-hearts">−1 ' + ico('heart') + '</span>') : '';
+      h += '<div class="rnd-row"><div class="rnd-rank">—</div><div class="rnd-name">' + esc(n) + lifeStr + '</div><div class="rnd-zero">+0</div><div class="rnd-miss">left ' + fmt(res.pot) + cumStr + '</div></div>';
+    });
+  }
+  h += '<div class="rnd-stand-head">Standings</div>';
+  var order = G.players.slice();
+  if (lms) order.sort(function(a, b) { return (a.out - b.out) || (b.lives - a.lives) || (b.score - a.score); });
+  else order.sort(function(a, b) { return b.score - a.score; });
+  order.forEach(function(p, i) {
+    var lives = lms ? (p.out ? '<span class="rnd-out">out rd ' + p.outRound + '</span>' : '<span class="rnd-hearts">' + heartsHTML(p.lives, p.lives) + '</span>') : '';
+    h += '<div class="rnd-stand-row' + (i === 0 ? ' lead' : '') + '"><div class="rnd-stand-pos">' + (i + 1) + '</div><div class="rnd-stand-name">' + esc(p.name) + lives + '</div><div class="rnd-stand-pts">' + fmt(p.score) + '</div></div>';
+  });
+  sh.innerHTML = h;
+  var btns = document.createElement('div'); btns.className = 'rnd-btns';
+  var undo = document.createElement('button'); undo.className = 'rnd-undo'; undo.textContent = 'Undo';
+  undo.onclick = function() { undoLast(); };
+  var next = document.createElement('button'); next.className = 'rnd-next';
+  var over = (lms && activePlayers().length <= 1) || (G.mode !== 'race' && !lms && G.round >= G.total);
+  next.textContent = over ? (lms ? 'See the winner →' : 'See Final Scores') : 'Next Round →';
+  next.onclick = function() { ov.remove(); endRound(); };
+  if (HISTORY.length) btns.appendChild(undo);
+  btns.appendChild(next);
+  sh.appendChild(btns);
+  ov.appendChild(sh);
+  document.body.appendChild(ov);
 }
 
-function showRoundEnd(bust) {
-  if (!bust) SFX.roundClear();
-  var ov = document.createElement('div');
-ov.className = 'rnd-backdrop';
-  var sh = document.createElement('div'); sh.className = 'rnd-sheet';
-  sh.innerHTML = '<div class="rnd-handle"></div>';
-  var hd = document.createElement('div');
-hd.className = 'rnd-header';
-  hd.innerHTML = '<div class="rnd-label">Round ' + G.round + '</div><div class="rnd-status ' + (bust ? 'bust' : 'clear') + '">' + (bust ? 'Bust' : 'Clear') + '</div>';
-sh.appendChild(hd);
-  if (bust) { var bm = document.createElement('div'); bm.className = 'rnd-bust-msg';
-bm.textContent = 'Seven rolled \u2014 pot was ' + G.bustPot.toLocaleString(); sh.appendChild(bm);
-}
-  G.bankedThisRound.slice().sort(function(a,b) { return b.amt - a.amt; }).forEach(function(b, i) {
-    var row = document.createElement('div'); row.className = 'rnd-row';
-    row.innerHTML = '<div class="rnd-rank">' + (i+1) + '</div><div class="rnd-name">' + b.name + '</div><div class="rnd-earn">+' + b.amt.toLocaleString() + '</div>';
-    sh.appendChild(row);
-  });
-G.players.filter(function(p) { return !p.banked; }).forEach(function(p) {
-    var row = document.createElement('div'); row.className = 'rnd-row';
-    var missThisRound = (bust ? G.bustPot : G.pot);
-    var cumTotal = G.cumMiss[p.name] || 0;
-    var cumStr = cumTotal > missThisRound ? '<span class="rnd-miss-total">('+cumTotal.toLocaleString()+' total)</span>' : '';
-    row.innerHTML = '<div class="rnd-rank">\u2014</div><div class="rnd-name">' + p.name + '</div><div class="rnd-zero">+0</div><div class="rnd-miss">left ' + missThisRound.toLocaleString() + cumStr + '</div>';
-    sh.appendChild(row);
-  });
-var sHead = document.createElement('div'); sHead.className = 'rnd-stand-head'; sHead.textContent = 'Standings'; sh.appendChild(sHead);
-G.players.slice().sort(function(a,b) { return b.score - a.score; }).forEach(function(p, i) {
-    var row = document.createElement('div'); row.className = 'rnd-stand-row' + (i === 0 ? ' lead' : '');
-    row.innerHTML = '<div class="rnd-stand-pos">' + (i+1) + '</div><div class="rnd-stand-name">' + p.name + '</div><div class="rnd-stand-pts">' + p.score.toLocaleString() + '</div>';
-    sh.appendChild(row);
-  });
-var btn = document.createElement('button'); btn.className = 'rnd-next';
-  btn.textContent = G.round >= G.total ? 'See Final Scores' : 'Next Round \u2192';
-btn.onclick = function() { ov.remove(); endRound(); };
-  sh.appendChild(btn); ov.appendChild(sh); document.body.appendChild(ov);
+// ══ ROUND INTRO: chaos card, showdown, sudden death ══
+function showRoundIntro() {
+  if (G.phase !== 'reveal' || !G.intro) { G.phase = 'play'; render(); return; }
+  document.querySelectorAll('.mod-reveal').forEach(function(e) { e.remove(); });
+  var ov = document.createElement('div'); ov.className = 'mod-reveal';
+  var h = '', intro = G.intro;
+  if (intro.indexOf('showdown') !== -1) {
+    var a = activePlayers();
+    h += '<div class="mr-label">Last Man Standing · Round ' + G.round + '</div><div class="sd-title">Final Two</div><div class="sd-vs">';
+    a.forEach(function(p, i) {
+      if (i) h += '<div class="sd-x">VS</div>';
+      h += '<div class="sd-player"><div class="sd-name">' + esc(p.name) + '</div><div class="gi-hearts" style="font-size:1.4rem">' + heartsHTML(p.lives, p.lives) + '</div><div class="sd-meta">' + fmt(p.score) + ' pts</div></div>';
+    });
+    h += '</div>';
+    if (intro.indexOf('sudden') !== -1) h += '<div class="mr-desc" style="text-align:center;color:#ff3b30">Sudden death: one life each. Minimum bank ' + fmt(lmsMinBank()) + '.</div>';
+    later(function() { SFX.showdown(); }, 60);
+  } else if (intro.indexOf('sudden') !== -1) {
+    h += '<div class="mr-label">Round ' + G.round + '</div><div class="mr-cards"><div class="mr-card danger">' + '<div class="mr-icon">' + ico('skull') + '</div><div class="mr-name">Sudden Death</div><div class="mr-desc">Everyone left is down to one life. The minimum bank is now ' + fmt(lmsMinBank()) + ' and climbs every round.</div></div></div>';
+    later(function() { SFX.showdown(); }, 60);
+  }
+  if (intro.indexOf('chaos') !== -1) {
+    var two = G.mods.length > 1;
+    h += '<div class="mr-label">Round ' + G.round + ' · ' + (two ? 'Double Chaos' : 'This round’s rule') + '</div><div class="mr-cards">';
+    G.mods.forEach(function(k) {
+      var d = MODS[k];
+      h += '<div class="mr-card ' + d.tag + (two ? ' compact' : '') + '"><div class="mr-icon">' + ico(d.icon) + '</div><div class="mr-name">' + esc(d.name) + '</div><div class="mr-desc">' + esc(d.desc) + '</div></div>';
+    });
+    h += '</div>';
+    later(function() { SFX.reveal(); }, 60);
+  }
+  h += '<button class="mr-go">Let’s roll →</button>';
+  ov.innerHTML = h;
+  ov.querySelector('.mr-go').onclick = function() {
+    ov.remove();
+    G.phase = 'play'; G.intro = null;
+    render();
+  };
+  document.body.appendChild(ov);
 }
 
+// ══ END SCREEN ══
 function showEndScreen() {
-  var sorted = G.players.slice().sort(function(a,b) { return b.score - a.score; });
-  var list = document.getElementById('endList');
-list.innerHTML = '';
-  sorted.forEach(function(p, i) {
-    var row = document.createElement('div'); row.className = 'end-row' + (i === 0 ? ' top' : '');
-    row.innerHTML = '<div class="end-rank">' + (i+1) + '</div><div class="end-name">' + p.name + '</div><div class="end-pts">' + p.score.toLocaleString() + '</div>';
+  clearIntensity();
+  var lms = G.mode === 'lms';
+  var winners = (G.winners || []).map(findP).filter(Boolean);
+  var order;
+  if (lms) {
+    var survivors = G.players.filter(function(p) { return !p.out; }).sort(function(a, b) { return (winners.indexOf(b) !== -1) - (winners.indexOf(a) !== -1) || b.lives - a.lives || b.score - a.score; });
+    var outs = G.elimOrder.slice().reverse().map(findP).filter(Boolean);
+    order = survivors.concat(outs);
+  } else order = G.players.slice().sort(function(a, b) { return b.score - a.score; });
+
+  // Hero
+  var kicker = lms ? 'Last one standing' : G.winReason === 'race' ? 'Race to ' + fmt(G.raceTarget) : 'Final score';
+  var wn = winners.map(function(p) { return esc(p.name); });
+  var head = winners.length > 1 ? wn.join(' &amp; ') + ' <em>tie</em>' : (wn[0] || '—') + ' <em>wins</em>';
+  var sub = '';
+  if (winners.length === 1) {
+    var w = winners[0];
+    sub = lms ? '<span class="gi-hearts">' + heartsHTML(w.lives, w.lives) + '</span> &nbsp;' + fmt(w.score) + ' pts · survived ' + G.round + ' rounds'
+              : fmt(w.score) + ' points' + (order[1] && !lms ? ' · by ' + fmt(w.score - order[1].score) : '');
+  }
+  $('endHero').innerHTML = '<div class="end-crown">' + ico('crown') + '</div><div class="end-kicker">' + esc(kicker) + '</div><div class="end-winner">' + head + '</div><div class="end-winsub">' + sub + '</div>';
+
+  // Podium (top 3), then everyone else
+  var pod = $('endPodium'); pod.innerHTML = '';
+  var podN = Math.min(3, order.length);
+  var slots = podN === 3 ? [1, 0, 2] : podN === 2 ? [1, 0] : [0];
+  slots.forEach(function(idx) {
+    var p = order[idx]; if (!p) return;
+    var val = lms ? (p.out ? 'out rd ' + p.outRound : heartsHTML(p.lives, p.lives)) : fmt(p.score);
+    var d = document.createElement('div'); d.className = 'pod p' + (idx + 1);
+    d.innerHTML = '<div class="pod-name">' + esc(p.name) + '</div><div class="pod-pts' + (lms && !p.out ? ' gi-hearts' : '') + '">' + val + '</div><div class="pod-block">' + (idx + 1) + '</div>';
+    pod.appendChild(d);
+  });
+  var list = $('endList'); list.innerHTML = '';
+  order.slice(podN).forEach(function(p, i) {
+    var row = document.createElement('div'); row.className = 'end-row';
+    row.innerHTML = '<div class="end-rank">' + (i + podN + 1) + '</div><div class="end-name">' + esc(p.name) + (lms && p.out ? '<span class="end-sub">out rd ' + p.outRound + '</span>' : '') + '</div><div class="end-pts">' + fmt(p.score) + '</div>';
     list.appendChild(row);
   });
 
-  // Awards
-  var awards = document.getElementById('endAwards');
-  awards.innerHTML = '';
-  var pnames = G.players.map(function(p) { return p.name; });
-  function maxBy(fn) {
-    var best = null, bestVal = -Infinity;
-    pnames.forEach(function(n) { var v = fn(n); if (v > bestVal) { bestVal = v; best = n; } });
-    return { name: best, val: bestVal };
-  }
-  function minBy(fn) {
-    var best = null, bestVal = Infinity;
-    pnames.forEach(function(n) { var v = fn(n); if (v < bestVal) { bestVal = v; best = n; } });
-    return { name: best, val: bestVal };
-  }
-  function avgBank(n) {
-    var s = STATS[n]; if (!s || !s.banks.length) return 0;
-    return s.banks.reduce(function(a,b){return a+b;},0) / s.banks.length;
-  }
-  function maxBank(n) {
-    var s = STATS[n]; if (!s || !s.bankAmts.length) return 0;
-    return Math.max.apply(null, s.bankAmts);
-  }
-  var defs = [
-    { icon: ico('devil'), title: 'The Menace', fn: function(n){ return STATS[n] ? STATS[n].bustSevens : 0; }, fmt: function(v){ return v + ' bust 7' + (v===1?'':'s'); } },
-    { icon: ico('dice'), title: 'The High Roller', fn: function(n){ return STATS[n] ? STATS[n].doubles : 0; }, fmt: function(v){ return v + ' double' + (v===1?'':'s'); } },
-    { icon: ico('chicken'), title: 'The Coward', fn: avgBank, min: true, fmt: function(v){ return 'avg ' + Math.round(v).toLocaleString() + ' per bank'; } },
-    { icon: ico('gem'), title: 'Diamond Hands', fn: maxBank, fmt: function(v){ return 'banked ' + v.toLocaleString() + ' at once'; } },
-    { icon: ico('skull'), title: 'The Unlucky', fn: function(n){ return STATS[n] ? STATS[n].pointsLost : 0; }, fmt: function(v){ return v.toLocaleString() + ' lost to busts'; } },
-  ];
-  defs.forEach(function(d) {
-    var res = d.min ? minBy(d.fn) : maxBy(d.fn);
-    if (!res.name || res.val <= 0) return;
-    var row = document.createElement('div'); row.className = 'award-row';
-    row.innerHTML = '<div class="award-icon">' + d.icon + '</div><div class="award-info"><div class="award-title">' + d.title + '</div><div class="award-name">' + res.name + '</div><div class="award-detail">' + d.fmt(res.val) + '</div></div>';
-    awards.appendChild(row);
+  // Biggest moments: best few, max 2 of a kind
+  var mom = $('endMoments'); mom.innerHTML = '';
+  var titles = { bank: 'Big bank', bust: 'Biggest bust', double: 'Huge double', comeback: 'Comeback', record: 'New record' };
+  var perKind = {}, picks = [];
+  G.moments.slice().sort(function(a, b) { return b.value - a.value; }).forEach(function(m) {
+    if (picks.length >= 4) return;
+    perKind[m.kind] = (perKind[m.kind] || 0) + 1;
+    if (perKind[m.kind] <= 2) picks.push(m);
   });
+  if (lms && G.elimOrder.length) picks.push({ kind: 'elim', text: 'Knocked out, in order: ' + G.elimOrder.join(' → ') });
+  if (picks.length) {
+    mom.innerHTML = '<div class="end-section-h">Biggest moments</div>' + picks.map(function(m) { return '<div class="moment-row"><b>' + esc(titles[m.kind] || 'Eliminations') + (m.round ? ' · rd ' + m.round : '') + '</b>' + esc(m.text) + '</div>'; }).join('');
+  }
 
-showScreen('end'); spawnConfetti(180, true);
+  // Awards
+  var awards = $('endAwards'); awards.innerHTML = '';
+  var pnames = G.players.map(function(p) { return p.name; });
+  function best(fn, min) {
+    var bn = null, bv = min ? Infinity : -Infinity;
+    pnames.forEach(function(n) { var v = fn(n); if (v == null) return; if (min ? v < bv : v > bv) { bv = v; bn = n; } });
+    return { name: bn, val: bv };
+  }
+  function S(n) { return STATS[n] || { banks: [] }; }
+  var defs = [
+    { icon: 'devil', title: 'The Menace', fn: function(n) { return S(n).bustSevens; }, fmt: function(v) { return v + ' bust' + (v === 1 ? '' : 's') + ' rolled'; } },
+    { icon: 'dice', title: 'The High Roller', fn: function(n) { return S(n).doubles; }, fmt: function(v) { return v + ' double' + (v === 1 ? '' : 's'); } },
+    { icon: 'chicken', title: 'The Coward', min: true, fn: function(n) { var b = S(n).banks; return b.length ? b.reduce(function(a, c) { return a + c; }, 0) / b.length : null; }, fmt: function(v) { return 'avg ' + fmt(v) + ' per bank'; } },
+    { icon: 'gem', title: 'Diamond Hands', fn: function(n) { var b = S(n).banks; return b.length ? Math.max.apply(null, b) : 0; }, fmt: function(v) { return 'banked ' + fmt(v) + ' at once'; } },
+    { icon: 'skull', title: 'The Unlucky', fn: function(n) { return S(n).pointsLost; }, fmt: function(v) { return fmt(v) + ' lost to busts'; } },
+    { icon: 'trend', title: 'Comeback Kid', fn: function(n) { return S(n).comebacks; }, fmt: function(v) { return v + ' comeback' + (v === 1 ? '' : 's'); } },
+    { icon: 'target', title: 'Ice Cold', fn: function(n) { return S(n).lastStanding; }, fmt: function(v) { return 'banked last ' + v + ' time' + (v === 1 ? '' : 's'); } }
+  ];
+  var aw = '';
+  defs.forEach(function(d) {
+    var r = best(d.fn, d.min);
+    if (!r.name || !(r.val > 0) || r.val === Infinity) return;
+    aw += '<div class="award-row"><div class="award-icon">' + ico(d.icon) + '</div><div class="award-info"><div class="award-title">' + d.title + '</div><div class="award-name">' + esc(r.name) + '</div><div class="award-detail">' + d.fmt(r.val) + '</div></div></div>';
+  });
+  if (aw) awards.innerHTML = '<div class="end-section-h" style="margin-bottom:-2px">Game-night awards</div>' + aw;
+
+  showScreen('end');
+  $('end').scrollTop = 0;
+  later(function() { SFX.victory(); }, 250);
+  if (lms) {
+    spawnConfetti(120, true, { colors: ['#ff3b5c', '#ff6b81', '#ffd23f', '#fff'], shape: 'heart' });
+    later(function() { spawnConfetti(90, true, {}); }, 700);
+  } else spawnConfetti(180, true);
+}
+function clearIntensity() {
+  ['state-duel', 'state-solo', 'lms-showdown'].forEach(function(c) { document.body.classList.remove(c); $('game').classList.remove(c); });
+  document.body.setAttribute('data-heat', '0');
+  $('gIntensityLabel').textContent = '';
+  SFX._state = 'none';
+  SFX.stopDrone();
 }
 
-function playAgain() {
-  G.players.forEach(function(p) { p.score = 0; p.banked = false; p.bankedAmt = null; });
-G.round = 1; G.roller = 0; G.pot = 0; G.rolls = 0;
-  G.bankedThisRound = []; G.bustPot = 0;
-  G.cumMiss = {}; G.players.forEach(function(p) { G.cumMiss[p.name] = 0; });
-  initStats(G.players.map(function(p){return p.name;}));
-  if (MODE === 'sabotage') initCards(G.players.map(function(p){return p.name;}));
-  HISTORY = [];
-  var game = document.getElementById('game');
-  applyTheme(game);
-  document.getElementById('gBank').textContent = THEME_MAP[T].bankText;
-  showScreen('game'); render();
-}
-
+// ══ EFFECTS / ANIMATION ══
 function doFlash(color) {
-  var el = document.getElementById('flash');
+  var el = $('flash');
   el.style.background = color; el.className = '';
   void el.offsetWidth; el.className = 'go';
 }
 function potPulse() {
-  var el = document.getElementById('gPotValue');
+  var el = $('gPotValue');
   el.style.transition = 'none'; el.style.opacity = '.25';
-setTimeout(function() { el.style.transition = 'opacity .35s'; el.style.opacity = '1'; }, 80);
+  setTimeout(function() { el.style.transition = 'opacity .35s'; el.style.opacity = ''; }, 80);
+}
+function potSlam(mag) {
+  var el = $('gPotValue');
+  if (!el.animate) return;
+  try { el.animate([{ scale: '1' }, { scale: String(1.1 + mag * 0.18) }, { scale: '1' }], { duration: 460, easing: 'cubic-bezier(.2,1.6,.4,1)' }); } catch (e) {}
 }
 function animatePot(from, to) {
-  var el = document.getElementById('gPotValue');
-var dur = 200, start = performance.now();
+  var el = $('gPotValue');
+  var dur = 200 + Math.min(400, Math.abs(to - from) / 3), start = performance.now();
   function step(now) {
     var t = Math.min((now - start) / dur, 1);
-t = 1 - Math.pow(1 - t, 3); // ease-out cubic
-    el.textContent = Math.round(from + (to - from) * t).toLocaleString();
-if (t < 1) requestAnimationFrame(step);
-    else el.textContent = to.toLocaleString();
+    t = 1 - Math.pow(1 - t, 3);
+    el.textContent = fmt(from + (to - from) * t);
+    if (t < 1) requestAnimationFrame(step);
+    else el.textContent = fmt(G.pot);
   }
   requestAnimationFrame(step);
 }
-function shakeScreen() {
-  var game = document.getElementById('game');
-var frames = ['translate(-6px,0)','translate(6px,-3px)','translate(-5px,3px)','translate(5px,-2px)','translate(-3px,1px)','translate(0,0)'];
+function shakeScreen(mag) {
+  mag = 1 + (mag || 0) * 1.6;
+  var game = $('game');
+  var frames = [[-6, 0], [6, -3], [-5, 3], [5, -2], [-3, 1], [2, 0], [0, 0]];
   var i = 0;
   var iv = setInterval(function() {
-    game.style.transform = frames[i++];
+    var f = frames[i++];
+    game.style.transform = 'translate(' + (f[0] * mag).toFixed(1) + 'px,' + (f[1] * mag).toFixed(1) + 'px)';
     if (i >= frames.length) { clearInterval(iv); game.style.transform = ''; }
   }, 50);
 }
 
-var CV = document.getElementById('cv'), CTX = CV.getContext('2d');
-var PTS = [], RAF = false;
-var COLS = ['#ff3300','#ffe14d','#38e878','#60a5fa','#f472b6','#fff','#a78bfa','#fb923c'];
-function resizeCV() { CV.width = innerWidth; CV.height = innerHeight; }
+// Confetti canvas (DPR-aware so it's crisp)
+var CV = $('cv'), CTX = CV.getContext('2d');
+var PTS = [], RAF = false, DPR = 1;
+var COLS = ['#ff3300', '#ffe14d', '#38e878', '#60a5fa', '#f472b6', '#fff', '#a78bfa', '#fb923c'];
+function resizeCV() {
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  CV.width = innerWidth * DPR; CV.height = innerHeight * DPR;
+  CV.style.width = innerWidth + 'px'; CV.style.height = innerHeight + 'px';
+  CTX.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
 resizeCV(); addEventListener('resize', resizeCV);
-function spawnConfetti(n, big) {
-  var cx = CV.width/2, cy = big ? CV.height*.3 : CV.height*.55, sm = big ?
-1.4 : 1;
+function spawnConfetti(n, big, o) {
+  o = o || {};
+  var W = innerWidth, H = innerHeight;
+  var cx = o.x != null ? o.x : W / 2, cy = o.y != null ? o.y : (big ? H * 0.3 : H * 0.55), sm = big ? 1.4 : 1;
+  var cols = o.colors || COLS;
   for (var i = 0; i < n; i++) {
-    var a = Math.random()*Math.PI*2, sp = (5+Math.random()*12)*sm;
-PTS.push({ x:cx, y:cy, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp-(big?7:4), col:COLS[Math.floor(Math.random()*COLS.length)], sz:4+Math.random()*5, life:1, decay:.013+Math.random()*.013, rot:Math.random()*Math.PI*2, rs:(Math.random()-.5)*.22, rect:Math.random()>.45 });
+    var a = Math.random() * Math.PI * 2, sp = (5 + Math.random() * 12) * sm;
+    PTS.push({ x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - (o.up != null ? o.up : (big ? 7 : 4)), col: cols[Math.floor(Math.random() * cols.length)],
+      sz: (o.shape === 'heart' ? 7 : 4) + Math.random() * 5, life: 1, decay: 0.013 + Math.random() * 0.013, rot: Math.random() * Math.PI * 2, rs: (Math.random() - 0.5) * 0.22,
+      shape: o.shape || (Math.random() > 0.45 ? 'rect' : 'dot') });
   }
   if (!RAF) loopConf();
 }
 function loopConf() {
-  RAF = true; CTX.clearRect(0,0,CV.width,CV.height);
+  RAF = true; CTX.clearRect(0, 0, innerWidth, innerHeight);
   PTS = PTS.filter(function(p) {
-    p.x+=p.vx; p.y+=p.vy; p.vy+=.3; p.vx*=.98; p.rot+=p.rs; p.life-=p.decay;
+    p.x += p.vx; p.y += p.vy; p.vy += 0.3; p.vx *= 0.98; p.rot += p.rs; p.life -= p.decay;
     if (p.life <= 0) return false;
-    CTX.save(); CTX.globalAlpha = p.life; CTX.translate(p.x,p.y); CTX.rotate(p.rot); CTX.fillStyle = p.col;
-    if (p.rect) CTX.fillRect(-p.sz/2,-p.sz/4,p.sz,p.sz/2);
-    else { CTX.beginPath(); CTX.arc(0,0,p.sz/2,0,Math.PI*2); CTX.fill(); }
+    CTX.save(); CTX.globalAlpha = p.life; CTX.translate(p.x, p.y); CTX.rotate(p.rot); CTX.fillStyle = p.col;
+    var s = p.sz;
+    if (p.shape === 'rect') CTX.fillRect(-s / 2, -s / 4, s, s / 2);
+    else if (p.shape === 'shard') { CTX.beginPath(); CTX.moveTo(-s / 2, -s / 3); CTX.lineTo(s / 2, -s / 2); CTX.lineTo(s / 6, s / 2); CTX.closePath(); CTX.fill(); }
+    else if (p.shape === 'heart') { CTX.beginPath(); CTX.moveTo(0, s * 0.3); CTX.bezierCurveTo(-s, -s * 0.3, -s * 0.4, -s, 0, -s * 0.45); CTX.bezierCurveTo(s * 0.4, -s, s, -s * 0.3, 0, s * 0.3); CTX.fill(); }
+    else { CTX.beginPath(); CTX.arc(0, 0, s / 2, 0, Math.PI * 2); CTX.fill(); }
     CTX.restore(); return true;
   });
-if (PTS.length > 0) requestAnimationFrame(loopConf);
-  else { RAF = false; CTX.clearRect(0,0,CV.width,CV.height); }
+  if (PTS.length > 0) requestAnimationFrame(loopConf);
+  else { RAF = false; CTX.clearRect(0, 0, innerWidth, innerHeight); }
 }
 
-var TOAST, TT;
+// Toasts queue instead of overwriting each other
+var TOAST = null, TQ = [], TBUSY = false;
 function showToast(msg) {
-  if (!TOAST) {
-    TOAST = document.createElement('div');
-TOAST.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(12px);border-radius:4px;padding:9px 16px;font-family:"Archivo Black",sans-serif;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;z-index:9500;max-width:88vw;text-align:center;background:#1a1a1a;color:#ddd8ce;border:2px solid #2a2a2a;box-shadow:3px 3px 0 rgba(0,0,0,.3);';
-    document.body.appendChild(TOAST);
-  }
-  TOAST.textContent = msg;
-TOAST.style.opacity = '1'; TOAST.style.transform = 'translateX(-50%) translateY(0)';
-  clearTimeout(TT);
-  TT = setTimeout(function() { TOAST.style.opacity = '0'; TOAST.style.transform = 'translateX(-50%) translateY(12px)'; }, 2500);
+  if (!msg) return;
+  TQ.push(msg); if (TQ.length > 3) TQ.shift();
+  if (!TBUSY) nextToast();
+}
+function nextToast() {
+  if (!TOAST) { TOAST = document.createElement('div'); TOAST.className = 'toast'; document.body.appendChild(TOAST); }
+  if (!TQ.length) { TBUSY = false; TOAST.classList.remove('show'); return; }
+  TBUSY = true;
+  TOAST.textContent = TQ.shift();
+  TOAST.classList.add('show');
+  setTimeout(nextToast, TQ.length ? 1100 : 2300);
 }
 
-// ══ CARD SYSTEM ══
-var CARDS = {};       // { playerName: ['retire', 'insurance', ...] }
-var EFFECTS = {       // active this round
-  insurance: [],      // player names with insurance active
-  doubledown: false,  // DD played this round
-  freeze: null,       // player name frozen (can't bank)
-  tax: null,          // player name who played tax (they receive)
-  bounty: null,       // { by: playerName, target: playerName } or null
-};
-var FREEZE_DEALT = false; // hard cap: one freeze per entire game
+// Announcements: big, brief, never block input
+var ANN_Q = [], ANN_BUSY = false;
+function announce(title, sub, kind) {
+  if (ANN_Q.length >= 2) ANN_Q.shift();
+  ANN_Q.push({ title: title, sub: sub, kind: kind });
+  if (!ANN_BUSY) nextAnnounce();
+}
+function nextAnnounce() {
+  var a = ANN_Q.shift();
+  if (!a) { ANN_BUSY = false; return; }
+  ANN_BUSY = true;
+  var el = document.createElement('div'); el.className = 'announce' + (a.kind ? ' ann-' + a.kind : '');
+  el.innerHTML = '<div class="ann-band"><div class="ann-title">' + esc(a.title) + '</div>' + (a.sub ? '<div class="ann-sub">' + esc(a.sub) + '</div>' : '') + '</div>';
+  document.body.appendChild(el);
+  SFX.announce(a.kind);
+  setTimeout(function() { el.classList.add('out'); }, 1500);
+  setTimeout(function() { el.remove(); nextAnnounce(); }, 1850);
+}
 
+// ══ CARD SYSTEM (Sabotage) ══
+var CARDS = {};
+function blankEffects() { return { insurance: [], doubledown: false, freeze: null, tax: null, bounty: null }; }
+var EFFECTS = blankEffects();
+var FREEZE_DEALT = false;
 var CARD_DEFS = {
-  retire: {
-    icon: ico('retire'), name: 'Early Retirement',
-    desc: 'Pay 25 from your score to force a player to bank the current pot and sit out the rest of the round.',
-    tag: 'danger', tagLabel: 'costs 25 pts · forces bank',
-    needsTarget: true,
-    targetExcludeSelf: true
-  },
-  insurance: {
-    icon: ico('shield'), name: 'Insurance',
-    desc: 'If the pot busts this round, you keep the current pot amount anyway.',
-    tag: 'safe', tagLabel: 'protects you on bust',
-    needsTarget: false
-  },
-  doubledown: {
-    icon: ico('bolt'), name: 'Double Down',
-    desc: 'The next roll either doubles the pot (if even) or halves it (if odd). 7 still busts.',
-    tag: 'danger', tagLabel: 'gamble — even doubles, odd halves',
-    needsTarget: false
-  },
-  freeze: {
-    icon: ico('snowflake'), name: 'Freeze',
-    desc: 'Pick a player. They cannot bank this round.',
-    tag: 'danger', tagLabel: 'one per game · blocks banking',
-    needsTarget: true,
-    targetExcludeSelf: true
-  },
-  tax: {
-    icon: ico('coins'), name: 'Tax',
-    desc: 'The next player who banks this round pays you 20% of their take.',
-    tag: 'gold', tagLabel: 'skims the next banker',
-    needsTarget: false
-  },
-  bounty: {
-    icon: ico('bounty'), name: 'Bounty',
-    desc: 'Pick a player. If they bust this round, the pot is split among everyone else. Fizzles if they bank.',
-    tag: 'gold', tagLabel: 'bet against a player',
-    needsTarget: true,
-    targetExcludeSelf: true
-  }
+  retire:     { icon: ico('retire'), name: 'Early Retirement', desc: 'Pay 25 from your score to force a player to bank the current pot and sit out the rest of the round.', tag: 'danger', tagLabel: 'costs 25 pts · forces bank', needsTarget: true },
+  insurance:  { icon: ico('shield'), name: 'Insurance', desc: 'If the round busts while you’re still in, you keep half the pot.', tag: 'safe', tagLabel: 'half the pot on bust', needsTarget: false },
+  doubledown: { icon: ico('bolt'), name: 'Double Down', desc: 'From roll 4: the next roll doubles the pot if it’s even, halves it if odd. A 7 still busts.', tag: 'danger', tagLabel: 'gamble — even doubles, odd halves', needsTarget: false },
+  freeze:     { icon: ico('snowflake'), name: 'Freeze', desc: 'Pick a player. They can’t bank this round.', tag: 'danger', tagLabel: 'one per game · blocks banking', needsTarget: true },
+  tax:        { icon: ico('coins'), name: 'Tax', desc: 'The next player who banks this round pays you 20% of their take.', tag: 'gold', tagLabel: 'skims the next banker', needsTarget: false },
+  bounty:     { icon: ico('bounty'), name: 'Bounty', desc: 'Pick a player. If they bust, everyone else still in splits the pot (or you take it all if nobody else is). Fizzles if they bank.', tag: 'gold', tagLabel: 'bet against a player', needsTarget: true }
 };
-
 var ALL_CARDS = ['retire', 'insurance', 'doubledown', 'tax', 'bounty'];
 function randomCard() {
-  // Freeze is in the pool until it's been dealt once this game
   var pool = ALL_CARDS.slice();
   if (!FREEZE_DEALT) pool.push('freeze');
   var pick = pool[Math.floor(Math.random() * pool.length)];
   if (pick === 'freeze') FREEZE_DEALT = true;
   return pick;
 }
-
 function initCards(names) {
-  CARDS = {};
+  CARDS = {}; FREEZE_DEALT = false;
   names.forEach(function(n) { CARDS[n] = []; });
   resetEffects();
-  FREEZE_DEALT = false;
-  // Everyone gets one random card (freeze now in the normal pool)
-  names.forEach(function(n) {
-    CARDS[n].push(randomCard());
-  });
+  names.forEach(function(n) { CARDS[n].push(randomCard()); });
 }
-
-function resetEffects() {
-  EFFECTS = { insurance: [], doubledown: false, freeze: null, tax: null, bounty: null };
-}
-
-function dealRoundCards(names, silent) {
-  var dealt = {};
-  names.forEach(function(n) {
-    var c = randomCard();
-    CARDS[n].push(c);
-    dealt[n] = c;
-  });
-  if (!silent) showCardDealOverlay(dealt);
-}
-
+function resetEffects() { EFFECTS = blankEffects(); }
 function maybeRoundDeal() {
-  // Deal at start of rounds 1, 6, 11, 16...
-  if (G.round === 1) return; // already dealt in initCards
+  if (G.mode !== 'sabotage' || G.round === 1) return;
   if ((G.round - 1) % 5 === 0) {
-    dealRoundCards(G.players.map(function(p) { return p.name; }), false);
+    var dealt = {};
+    G.players.forEach(function(p) { var c = randomCard(); CARDS[p.name].push(c); dealt[p.name] = c; });
+    showCardDealOverlay(dealt);
   }
 }
-
 function showCardDealOverlay(dealt) {
   var ov = document.createElement('div'); ov.className = 'card-deal-overlay';
   var sh = document.createElement('div'); sh.className = 'card-deal-sheet';
   sh.innerHTML = '<div class="card-deal-title">New Cards Dealt</div><div class="card-deal-sub">Round ' + G.round + ' — everyone gets a card</div>';
   var rows = document.createElement('div'); rows.className = 'card-deal-rows';
   G.players.forEach(function(p) {
-    var cardKey = dealt[p.name];
-    var def = CARD_DEFS[cardKey];
-    var existing = CARDS[p.name].filter(function(c) { return c !== cardKey; });
+    var cardKey = dealt[p.name], def = CARD_DEFS[cardKey];
+    var hand = CARDS[p.name].slice(); hand.splice(hand.lastIndexOf(cardKey), 1);
     var row = document.createElement('div'); row.className = 'card-deal-row';
-    row.innerHTML = '<div class="card-deal-player">' + p.name + '</div>'
-      + '<div class="card-deal-card">' + (existing.length ? existing.map(function(c){ return CARD_DEFS[c] ? CARD_DEFS[c].icon : ''; }).join('') + ' + ' : '')
-      + '<span class="card-deal-new">' + (def ? def.icon + ' ' + def.name : cardKey) + '</span></div>';
+    row.innerHTML = '<div class="card-deal-player">' + esc(p.name) + '</div><div class="card-deal-card">' + (hand.length ? hand.map(function(c) { return CARD_DEFS[c] ? CARD_DEFS[c].icon : ''; }).join('') + ' + ' : '') + '<span class="card-deal-new">' + (def ? def.icon + ' ' + def.name : cardKey) + '</span></div>';
     rows.appendChild(row);
   });
   sh.appendChild(rows);
@@ -2379,261 +3198,164 @@ function showCardDealOverlay(dealt) {
   btn.onclick = function() { ov.remove(); };
   sh.appendChild(btn); ov.appendChild(sh); document.body.appendChild(ov);
 }
-
+function cardBlockReason(cardKey, roller) {
+  if (cardKey === 'retire' && roller.score < 25) return 'need 25+ pts (' + roller.score + ')';
+  if (cardKey === 'bounty' && EFFECTS.bounty) return 'bounty already active';
+  if (cardKey === 'doubledown' && !nextRollDanger()) return 'playable from roll ' + (safeRollCount() + 1);
+  if (cardKey === 'doubledown' && EFFECTS.doubledown) return 'double down already active';
+  return '';
+}
 function showCardPicker() {
-  var roller = G.players[G.roller];
-  var hand = CARDS[roller.name] || [];
+  if (G.phase !== 'play' || anyOverlay()) return;
+  var roller = G.players[G.roller], hand = CARDS[roller.name] || [];
   if (!hand.length) return;
-  var ex = document.getElementById('cardPicker'); if (ex) ex.remove();
-  var bd = document.createElement('div'); bd.id = 'cardPicker'; bd.className = 'backdrop';
-  var sh = document.createElement('div'); sh.className = 'sheet';
-  sh.innerHTML = '<div class="sh-handle"></div><div class="sh-title">' + roller.name + '\u2019s hand</div>';
+  var s = makeSheet('cardPicker', roller.name + '’s hand');
   var list = document.createElement('div'); list.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
   hand.forEach(function(cardKey, idx) {
     var def = CARD_DEFS[cardKey]; if (!def) return;
-    // Determine if card is playable
-    var disabled = false;
-    var disabledReason = '';
-    if (cardKey === 'retire' && roller.score < 25) {
-      disabled = true;
-      disabledReason = 'need 25+ pts (' + roller.score + ')';
-    }
-    if (cardKey === 'bounty' && EFFECTS.bounty) {
-      disabled = true;
-      disabledReason = 'bounty already active';
-    }
-    var item = document.createElement('div'); item.className = 'card-sheet-item' + (disabled ? ' card-disabled' : '');
-    item.innerHTML = '<div class="card-sheet-icon">' + def.icon + '</div>'
-      + '<div class="card-sheet-info"><div class="card-sheet-name">' + def.name + '</div>'
-      + '<div class="card-sheet-desc">' + def.desc + '</div>'
-      + '<span class="card-sheet-tag ' + def.tag + '">' + def.tagLabel + '</span>'
-      + (disabled ? '<div class="card-sheet-disabled-reason">' + disabledReason + '</div>' : '')
-      + '</div>';
-    if (!disabled) {
-      item.addEventListener('click', function() {
-        bd.remove();
-        if (def.needsTarget) {
-          showCardTargetPicker(cardKey, idx);
-        } else {
-          playCard(cardKey, idx, null);
-        }
-      });
-    }
+    var reason = cardBlockReason(cardKey, roller);
+    var item = document.createElement('div'); item.className = 'card-sheet-item' + (reason ? ' card-disabled' : '');
+    item.innerHTML = '<div class="card-sheet-icon">' + def.icon + '</div><div class="card-sheet-info"><div class="card-sheet-name">' + def.name + '</div><div class="card-sheet-desc">' + def.desc + '</div><span class="card-sheet-tag ' + def.tag + '">' + def.tagLabel + '</span>' + (reason ? '<div class="card-sheet-disabled-reason">' + esc(reason) + '</div>' : '') + '</div>';
+    if (!reason) item.addEventListener('click', function() { s.close(); if (def.needsTarget) showCardTargetPicker(cardKey, idx); else playCard(cardKey, idx, null); });
     list.appendChild(item);
   });
-  sh.appendChild(list);
-  var sc = document.createElement('button'); sc.className = 'sh-cancel'; sc.textContent = 'Cancel';
-  sc.onclick = function() { bd.remove(); };
-  sh.appendChild(sc); bd.appendChild(sh);
-  bd.addEventListener('click', function(e) { if (e.target === bd) bd.remove(); });
-  document.body.appendChild(bd);
+  s.sh.appendChild(list);
+  addCancel(s);
 }
-
 function showCardTargetPicker(cardKey, cardIdx) {
-  var def = CARD_DEFS[cardKey];
-  var roller = G.players[G.roller];
-
-  // Early Retirement: must have 25+ points
-  if (cardKey === 'retire' && roller.score < 25) {
-    showToast('Need at least 25 points to play Early Retirement');
-    return;
-  }
-  // Bounty: only one per round
-  if (cardKey === 'bounty' && EFFECTS.bounty) {
-    showToast('A bounty is already active this round');
-    return;
-  }
-
-  var targets = G.players.filter(function(p) {
-    if (p.name === roller.name) return false; // never target yourself
-    if (cardKey === 'freeze' && p.banked) return false; // pointless to freeze already-banked
-    if (cardKey === 'retire' && p.banked) return false; // can't retire already-banked
-    if (cardKey === 'bounty' && p.banked) return false; // can't bounty already-banked
-    return true;
-  });
+  var def = CARD_DEFS[cardKey], roller = G.players[G.roller];
+  var reason = cardBlockReason(cardKey, roller); if (reason) { showToast(reason); return; }
+  var targets = G.players.filter(function(p) { return p.name !== roller.name && !p.banked && !p.out; });
   if (!targets.length) { showToast('No valid targets'); return; }
-  var ex = document.getElementById('cardTargetPicker'); if (ex) ex.remove();
-  var bd = document.createElement('div'); bd.id = 'cardTargetPicker'; bd.className = 'backdrop';
-  var sh = document.createElement('div'); sh.className = 'sheet';
-  sh.innerHTML = '<div class="sh-handle"></div><div class="sh-title">Target who?</div>';
+  var s = makeSheet('cardTargetPicker', 'Target who?');
   var pg = document.createElement('div'); pg.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
   targets.forEach(function(p) {
     var b = document.createElement('button'); b.className = 'sh-player-row';
-    b.innerHTML = '<span>' + p.name + '</span><span class="sh-player-row-amt">' + def.icon + ' ' + def.name + '</span>';
-    b.addEventListener('click', function() { bd.remove(); playCard(cardKey, cardIdx, p.name); });
+    b.innerHTML = '<span>' + esc(p.name) + '</span><span class="sh-player-row-amt">' + def.icon + ' ' + def.name + '</span>';
+    b.addEventListener('click', function() { s.close(); playCard(cardKey, cardIdx, p.name); });
     pg.appendChild(b);
   });
-  sh.appendChild(pg);
-  var sc = document.createElement('button'); sc.className = 'sh-cancel'; sc.textContent = 'Cancel';
-  sc.onclick = function() { bd.remove(); };
-  sh.appendChild(sc); bd.appendChild(sh);
-  bd.addEventListener('click', function(e) { if (e.target === bd) bd.remove(); });
-  document.body.appendChild(bd);
+  s.sh.appendChild(pg);
+  addCancel(s);
 }
-
 function playCard(cardKey, cardIdx, target) {
+  if (G.phase !== 'play') return;
   var roller = G.players[G.roller];
-  var def = CARD_DEFS[cardKey];
-
-  // Early Retirement: validate roller has enough points
-  if (cardKey === 'retire') {
-    if (roller.score < 25) {
-      showToast('Need at least 25 points to play Early Retirement');
-      return;
-    }
-    var targetPlayer = G.players.find(function(p) { return p.name === target; });
-    var targetIdx = G.players.indexOf(targetPlayer);
-    // Remove card from hand
-    CARDS[roller.name].splice(cardIdx, 1);
-    SFX.card();
-    // Deduct 25 from roller
-    roller.score -= 25;
-    // Force-bank the target at current pot (bypasses freeze/tax — it's forced)
-    var amt = G.pot;
-    targetPlayer.score += amt;
-    targetPlayer.banked = true;
-    targetPlayer.bankedAmt = amt;
-    G.bankedThisRound.push({ name: targetPlayer.name, amt: amt });
-    if (STATS[targetPlayer.name]) {
-      STATS[targetPlayer.name].banks.push(amt);
-      STATS[targetPlayer.name].bankAmts.push(amt);
-    }
-    SFX.bank();
-    showToast(roller.name + ' retired ' + target + '! (-25 pts, ' + target + ' banks ' + amt.toLocaleString() + ')');
-    // If target was the roller's own turn position, advance
-    if (targetIdx === G.roller) nextRoller();
-    if (G.players.every(function(q) { return q.banked; })) { showRoundEnd(false); render(); return; }
-    render();
-    return;
-  }
-
-  // Bounty: validate no bounty already active
-  if (cardKey === 'bounty') {
-    if (EFFECTS.bounty) {
-      showToast('A bounty is already active this round');
-      return;
-    }
-  }
-
-  // Remove card from hand
+  var reason = cardBlockReason(cardKey, roller); if (reason) { showToast(reason); return; }
+  pushSnap();
   CARDS[roller.name].splice(cardIdx, 1);
   SFX.card();
-
   switch (cardKey) {
+    case 'retire':
+      var tp = findP(target); if (!tp) break;
+      roller.score -= 25;
+      var amt = G.pot;
+      tp.score += amt; tp.banked = true; tp.bankedAmt = amt;
+      G.bankedThisRound.push({ name: tp.name, amt: amt });
+      STATS[tp.name].banks.push(amt);
+      SFX.bank(amt);
+      showToast(roller.name + ' retired ' + target + '! (−25 pts, ' + target + ' banks ' + fmt(amt) + ')');
+      if (activeUnbanked().length === 0) { roundClear(); return; }
+      break;
     case 'insurance':
       if (EFFECTS.insurance.indexOf(roller.name) === -1) EFFECTS.insurance.push(roller.name);
-      showToast(roller.name + ' is insured!');
-      break;
+      showToast(roller.name + ' is insured: half the pot on a bust'); break;
     case 'doubledown':
-      EFFECTS.doubledown = true;
-      showToast('Double Down active! Even = double, Odd = half');
-      break;
+      EFFECTS.doubledown = true; showToast('Double Down! Even doubles, odd halves'); break;
     case 'freeze':
-      EFFECTS.freeze = target;
-      showToast(target + ' is frozen! Can\'t bank this round.');
-      break;
+      EFFECTS.freeze = target; showToast(target + ' is frozen! Can’t bank this round.'); break;
     case 'tax':
-      EFFECTS.tax = roller.name;
-      showToast(roller.name + ' played Tax! Next banker pays 20%');
-      break;
+      EFFECTS.tax = roller.name; showToast(roller.name + ' played Tax! Next banker pays 20%'); break;
     case 'bounty':
-      EFFECTS.bounty = { by: roller.name, target: target };
-      showToast(roller.name + ' put a bounty on ' + target + '!');
-      break;
+      EFFECTS.bounty = { by: roller.name, target: target }; showToast(roller.name + ' put a bounty on ' + target + '!'); break;
   }
   render();
 }
-
 function renderEffectBanner() {
-  var banner = document.getElementById('gEffectBanner');
-  if (!banner) return;
-  if (MODE !== 'sabotage') { banner.innerHTML = ''; return; }
+  var banner = $('gEffectBanner');
+  if (G.mode !== 'sabotage') { banner.innerHTML = ''; return; }
   var parts = [];
-  if (EFFECTS.insurance.length) parts.push('<span class="eff-safe">' + ico('shield','ico-sm') + ' ' + EFFECTS.insurance.join(', ') + ' insured</span>');
-  if (EFFECTS.doubledown) parts.push('<span class="eff-danger">' + ico('bolt','ico-sm') + ' double down active</span>');
-  if (EFFECTS.freeze) parts.push('<span class="eff-danger">' + ico('snowflake','ico-sm') + ' ' + EFFECTS.freeze + ' frozen</span>');
-  if (EFFECTS.tax) parts.push('<span class="eff-gold">' + ico('coins','ico-sm') + ' tax active \u2192 ' + EFFECTS.tax + '</span>');
-  if (EFFECTS.bounty) parts.push('<span class="eff-danger">' + ico('bounty','ico-sm') + ' bounty on ' + EFFECTS.bounty.target + '</span>');
+  if (EFFECTS.insurance.length) parts.push('<span class="eff-safe">' + ico('shield', 'ico-sm') + ' ' + esc(EFFECTS.insurance.join(', ')) + ' insured</span>');
+  if (EFFECTS.doubledown) parts.push('<span class="eff-danger">' + ico('bolt', 'ico-sm') + ' double down active</span>');
+  if (EFFECTS.freeze) parts.push('<span class="eff-danger">' + ico('snowflake', 'ico-sm') + ' ' + esc(EFFECTS.freeze) + ' frozen</span>');
+  if (EFFECTS.tax) parts.push('<span class="eff-gold">' + ico('coins', 'ico-sm') + ' tax → ' + esc(EFFECTS.tax) + '</span>');
+  if (EFFECTS.bounty) parts.push('<span class="eff-danger">' + ico('bounty', 'ico-sm') + ' bounty on ' + esc(EFFECTS.bounty.target) + '</span>');
   banner.innerHTML = parts.join('');
 }
-var USE_DICE = false;
-var DICE_ROLLING = false;
-var DIE_PIPS = {
-  1: [[1,1]],
-  2: [[0,0],[2,2]],
-  3: [[0,0],[1,1],[2,2]],
-  4: [[0,0],[0,2],[2,0],[2,2]],
-  5: [[0,0],[0,2],[1,1],[2,0],[2,2]],
-  6: [[0,0],[0,1],[0,2],[2,0],[2,1],[2,2]]
-};
+
+// ══ VIRTUAL DICE ══
+var DICE_ROLLING = false, DICE_IV = null;
+var DIE_PIPS = { 1: [[1, 1]], 2: [[0, 0], [2, 2]], 3: [[0, 0], [1, 1], [2, 2]], 4: [[0, 0], [0, 2], [2, 0], [2, 2]], 5: [[0, 0], [0, 2], [1, 1], [2, 0], [2, 2]], 6: [[0, 0], [0, 1], [0, 2], [2, 0], [2, 1], [2, 2]] };
 function renderGameDie(id, val) {
-  var grid = document.getElementById(id + 'pips');
-  if (!grid) return;
+  var grid = $(id + 'pips'); if (!grid) return;
   grid.innerHTML = '';
+  grid.classList.toggle('idle', !val);
   var filled = DIE_PIPS[val] || [];
-  for (var r = 0; r < 3; r++) {
-    for (var c = 0; c < 3; c++) {
-      var cell = document.createElement('span');
-      var hasPip = filled.some(function(p){ return p[0]===r && p[1]===c; });
-      if (hasPip) { var pip = document.createElement('div'); pip.className = 'g-die-pip'; cell.appendChild(pip); }
-      grid.appendChild(cell);
-    }
+  for (var r = 0; r < 3; r++) for (var c = 0; c < 3; c++) {
+    var cell = document.createElement('span');
+    if (filled.some(function(p) { return p[0] === r && p[1] === c; })) { var pip = document.createElement('div'); pip.className = 'g-die-pip'; cell.appendChild(pip); }
+    grid.appendChild(cell);
   }
 }
-function toggleDiceHome() {
-  USE_DICE = !USE_DICE;
-  var btn = document.getElementById('homeDiceBtn');
-  var sub = document.getElementById('homeDiceSub');
-  if (btn) btn.classList.toggle('active', USE_DICE);
-  if (sub) sub.textContent = USE_DICE ? 'On' : 'Off';
-}
-function toggleDice() { toggleDiceHome(); } // legacy alias
 function rollInGameDice() {
-  if (DICE_ROLLING) return;
+  if (DICE_ROLLING || G.phase !== 'play' || anyOverlay()) return;
   DICE_ROLLING = true;
-  var d1 = document.getElementById('gDie1');
-  var d2 = document.getElementById('gDie2');
-  var btn = document.getElementById('gDiceRollBtn');
+  var d1 = $('gDie1'), d2 = $('gDie2'), btn = $('gDiceRollBtn');
   d1.classList.add('rolling'); d2.classList.add('rolling');
-  if (btn) btn.disabled = true;
-  var flashes = 0, maxFlashes = 9;
-  var iv = setInterval(function() {
-    renderGameDie('gDie1', Math.ceil(Math.random()*6));
-    renderGameDie('gDie2', Math.ceil(Math.random()*6));
-    flashes++;
-    if (flashes >= maxFlashes) {
-      clearInterval(iv);
-      var v1 = Math.ceil(Math.random()*6);
-      var v2 = Math.ceil(Math.random()*6);
-      renderGameDie('gDie1', v1);
-      renderGameDie('gDie2', v2);
-      d1.classList.remove('rolling'); d2.classList.remove('rolling');
-      if (btn) btn.disabled = false;
+  btn.disabled = true;
+  var flashes = 0;
+  DICE_IV = setInterval(function() {
+    renderGameDie('gDie1', Math.ceil(Math.random() * 6));
+    renderGameDie('gDie2', Math.ceil(Math.random() * 6));
+    if (++flashes < 9) return;
+    clearInterval(DICE_IV); DICE_IV = null;
+    var v1 = Math.ceil(Math.random() * 6), v2 = Math.ceil(Math.random() * 6);
+    renderGameDie('gDie1', v1); renderGameDie('gDie2', v2);
+    d1.classList.remove('rolling'); d2.classList.remove('rolling');
+    // Stay locked until the roll is actually submitted, so a second tap can't double-roll
+    later(function() {
       DICE_ROLLING = false;
-      var total = v1 + v2;
-      var isDbl = v1 === v2;
-      // After a short pause so the player can see the dice, submit
-      setTimeout(function() {
-        submitRoll(isDbl, total, null);
-      }, 420);
-    }
+      submitRoll(v1 === v2, v1 + v2, null, [v1, v2]);
+      if (G.phase === 'play') btn.disabled = false;
+    }, 420);
   }, 55);
 }
-function openDice() { /* legacy stub */ }
 
+// ══ SCREENS & BOOT ══
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(function(s) { if (s.id !== id) s.classList.remove('active'); });
-  document.getElementById(id).classList.add('active');
+  $(id).classList.add('active');
+  document.body.classList.toggle('ingame', id === 'game');
+}
+function boot() {
+  var s = loadSettings();
+  var names = s && s.names && s.names.length >= 2 ? s.names : ['', '', ''];
+  names.forEach(function(n) { addInput(n); });
+  $('hIcoPlay').innerHTML = ico('play');
+  $('hIcoPalette').innerHTML = ico('palette');
+  $('hIcoBolt').innerHTML = ico('bolt');
+  $('hIcoDice').innerHTML = ico('dice');
+  $('hIcoResume').innerHTML = ico('play');
+  $('gCardBtn').innerHTML = ico('card', 'ico-lg');
+  $('gMenuBtn').innerHTML = ICONS.menu;
+  syncThemeCards(); selectMode(MODE); syncOptButtons(); pickR(SEL_R);
+  updateHomeLabels();
+  var saved = peekSaved();
+  if (saved && saved.players && saved.players.length) {
+    var age = Date.now() - (saved.updatedAt || 0);
+    // Pick up exactly where you left off (reloads, iOS killing the app, accidental swipes)
+    if (saved.phase !== 'over' && saved.phase !== 'idle' && age < 12 * 3600e3) { resumeGame(); return; }
+    if (saved.phase === 'over' && age < 3600e3 && loadSavedGame()) { applyTheme($('game')); showEndScreen(); return; }
+  }
+  showScreen('home');
+}
+boot();
+
+// Offline support
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  addEventListener('load', function() { navigator.serviceWorker.register('sw.js').catch(function() {}); });
 }
 
-addInput(); addInput(); addInput();
-
-// Populate SVG icons in DOM
-document.getElementById('hIcoPlay').innerHTML = ico('play');
-document.getElementById('hIcoPalette').innerHTML = ico('palette');
-document.getElementById('hIcoBolt').innerHTML = ico('bolt');
-document.getElementById('hIcoDice').innerHTML = ico('dice');
-document.getElementById('gCardBtn').innerHTML = ico('card', 'ico-lg');
 </script>
 </body>
 </html>
