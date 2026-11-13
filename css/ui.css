@@ -451,12 +451,11 @@ button.grp-save { padding: 6px 12px; background: transparent; color: inherit; cu
 .award-icon { color: var(--acc); font-size: 1.25rem; display: flex; }
 .pool-row .ico { flex: 0 0 auto; width: 26px; }
 
-/* ── iOS home-screen apps (black-translucent status bar): fixed elements are clipped to a viewport
-   that ends one top-inset short of the screen, but normal page content still draws there.
-   So full-screen layers become absolute inside a body that is exactly the screen's height. ── */
-html.ios-fill { position: static !important; height: var(--app-h) !important; overflow: hidden !important; overscroll-behavior: none; }
-html.ios-fill body { position: relative !important; inset: auto !important; height: var(--app-h) !important; overflow: hidden !important; overscroll-behavior: none; }
-html.ios-fill .screen, html.ios-fill .backdrop, html.ios-fill .rnd-backdrop, html.ios-fill .card-deal-overlay,
-html.ios-fill .mod-reveal, html.ios-fill .bust-ov, html.ios-fill .g-heat, html.ios-fill .g-vignette, html.ios-fill #flash, html.ios-fill #cv {
-  position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: auto !important; height: var(--app-h) !important; }
+/* ── iOS home-screen viewport shrink (see main.js). If the restore doesn't take, screens end flush
+   against the iOS band instead of padding for a home bar that's already outside the page. ── */
+html.ios-chin { --sab: 0px; }
+html.ios-chin #game { padding-bottom: 8px; }
+.vp-veil { position: fixed; inset: 0; z-index: 99990; pointer-events: none; opacity: 0; transition: opacity .16s ease;
+  background: rgba(13,13,13,.28); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.vp-veil.on { opacity: 1; }
 .set-diag-link { display: inline-block; margin-top: 8px; color: #666; text-decoration: underline; }
