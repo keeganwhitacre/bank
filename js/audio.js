@@ -1,7 +1,7 @@
 // ══ SOUND SYSTEM ══
 var AC = null, AUDIO_OK = false;
 function getAC() {
-  if (!AUDIO_OK) return null;
+  if (!AUDIO_OK || PREFS.sound === 'off') return null;
   if (!AC) { try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; } }
   if (AC.state === 'suspended') AC.resume();
   return AC;
@@ -12,6 +12,13 @@ function getAC() {
 });
 
 var SFX = {
+  // Every sound goes through one master gain so the volume setting applies everywhere
+  _master: null,
+  _out: function(ac) {
+    if (!SFX._master || SFX._master.context !== ac) { SFX._master = ac.createGain(); SFX._master.connect(ac.destination); }
+    SFX._master.gain.value = SOUND_VOL[PREFS.sound] || 0;
+    return SFX._master;
+  },
   _noise: function(ac, dur, decay) {
     var len = Math.max(1, Math.floor(ac.sampleRate * dur));
     var buf = ac.createBuffer(1, len, ac.sampleRate);
@@ -27,13 +34,13 @@ var SFX = {
     g.gain.linearRampToValueAtTime(gain, t0 + Math.min(0.012, dur / 4));
     g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
     if (filt) { var f = ac.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = filt; o.connect(f); f.connect(g); } else o.connect(g);
-    g.connect(ac.destination); o.start(t0); o.stop(t0 + dur + 0.05);
+    g.connect(SFX._out(ac)); o.start(t0); o.stop(t0 + dur + 0.05);
   },
   _hit: function(ac, t, dur, decay, type, freq, q, gain) {
     var s = ac.createBufferSource(); s.buffer = SFX._noise(ac, dur, decay);
     var f = ac.createBiquadFilter(); f.type = type; f.frequency.value = freq; if (q) f.Q.value = q;
     var g = ac.createGain(); g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    s.connect(f); f.connect(g); g.connect(ac.destination); s.start(t);
+    s.connect(f); f.connect(g); g.connect(SFX._out(ac)); s.start(t);
   },
 
   // Dice on table. Heat (0–4) deepens the thud and adds a sub as the pot grows.
@@ -59,7 +66,7 @@ var SFX = {
     var s = ac.createBufferSource(); s.buffer = SFX._noise(ac, 0.14, 2);
     var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.setValueAtTime(600, t); bp.frequency.linearRampToValueAtTime(1800, t + 0.1); bp.Q.value = 2;
     var sg = ac.createGain(); sg.gain.setValueAtTime(0.12, t); sg.gain.linearRampToValueAtTime(0.06, t + 0.1); sg.gain.exponentialRampToValueAtTime(0.001, t + 0.14);
-    s.connect(bp); bp.connect(sg); sg.connect(ac.destination); s.start(t);
+    s.connect(bp); bp.connect(sg); sg.connect(SFX._out(ac)); s.start(t);
     SFX._hit(ac, t + 0.1, 0.025, 20, 'bandpass', 2200, 0.8, 0.22);
     if (golden) { SFX._tone(ac, 'triangle', 880, 880, t + 0.1, 0.4, 0.07); SFX._tone(ac, 'triangle', 1320, 1320, t + 0.18, 0.5, 0.05); }
   },
@@ -71,7 +78,7 @@ var SFX = {
     var sc = ac.createBufferSource(); sc.buffer = SFX._noise(ac, 0.32 + mag * 0.4, 3);
     var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 500; bp.Q.value = 0.6;
     var g = ac.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.35, t + 0.02); g.gain.exponentialRampToValueAtTime(0.001, t + 0.32 + mag * 0.4);
-    sc.connect(bp); bp.connect(g); g.connect(ac.destination); sc.start(t);
+    sc.connect(bp); bp.connect(g); g.connect(SFX._out(ac)); sc.start(t);
     SFX._hit(ac, t + 0.01, 0.28, 2, 'highpass', 2000, 0, 0.14);
     if (mag > 0.15) {
       SFX._tone(ac, 'sine', 110, 26, t, 0.6 + mag * 0.7, 0.35 + mag * 0.5);
@@ -114,7 +121,7 @@ var SFX = {
     var s = ac.createBufferSource(); s.buffer = SFX._noise(ac, 0.4, 1.5);
     var bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.4; bp.frequency.setValueAtTime(400, t); bp.frequency.exponentialRampToValueAtTime(2600, t + 0.35);
     var g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.16, t + 0.2); g.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
-    s.connect(bp); bp.connect(g); g.connect(ac.destination); s.start(t);
+    s.connect(bp); bp.connect(g); g.connect(SFX._out(ac)); s.start(t);
     SFX._tone(ac, 'sine', 880, 880, t + 0.32, 0.9, 0.09);
     SFX._tone(ac, 'sine', 1320, 1320, t + 0.36, 0.8, 0.05);
   },
@@ -144,7 +151,7 @@ var SFX = {
     var s = ac.createBufferSource(); s.buffer = SFX._noise(ac, 1.1, 0.6);
     var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 110;
     var g = ac.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.12 + level * 0.05, t + 0.5); g.gain.exponentialRampToValueAtTime(0.001, t + 1.1);
-    s.connect(lp); lp.connect(g); g.connect(ac.destination); s.start(t);
+    s.connect(lp); lp.connect(g); g.connect(SFX._out(ac)); s.start(t);
   },
 
   // Tension state sounds. Only called on a state CHANGE (see render).
@@ -154,7 +161,7 @@ var SFX = {
     var thud = ac.createBufferSource(); thud.buffer = SFX._noise(ac, intense ? 0.5 : 0.35, intense ? 1.8 : 2.2);
     var lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = intense ? 100 : 130;
     var g = ac.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(intense ? 0.55 : 0.35, t + 0.015); g.gain.exponentialRampToValueAtTime(0.001, t + (intense ? 0.5 : 0.35));
-    thud.connect(lp); lp.connect(g); g.connect(ac.destination); thud.start(t);
+    thud.connect(lp); lp.connect(g); g.connect(SFX._out(ac)); thud.start(t);
     if (!intense) return;
     // A pending stop would kill the drone we're about to reuse
     if (SFX._stopTimer) { clearTimeout(SFX._stopTimer); SFX._stopTimer = null; }
@@ -165,7 +172,7 @@ var SFX = {
       var a = ac.createBiquadFilter(); a.type = 'lowpass'; a.frequency.value = 180;
       var b = ac.createBiquadFilter(); b.type = 'lowpass'; b.frequency.value = 180;
       var dg = ac.createGain(); dg.gain.setValueAtTime(0, t); dg.gain.linearRampToValueAtTime(0.055, t + 2.5);
-      src.connect(a); a.connect(b); b.connect(dg); dg.connect(ac.destination); src.start(t);
+      src.connect(a); a.connect(b); b.connect(dg); dg.connect(SFX._out(ac)); src.start(t);
       SFX._droneNode = src; SFX._droneGain = dg;
     } else {
       SFX._droneGain.gain.cancelScheduledValues(t);

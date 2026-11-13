@@ -73,8 +73,7 @@ function showRulesSheet() {
   if (G.mode === 'chaos' && G.mods.length) {
     h += G.mods.map(function(k) { var d = MODS[k]; return '<div class="rules-mod">' + ico(d.icon) + '<div><b>' + esc(d.name) + '</b><span>' + esc(d.desc) + '</span></div></div>'; }).join('');
   }
-  var list = (MODE_RULES[G.mode] || []).slice();
-  if (G.mode === 'lms') list[2] = 'Nobody can bank until the pot reaches ' + fmt(lmsMinBank()) + '.';
+  var list = (MODE_RULES[G.mode] || []).map(function(r) { return ruleText(r, G); });
   if (G.mode === 'race') list[1] = 'The first player whose banked total reaches ' + fmt(G.raceTarget) + ' wins instantly.';
   h += '<ul class="rules-list">' + list.map(function(r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul>';
   var div = document.createElement('div'); div.style.cssText = 'display:flex;flex-direction:column;gap:12px;'; div.innerHTML = h;

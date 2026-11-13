@@ -32,17 +32,22 @@ function modeSummary(mode, opts, race) {
   mode = mode || MODE; opts = opts || OPTS; race = race || RACE_TARGET;
   var l = MODE_LABELS[mode] || mode;
   if (mode === 'race') return l + ' (' + fmt(race) + ')';
-  if (mode === 'chaos') return l + ' · ' + (opts.chaosCount === 2 ? '2 rules' : '1 rule') + '/round';
-  if (mode === 'lms') return l + ' · min ' + fmt(opts.lmsMinBank) + (opts.lmsSuddenDeath ? ' · SD' : '');
+  if (mode === 'chaos') return l + ' · ' + (opts.chaosCount === 2 ? '2 rules' : '1 rule') + '/round' + (opts.chaosPool && opts.chaosPool.length ? ' · ' + opts.chaosPool.length + ' in deck' : '');
+  if (mode === 'lms') return l + ' · ' + (opts.lmsLives || 3) + ' lives · min ' + fmt(opts.lmsMinBank) + (opts.lmsSuddenDeath ? ' · SD' : '');
   return l;
+}
+function houseSummary() {
+  var d = Rules.HOUSE_DEFAULTS, bits = [];
+  if (HOUSE.safeRolls !== d.safeRolls) bits.push(HOUSE.safeRolls + ' safe');
+  if (HOUSE.safe7 !== d.safe7) bits.push('7 = ' + HOUSE.safe7);
+  if (HOUSE.doublesMult !== d.doublesMult) bits.push('dbl \u00d7' + HOUSE.doublesMult);
+  return bits.length ? ' \u00b7 house: ' + bits.join(', ') : '';
 }
 function updateHomeLabels() {
   var tl = THEME_LABELS[T] || T;
   $('homeThemeSub').textContent = 'Theme: ' + tl;
   $('homeThemeSub2').textContent = tl;
   $('homeModeSub').textContent = modeSummary();
-  $('homeDiceSub').textContent = USE_DICE ? 'On' : 'Off';
-  $('homeDiceBtn').classList.toggle('active', USE_DICE);
   var s = peekSaved(), rb = $('homeResumeBtn');
   if (s && s.players && s.players.length && s.phase !== 'over' && s.phase !== 'idle') {
     rb.style.display = '';
@@ -53,22 +58,24 @@ function goSetup() {
   applyTheme($('setup'));
   var noRounds = MODE === 'race' || MODE === 'lms';
   $('suRoundsSec').style.display = noRounds ? 'none' : '';
-  $('suModeLine').textContent = 'Mode: ' + modeSummary();
+  $('suModeLine').textContent = 'Mode: ' + modeSummary() + houseSummary();
   showScreen('setup');
 }
-function toggleDiceHome() { USE_DICE = !USE_DICE; saveSettings(); updateHomeLabels(); }
 
 function currentInputNames() { return Array.from($('suInputs').querySelectorAll('input')).map(function(i) { return i.value.trim(); }); }
 function saveSettings() {
-  lsSet(LS_SETTINGS, { T: T, MODE: MODE, RACE_TARGET: RACE_TARGET, USE_DICE: USE_DICE, OPTS: OPTS, selR: SEL_R, names: currentInputNames().filter(Boolean) });
+  lsSet(LS_SETTINGS, { T: T, MODE: MODE, RACE_TARGET: RACE_TARGET, PREFS: PREFS, HOUSE: HOUSE, OPTS: OPTS, selR: SEL_R, names: currentInputNames().filter(Boolean) });
 }
 function loadSettings() {
   var s = lsGet(LS_SETTINGS); if (!s) return null;
   if (s.T && THEME_MAP[s.T]) T = s.T;
   if (s.MODE && MODE_LABELS[s.MODE]) MODE = s.MODE;
   if (s.RACE_TARGET) RACE_TARGET = s.RACE_TARGET;
-  USE_DICE = !!s.USE_DICE;
-  if (s.OPTS) for (var k in s.OPTS) if (k in OPTS) OPTS[k] = s.OPTS[k];
+  var k;
+  if (s.PREFS) { for (k in s.PREFS) if (k in PREFS) PREFS[k] = s.PREFS[k]; }
+  else if (s.USE_DICE != null) PREFS.dice = !!s.USE_DICE;      // settings saved by v2.0
+  if (s.HOUSE) for (k in s.HOUSE) if (k in HOUSE) HOUSE[k] = s.HOUSE[k];
+  if (s.OPTS) for (k in s.OPTS) if (k in OPTS) OPTS[k] = s.OPTS[k];
   if (s.selR) SEL_R = s.selR;
   return s;
 }
@@ -91,9 +98,10 @@ function rmInput(btn) {
   $('suAddBtn').style.display = '';
 }
 function pickR(n) {
-  SEL_R = n;
-  document.querySelectorAll('.su-rbtn[data-r]').forEach(function(b) { b.classList.toggle('on', +b.dataset.r === n); });
+  SEL_R = clamp(Math.round(n), 3, 30);
+  var v = $('suRoundsVal'); if (v) v.textContent = SEL_R + ' rounds';
 }
+function stepR(d) { pickR(SEL_R + d); }
 function startGame() {
   var names = currentInputNames().filter(Boolean);
   if (names.length < 2) { showToast('Need at least 2 players'); return; }
@@ -104,7 +112,8 @@ function startGame() {
     seen[k] = 1;
   }
   saveSettings();
-  beginGame(names, MODE, OPTS, RACE_TARGET, SEL_R);
+  var opts = JSON.parse(JSON.stringify(OPTS)); opts.house = JSON.parse(JSON.stringify(HOUSE));
+  beginGame(names, MODE, opts, RACE_TARGET, SEL_R);
 }
 function beginGame(names, mode, opts, raceTarget, selR) {
   clearOverlays();

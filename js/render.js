@@ -178,7 +178,7 @@ function infoHTML() {
   if (m === 'chaos') {
     return h + G.mods.map(function(k) { var d = MODS[k]; return '<button class="gi-mod" onclick="showRulesSheet()">' + ico(d.icon) + '<b>' + esc(d.name) + '</b><span class="gi-short">' + esc(d.short) + '</span></button>'; }).join('');
   }
-  var txt = { race: 'First to ' + fmt(G.raceTarget) + ' wins', turbo: '7 busts every roll', blackout: 'Pot hidden after roll 3', cutthroat: '2 or 12 halves the pot', rollerscut: 'Last one in: +20% per roll', sabotage: 'Cards every 5 rounds' }[m];
+  var txt = { race: 'First to ' + fmt(G.raceTarget) + ' wins', turbo: '7 busts every roll', blackout: 'Pot hidden after roll ' + safeRollCount(), cutthroat: '2 or 12 halves the pot', rollerscut: 'Last one in: +20% per roll', sabotage: 'Cards every 5 rounds' }[m];
   if (m === 'lms') txt = 'Min bank ' + fmt(lmsMinBank()) + (G.suddenDeath ? '</span><span class="gi-txt gi-danger">Sudden death' : '');
   return h + '<span class="gi-txt">' + txt + '</span>';
 }

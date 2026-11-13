@@ -89,10 +89,10 @@ function bankAnnouncements(p, amt, leaderBefore, hadScores) {
   var allBanks = []; Object.keys(STATS).forEach(function(n) { allBanks = allBanks.concat(STATS[n].banks); });
   var avg = allBanks.length ? allBanks.reduce(function(a, b) { return a + b; }, 0) / allBanks.length : 0;
   if (RECORDS.bestBank > 0 && amt >= 200 && amt > RECORDS.bestBank && amt > G.bestBank) {
-    pick = ['New Record', p.name + ' · ' + fmt(amt) + ' · best bank ever', 'gold'];
+    pick = ['New Record', p.name + ' · ' + fmt(amt) + ' · best bank ever', 'gold', true];
     addMoment('record', p.name + ' set an all-time record bank: ' + fmt(amt), amt + 1000);
   } else if (G.roundStartLast === p.name && leaderAfter === p.name) {
-    pick = ['Comeback', p.name + ' goes from last to first', 'gold'];
+    pick = ['Comeback', p.name + ' goes from last to first', 'gold', true];
     STATS[p.name].comebacks++;
     addMoment('comeback', p.name + ' went from last place to the lead in round ' + G.round, amt + 500);
   } else if (leaderAfter && leaderAfter !== leaderBefore && hadScores && G.round >= 2 && !G.leaderAnnounced) {
@@ -101,7 +101,7 @@ function bankAnnouncements(p, amt, leaderBefore, hadScores) {
   } else if (amt >= 300 && allBanks.length >= 3 && amt >= avg * 2.2) {
     pick = ['Big Bank', p.name + ' · ' + fmt(amt), ''];
   }
-  if (pick) announce(pick[0], pick[1], pick[2]);
+  if (pick) announce(pick[0], pick[1], pick[2], pick[3]);
 }
 function roundClear() {
   G.result = { bust: false, pot: G.pot };

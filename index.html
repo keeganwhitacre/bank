@@ -52,11 +52,12 @@
       <span class="home-btn-label">Change Gamemode</span>
       <span class="home-btn-sub" id="homeModeSub">Standard</span>
     </button>
-    <button class="home-btn home-btn-toggle" id="homeDiceBtn" onclick="toggleDiceHome()">
-      <span class="home-btn-icon" id="hIcoDice"></span>
-      <span class="home-btn-label">Virtual Dice</span>
-      <span class="home-btn-sub" id="homeDiceSub">Off</span>
-    </button>
+    <div class="home-row" id="homeRow">
+      <button class="home-btn home-btn-small" onclick="openSettings()">
+        <span class="home-btn-icon" id="hIcoSettings"></span>
+        <span class="home-btn-label">Settings</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -231,6 +232,14 @@ Red velvet &amp; gold trim.</span></div>
       <button class="su-rbtn" data-opt="lmsMinBank" data-val="100" onclick="pickOpt('lmsMinBank',100)">100</button>
       <button class="su-rbtn" data-opt="lmsMinBank" data-val="200" onclick="pickOpt('lmsMinBank',200)">200</button>
     </div>
+    <span class="mode-opts-label">Lives</span>
+    <div class="mode-opts-row">
+      <button class="su-rbtn" data-opt="lmsLives" data-val="1" onclick="pickOpt('lmsLives',1)">1</button>
+      <button class="su-rbtn" data-opt="lmsLives" data-val="2" onclick="pickOpt('lmsLives',2)">2</button>
+      <button class="su-rbtn" data-opt="lmsLives" data-val="3" onclick="pickOpt('lmsLives',3)">3</button>
+      <button class="su-rbtn" data-opt="lmsLives" data-val="4" onclick="pickOpt('lmsLives',4)">4</button>
+      <button class="su-rbtn" data-opt="lmsLives" data-val="5" onclick="pickOpt('lmsLives',5)">5</button>
+    </div>
     <span class="mode-opts-label">Sudden death after round 10</span>
     <div class="mode-opts-row">
       <button class="su-rbtn" data-opt="lmsSuddenDeath" data-val="true" onclick="pickOpt('lmsSuddenDeath',true)">On</button>
@@ -243,10 +252,19 @@ Red velvet &amp; gold trim.</span></div>
       <button class="su-rbtn" data-opt="chaosCount" data-val="1" onclick="pickOpt('chaosCount',1)">1 rule</button>
       <button class="su-rbtn" data-opt="chaosCount" data-val="2" onclick="pickOpt('chaosCount',2)">2 rules</button>
     </div>
+    <span class="mode-opts-label">Deck</span>
+    <button class="su-rbtn mode-opts-wide" id="chaosPoolBtn" onclick="showChaosPool()">All 13 rules — edit</button>
   </div>
   <div class="pk-go"><button onclick="confirmMode()">Confirm Mode &#8594;</button></div>
 </div>
 
+
+<!-- SETTINGS -->
+<div class="screen" id="settings">
+  <button class="g-back" onclick="closeSettings()"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+  <div class="pk-title">Settings</div>
+  <div class="set-list" id="settingsList"></div>
+</div>
 
 <div class="screen" id="setup">
   <button class="g-back" onclick="showScreen('home')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
@@ -261,9 +279,9 @@ Red velvet &amp; gold trim.</span></div>
   <div class="su-section" id="suRoundsSec">
     <label class="su-label" id="suLblRounds">Rounds</label>
     <div class="su-rounds">
-      <button class="su-rbtn on" data-r="10" onclick="pickR(10)">10</button>
-      <button class="su-rbtn" data-r="15" onclick="pickR(15)">15</button>
-      <button class="su-rbtn" data-r="20" onclick="pickR(20)">20</button>
+      <button class="su-rbtn su-step" onclick="stepR(-1)" aria-label="Fewer rounds">&minus;</button>
+      <button class="su-rbtn on su-rval" id="suRoundsVal" onclick="pickR(10)">10 rounds</button>
+      <button class="su-rbtn su-step" onclick="stepR(1)" aria-label="More rounds">+</button>
     </div>
   </div>
   <div class="su-start"><button class="su-start-btn" onclick="startGame()">Start Game</button></div>
@@ -340,6 +358,7 @@ Red velvet &amp; gold trim.</span></div>
 <script src="js/fx.js"></script>
 <script src="js/sabotage.js"></script>
 <script src="js/dice.js"></script>
+<script src="js/settings.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

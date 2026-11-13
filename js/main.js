@@ -3,6 +3,7 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(function(s) { if (s.id !== id) s.classList.remove('active'); });
   $(id).classList.add('active');
   document.body.classList.toggle('ingame', id === 'game');
+  if (typeof updateWakeLock === 'function') updateWakeLock();
 }
 function boot() {
   var s = loadSettings();
@@ -11,11 +12,12 @@ function boot() {
   $('hIcoPlay').innerHTML = ico('play');
   $('hIcoPalette').innerHTML = ico('palette');
   $('hIcoBolt').innerHTML = ico('bolt');
-  $('hIcoDice').innerHTML = ico('dice');
+  $('hIcoSettings').innerHTML = ico('gear');
   $('hIcoResume').innerHTML = ico('play');
   $('gCardBtn').innerHTML = ico('card', 'ico-lg');
   $('gMenuBtn').innerHTML = ICONS.menu;
-  syncThemeCards(); selectMode(MODE); syncOptButtons(); pickR(SEL_R);
+  syncThemeCards(); selectMode(MODE); syncOptButtons(); pickR(SEL_R); syncModeExtras();
+  applyPrefs();
   updateHomeLabels();
   var saved = peekSaved();
   if (saved && saved.players && saved.players.length) {

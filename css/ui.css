@@ -262,3 +262,52 @@ body.lms-showdown.ingame .g-heat::after { animation: heatBreath 2.6s ease-in-out
 .end-btn2:active { border-color: #555; color: #ccc; }
 .end-row .end-sub { font-family: 'DM Mono', monospace; font-size: .6rem; color: #555; margin-left: 6px; }
 .again-btn { max-width: none; }
+
+/* ── Home: two small buttons side by side ── */
+.home-row { display: flex; gap: 14px; }
+.home-row .home-btn { flex: 1; }
+.home-btn-small { padding: 14px 16px; gap: 10px; justify-content: center; }
+.home-btn-small .home-btn-label { flex: 0 1 auto; font-size: .95rem; }
+.home-btn-small .home-btn-icon { width: auto; font-size: 1.15rem; }
+
+/* ── Setup: rounds stepper ── */
+.su-rounds .su-step { flex: 0 0 56px; font-size: 1.4rem; }
+.su-rounds .su-rval { flex: 1; }
+
+/* ── Mode options extras ── */
+.mode-opts-wide { width: 100%; margin-bottom: 10px; font-size: .8rem !important; letter-spacing: .04em; }
+
+/* ── Settings screen (dark, like the other menus) ── */
+#settings { background: #0d0d0d; align-items: center; }
+#settings .pk-title { margin-bottom: 14px; }
+.set-list { width: 100%; max-width: 420px; padding: 0 20px 24px; flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.set-h { display: flex; align-items: baseline; justify-content: space-between; margin: 18px 0 8px; font-family: 'DM Mono', monospace; font-size: .64rem; letter-spacing: .22em; text-transform: uppercase; color: #777; }
+.set-h:first-child { margin-top: 0; }
+.set-h span { letter-spacing: .08em; color: #555; text-transform: none; }
+.set-row { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; margin-bottom: 8px; background: #141414; border: 1.5px solid #1e1e1e; border-radius: 12px; }
+.set-label { font-family: 'Archivo Black', sans-serif; font-size: .9rem; color: #fff; }
+.set-label small { display: block; margin-top: 3px; font-family: 'DM Mono', monospace; font-size: .64rem; color: #666; line-height: 1.45; letter-spacing: .02em; }
+.set-seg { display: flex; gap: 6px; }
+.set-seg button { flex: 1; height: 40px; border-radius: 9px; border: 1.5px solid #262626; background: #1b1b1b; color: #777; font-family: 'Archivo Black', sans-serif; font-size: .8rem; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: background .12s, color .12s, border-color .12s; }
+.set-seg button.on { background: #fff; border-color: #fff; color: #0d0d0d; }
+.set-action { display: block; width: 100%; height: 48px; margin-bottom: 8px; border-radius: 12px; border: 1.5px solid #262626; background: transparent; color: #aaa; font-family: 'DM Mono', monospace; font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; }
+.set-action.warn { color: #ff6a4d; border-color: rgba(255,106,77,.3); }
+.set-foot { margin-top: 16px; text-align: center; font-family: 'DM Mono', monospace; font-size: .6rem; color: #444; letter-spacing: .08em; }
+
+/* ── Chaos deck editor ── */
+.pool-list { display: flex; flex-direction: column; gap: 6px; }
+.pool-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 14px; background: #1c1c1c; border: 1.5px solid #272727; border-radius: 10px; text-align: left; cursor: pointer; opacity: .45; -webkit-tap-highlight-color: transparent; }
+.pool-row.on { opacity: 1; border-color: var(--acc); }
+.pool-row .ico { font-size: 1.2rem; color: var(--acc); }
+.pool-row span { flex: 1; text-align: left; font-family: 'DM Mono', monospace; font-size: .66rem; color: #888; }
+.pool-row span b { display: block; font-family: 'Archivo Black', sans-serif; font-weight: 400; font-size: .86rem; color: #fff; }
+.pool-row i { font-style: normal; font-family: 'DM Mono', monospace; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: #777; }
+.pool-row.on i { color: var(--acc); }
+.t-br .pool-row { background: #1a1a1a; border-radius: 0; }
+
+/* ── Reduced motion: no shaking, pulsing or flying confetti; staged reveals appear instantly ── */
+body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after {
+  animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important;
+}
+body.reduce-motion .bo-pot { display: none; }
+body.reduce-motion .bo-word { opacity: 1; }

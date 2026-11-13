@@ -10,6 +10,7 @@ function potPulse() {
   setTimeout(function() { el.style.transition = 'opacity .35s'; el.style.opacity = ''; }, 80);
 }
 function potSlam(mag) {
+  if (reducedMotion()) return;
   var el = $('gPotValue');
   if (!el.animate) return;
   try { el.animate([{ scale: '1' }, { scale: String(1.1 + mag * 0.18) }, { scale: '1' }], { duration: 460, easing: 'cubic-bezier(.2,1.6,.4,1)' }); } catch (e) {}
@@ -27,6 +28,7 @@ function animatePot(from, to) {
   requestAnimationFrame(step);
 }
 function shakeScreen(mag) {
+  if (reducedMotion()) return;
   mag = 1 + (mag || 0) * 1.6;
   var game = $('game');
   var frames = [[-6, 0], [6, -3], [-5, 3], [5, -2], [-3, 1], [2, 0], [0, 0]];
@@ -50,6 +52,7 @@ function resizeCV() {
 }
 resizeCV(); addEventListener('resize', resizeCV);
 function spawnConfetti(n, big, o) {
+  if (reducedMotion()) return;
   o = o || {};
   var W = innerWidth, H = innerHeight;
   var cx = o.x != null ? o.x : W / 2, cy = o.y != null ? o.y : (big ? H * 0.3 : H * 0.55), sm = big ? 1.4 : 1;
@@ -97,7 +100,9 @@ function nextToast() {
 
 // Announcements: big, brief, never block input
 var ANN_Q = [], ANN_BUSY = false;
-function announce(title, sub, kind) {
+// big = always worth showing (records, comebacks); the setting can limit to those or turn all off
+function announce(title, sub, kind, big) {
+  if (PREFS.announce === 'off' || (PREFS.announce === 'big' && !big)) return;
   if (ANN_Q.length >= 2) ANN_Q.shift();
   ANN_Q.push({ title: title, sub: sub, kind: kind });
   if (!ANN_BUSY) nextAnnounce();
