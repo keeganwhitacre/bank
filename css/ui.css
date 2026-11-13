@@ -28,7 +28,23 @@ html { -webkit-text-size-adjust: 100%; }
 .g-back { top: calc(var(--sat) + 10px); }
 /* Brutalist is light, but the iOS status bar text is white: give it a dark band */
 #statusStrip { position: fixed; top: 0; left: 0; right: 0; height: var(--sat); background: #1a1a1a; z-index: 9600; pointer-events: none; display: none; }
-body.t-br #statusStrip { display: block; }
+/* Brutalist is light but the iOS clock is white, and iOS blurs whatever sits at the top edge.
+   So the top is a deliberate dark header, tall enough that the blur stays inside it,
+   finished with the hazard stripe. Setup uses the strip; the game uses its top bar. */
+body.t-br:not(.ingame) #statusStrip { display: block; height: calc(var(--sat) + 22px);
+  background: repeating-linear-gradient(-45deg, #ff3300 0 8px, #1a1a1a 8px 16px) left bottom / 100% 5px no-repeat, #1a1a1a; }
+#game.t-br::after, #setup.t-br::after, body.t-br:not(.state-solo)::after { display: none; }
+#game.t-br .g-topbar { margin: calc(-1 * (var(--sat) + 2px)) 0 0; padding: calc(var(--sat) + 16px) 14px 16px; align-items: center;
+  background: repeating-linear-gradient(-45deg, #ff3300 0 8px, #1a1a1a 8px 16px) left bottom / 100% 5px no-repeat, #1a1a1a; }
+#game.t-br .g-title { color: #ddd8ce; }
+#game.t-br .g-rnd { color: #8a857c; }
+#game.t-br .g-pip { background: #3a3a3a; }
+#game.t-br .g-pip.done { background: #ff3300; opacity: .45; }
+#game.t-br .g-pip.current { background: #ff3300; opacity: 1; }
+#game.t-br .g-menu-btn { color: #ddd8ce; opacity: .55; }
+#game.t-br .g-pot { padding-top: 8px; }
+#setup.t-br .g-back { top: calc(var(--sat) + 30px); }
+#setup.t-br { padding-top: calc(var(--sat) + 76px); }
 
 /* ── Readable small text (was .42–.5rem ≈ 7–8px) ── */
 .g-effect-banner { font-size: .64rem; padding: 3px 8px; line-height: 1.6; }

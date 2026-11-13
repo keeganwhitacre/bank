@@ -25,16 +25,24 @@ function syncPageChrome(id) {
 // is missing and let CSS extend every full-screen layer by that much (--gap). 0 everywhere else.
 var VIEW_GAP = 0;
 function isStandalone() { return navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches); }
+// Measure the problem directly: how tall is a fixed top:0/bottom:0 element really, compared
+// with the full screen? (iOS may report a full innerHeight while fixed elements still stop short.)
+var GAP_INFO = { probe: 0, full: 0 };
 function measureViewportGap() {
-  var gap = 0;
+  var gap = 0, probeH = 0, fullH = 0;
   var ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var probe = document.createElement('div');
+  probe.style.cssText = 'position:fixed;top:0;bottom:0;left:0;width:1px;visibility:hidden;pointer-events:none';
+  document.body.appendChild(probe); probeH = probe.getBoundingClientRect().height; probe.remove();
   if (ios && isStandalone()) {
     var sw = screen.width, sh = screen.height, portrait = innerHeight >= innerWidth;
-    var fullH = portrait ? Math.max(sw, sh) : Math.min(sw, sh);
-    var fullW = portrait ? Math.min(sw, sh) : Math.max(sw, sh);
+    var screenH = portrait ? Math.max(sw, sh) : Math.min(sw, sh);
+    var screenW = portrait ? Math.min(sw, sh) : Math.max(sw, sh);
+    fullH = Math.max(screenH, innerHeight, document.documentElement.clientHeight);
     // Only for a full-screen app window, and never while the keyboard is up
-    if (Math.abs(innerWidth - fullW) < 2) { gap = fullH - innerHeight; if (gap < 0 || gap > 140) gap = 0; }
+    if (Math.abs(innerWidth - screenW) < 2) { gap = Math.round(fullH - probeH); if (gap < 0 || gap > 140) gap = 0; }
   }
+  GAP_INFO = { probe: Math.round(probeH), full: Math.round(fullH) };
   VIEW_GAP = gap;
   document.documentElement.style.setProperty('--gap', gap + 'px');
   if (typeof resizeCV === 'function') resizeCV();
@@ -46,6 +54,7 @@ function displayCheck() {
   var cs = getComputedStyle(probe), top = parseInt(cs.paddingTop) || 0, bot = parseInt(cs.paddingBottom) || 0;
   probe.remove();
   return 'view ' + innerWidth + '\u00d7' + innerHeight + ' \u00b7 screen ' + screen.width + '\u00d7' + screen.height +
+         ' \u00b7 fixed ' + GAP_INFO.probe + ' \u00b7 screenEl ' + Math.round((document.querySelector('.screen.active') || document.body).getBoundingClientRect().bottom) +
          ' \u00b7 safe ' + top + '/' + bot + ' \u00b7 gap ' + VIEW_GAP + ' \u00b7 ' + (isStandalone() ? 'home screen' : 'browser');
 }
 ['resize', 'orientationchange'].forEach(function(ev) { addEventListener(ev, function() { setTimeout(measureViewportGap, 60); }); });

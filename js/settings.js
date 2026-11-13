@@ -22,7 +22,7 @@ function setSetting(key, val) {
   var p = key.split('.'); (p[0] === 'prefs' ? PREFS : HOUSE)[p[1]] = val;
   saveSettings(); applyPrefs(); renderSettings();
 }
-function openSettings() { renderSettings(); showScreen('settings'); $('settingsList').scrollTop = 0; }
+function openSettings() { showScreen('settings'); renderSettings(); $('settingsList').scrollTop = 0; }
 function closeSettings() { updateHomeLabels(); showScreen(SETTINGS_RETURN || 'home'); SETTINGS_RETURN = null; }
 var SETTINGS_RETURN = null;
 function renderSettings() {
