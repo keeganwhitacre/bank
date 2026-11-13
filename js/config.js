@@ -5,7 +5,6 @@ var RACE_TARGET = 1500;
 var USE_DICE = false;
 var SEL_R = 10;
 var OPTS = { chaosCount: 1, lmsMinBank: 100, lmsSuddenDeath: true };
-var LIVES_START = 3;
 var RECORDS = lsGet(LS_RECORDS) || { bestBank: 0, bestBankBy: '', biggestBust: 0, biggestPot: 0 };
 
 var THEME_MAP = {
@@ -30,25 +29,5 @@ var MODE_RULES = {
   lms:        ['Everyone starts with 3 lives.', 'A bust costs every player still in one life. Lose them all and you’re out.', 'Nobody can bank until the pot reaches the minimum.', 'If a bust would knock out everyone left, the highest score survives.', 'Sudden death (optional) after round 10: everyone drops to 1 life and the minimum climbs 100 each round.', 'Last player standing wins.']
 };
 
-// ══ CHAOS MODIFIERS ══
-var MODS = {
-  noMercy:       { name: 'No Mercy',       icon: 'skull',  tag: 'danger', short: 'No safe rolls',        desc: 'No safe rolls this round. A 7 busts from the very first roll.' },
-  doubleTrouble: { name: 'Double Trouble', icon: 'dice',   tag: 'gold',   short: 'Rolls add ×2',    desc: 'Normal rolls add double their value. Doubles still double the pot.' },
-  goldenSeven:   { name: 'Golden Seven',   icon: 'star',   tag: 'gold',   short: 'Safe 7 = +140',        desc: 'A 7 during the safe rolls adds 140 instead of 70.' },
-  lockdown:      { name: 'Lockdown',       icon: 'lock',   tag: 'danger', short: 'Bank on your turn',    desc: 'You can only bank when it’s your turn to roll. The Bank button banks the roller.' },
-  snakeEyes:     { name: 'Snake Eyes',     icon: 'snake',  tag: 'danger', short: '2 also busts',         desc: 'After the safe rolls, rolling a 2 busts the round just like a 7.' },
-  highStakes:    { name: 'High Stakes',    icon: 'trend',  tag: 'gold',   short: '10 or 11 = +50',       desc: 'Any roll that totals 10 or 11 adds a 50-point bonus to the pot.' },
-  finalStand:    { name: 'Final Stand',    icon: 'target', tag: 'gold',   short: 'Last one in +100',     desc: 'The last player still in gets a 100-point bonus if they bank.' },
-  taxman:        { name: 'Taxman',         icon: 'coins',  tag: 'danger', short: 'Banks lose 10%',       desc: 'Every bank this round loses 10% off the top.' },
-  hotHand:       { name: 'Hot Hand',       icon: 'flame',  tag: 'gold',   short: 'Doubles ×3',      desc: 'Doubles triple the pot instead of doubling it.' },
-  shortFuse:     { name: 'Short Fuse',     icon: 'fuse',   tag: 'danger', short: '1 safe roll',          desc: 'Only the first roll is safe. A 7 busts from roll 2.' },
-  firstIn:       { name: 'First In',       icon: 'flag',   tag: 'gold',   short: 'First bank +25%',      desc: 'The first player to bank this round gets 25% extra.' },
-  blind:         { name: 'Blind Round',    icon: 'eyeOff', tag: 'danger', short: 'Pot hidden',           desc: 'The pot goes dark after the safe rolls. Keep count in your heads.' },
-  copycat:       { name: 'Copycat',        icon: 'copy',   tag: 'gold',   short: 'Repeat a roll = ×2', desc: 'After the safe rolls, rolling the same total as the roll before doubles the pot.' }
-};
-// Pairs that would cancel out or make each other pointless
-var MOD_CONFLICTS = [['noMercy', 'shortFuse'], ['noMercy', 'goldenSeven']];
-function modsCompatible(a, b) {
-  if (a === b) return false;
-  return !MOD_CONFLICTS.some(function(c) { return (c[0] === a && c[1] === b) || (c[0] === b && c[1] === a); });
-}
+// ══ CHAOS MODIFIERS (defined in rules.js) ══
+var MODS = Rules.MODS;

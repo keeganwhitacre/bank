@@ -1,6 +1,6 @@
 // ══ CARD SYSTEM (Sabotage) ══
 var CARDS = {};
-function blankEffects() { return { insurance: [], doubledown: false, freeze: null, tax: null, bounty: null }; }
+function blankEffects() { return Rules.blankEffects(); }
 var EFFECTS = blankEffects();
 var FREEZE_DEALT = false;
 var CARD_DEFS = {

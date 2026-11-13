@@ -108,16 +108,12 @@ function startGame() {
 }
 function beginGame(names, mode, opts, raceTarget, selR) {
   clearOverlays();
-  G = newGameState(selR);
-  G.mode = mode; G.opts = JSON.parse(JSON.stringify(opts)); G.raceTarget = raceTarget;
-  G.players = names.map(function(n) { return { name: n, score: 0, banked: false, bankedAmt: null, lives: mode === 'lms' ? LIVES_START : 0, out: false, outRound: 0 }; });
-  names.forEach(function(n) { G.cumMiss[n] = 0; });
+  G = Rules.newGame(names, mode, opts, raceTarget, selR);
   HISTORY = [];
   initStats(names);
   if (mode === 'sabotage') initCards(names); else { CARDS = {}; resetEffects(); FREEZE_DEALT = false; }
-  G.showdownShown = names.length <= 2;   // a 2-player game is a showdown from the start
   G.phase = 'play';
-  if (mode === 'chaos') { rollMods(); G.phase = 'reveal'; G.intro = ['chaos']; }
+  if (mode === 'chaos') { Rules.pickMods(G); G.phase = 'reveal'; G.intro = ['chaos']; }
   enterGame();
 }
 function enterGame() {

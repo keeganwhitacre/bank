@@ -112,7 +112,7 @@ function render() {
     chip.className = 'g-chip' + (isRoller ? ' rolling' : '') + (p.banked ? ' banked' : '') + (EFFECTS.freeze === p.name ? ' frozen' : '') + (p.out ? ' out' : '');
     var handCount = (CARDS[p.name] || []).length;
     var cardDots = (G.mode === 'sabotage' && handCount > 0) ? '<div class="g-chip-cards">' + ico('card', 'ico-sm').repeat(Math.min(handCount, 3)) + '</div>' : '';
-    var lives = G.mode === 'lms' ? '<div class="g-chip-lives">' + heartsHTML(p.lives, p.out ? LIVES_START : Math.max(p.lives, G.suddenDeath ? 1 : LIVES_START)) + '</div>' : '';
+    var lives = G.mode === 'lms' ? '<div class="g-chip-lives">' + heartsHTML(p.lives, p.out ? (G.opts.lmsLives || 3) : Math.max(p.lives, G.suddenDeath ? 1 : (G.opts.lmsLives || 3))) + '</div>' : '';
     chip.innerHTML = '<div class="g-chip-name">' + esc(labels[i]) + '</div><div class="g-chip-pts">' + (p.out ? ico('skull') : fmt(displayScore(p))) + '</div>' + lives + cardDots;
     scoresEl.appendChild(chip);
     if (isRoller) activeChip = chip;

@@ -1,24 +1,5 @@
 // ══ GAME STATE ══
-function newGameState(selR) {
-  return {
-    mode: 'standard', opts: {}, raceTarget: 1500,
-    players: [], roller: 0, pot: 0, rolls: 0, round: 1, total: selR || 10,
-    bankedThisRound: [], bustPot: 0, cumMiss: {},
-    phase: 'idle',          // idle | play | roundEnd | reveal | over
-    result: null,           // data for the round-end sheet
-    intro: null,            // pending round intro: ['chaos'|'showdown'|'sudden']
-    mods: [], prevMods: [],
-    lastRoll: null, lastDice: null,
-    firstBankDone: false, soloAnnounced: false, leaderAnnounced: false,
-    showdownShown: false, suddenDeath: false,
-    roundStartLast: null, heat: 0,
-    bestBank: 0, biggestBust: 0, peakPot: 0,
-    moments: [], elimOrder: [], winners: [], winReason: '',
-    recordsCommitted: false,
-    startedAt: Date.now(), updatedAt: Date.now()
-  };
-}
-var G = newGameState(10);
+var G = Rules.newGame([], 'standard', {}, 1500, 10);
 var STATS = {};
 function initStats(names) {
   STATS = {};
@@ -87,29 +68,19 @@ function clearOverlays() {
 }
 function anyOverlay() { return !!document.querySelector('.backdrop, .rnd-backdrop, .card-deal-overlay, .mod-reveal, .bust-ov'); }
 
-// ══ RULES HELPERS ══
-function hasMod(id) { return G.mode === 'chaos' && G.mods.indexOf(id) !== -1; }
-function safeRollCount() {
-  if (G.mode === 'turbo' || hasMod('noMercy')) return 0;
-  if (hasMod('shortFuse')) return 1;
-  return 3;
-}
-function nextRollDanger() { return G.rolls >= safeRollCount(); }
-function potHidden() { return (G.mode === 'blackout' || hasMod('blind')) && G.phase === 'play' && G.rolls >= safeRollCount() && G.rolls > 0; }
-function activePlayers() { return G.players.filter(function(p) { return !p.out; }); }
-function activeUnbanked() { return G.players.filter(function(p) { return !p.out && !p.banked; }); }
-function lmsMinBank() {
-  var base = (G.opts && G.opts.lmsMinBank) || 100;
-  return G.suddenDeath ? base + 100 * Math.max(1, G.round - 10) : base;
-}
-function bankLockedByMin() { return G.mode === 'lms' && G.pot < lmsMinBank(); }
-// Doubles need an exact total when a rule cares which doubles it was
-function needsDoublesTotal() { return G.mode === 'cutthroat' || hasMod('snakeEyes') || hasMod('highStakes') || hasMod('copycat'); }
-function leaderName() {
-  var best = null, bestS = -1, tie = false;
-  activePlayers().forEach(function(p) { if (p.score > bestS) { bestS = p.score; best = p.name; tie = false; } else if (p.score === bestS) tie = true; });
-  return (tie || bestS <= 0) ? null : best;
-}
+// ══ RULES HELPERS ══ (thin wrappers: the logic lives in rules.js)
+function hasMod(id) { return Rules.hasMod(G, id); }
+function safeRollCount() { return Rules.safeRollCount(G); }
+function nextRollDanger() { return Rules.nextRollDanger(G); }
+function potHidden() { return Rules.potHidden(G); }
+function activePlayers() { return Rules.activePlayers(G); }
+function activeUnbanked() { return Rules.activeUnbanked(G); }
+function lmsMinBank() { return Rules.lmsMinBank(G); }
+function bankLockedByMin() { return Rules.bankLockedByMin(G); }
+function needsDoublesTotal() { return Rules.needsDoublesTotal(G); }
+function leaderName() { return Rules.leaderName(G); }
+function previewBank(idx) { return Rules.previewBank(G, idx); }
+function nextRoller() { Rules.nextRoller(G); }
 function displayScore(p) { return (potHidden() && p.banked && p.bankedAmt != null) ? p.score - p.bankedAmt : p.score; }
 function shortLabels() {
   var names = G.players.map(function(p) { return p.name; });

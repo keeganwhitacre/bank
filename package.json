@@ -1,0 +1,8 @@
+{
+  "name": "bank",
+  "private": true,
+  "description": "Bank: a push-your-luck dice game (PWA). No build step; open index.html.",
+  "scripts": {
+    "test": "node --test"
+  }
+}
