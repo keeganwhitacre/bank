@@ -16,23 +16,23 @@ html { -webkit-text-size-adjust: 100%; }
 
 /* ── Layout fixes ── */
 /* Was max(safe-area, 110px): a 110px floor on every screen. Now safe area + a margin. */
-.screen { padding-top: calc(env(safe-area-inset-top) + 40px); padding-bottom: calc(env(safe-area-inset-bottom) + 16px); }
-#game { padding-top: calc(env(safe-area-inset-top) + 2px); padding-bottom: max(env(safe-area-inset-bottom), 6px); }
+.screen { padding-top: calc(var(--sat) + 40px); padding-bottom: calc(var(--sab) + 16px); }
+#game { padding-top: calc(var(--sat) + 2px); padding-bottom: max(var(--sab), 6px); }
 /* justify-content:center + overflow clips the top of tall content. Auto margins
    center when there's room and collapse to 0 when there isn't, so nothing is cut off. */
 #setup, #end, #home { justify-content: flex-start; }
 #setup .su-logo, #end .end-hero, #home .pk-title { margin-top: auto; }
 #setup .su-start, #end .end-btns, #home .home-menu { margin-bottom: auto; }
-#setup { padding-top: calc(env(safe-area-inset-top) + 60px); }
-#end { padding-top: calc(env(safe-area-inset-top) + 28px); }
-.g-back { top: calc(env(safe-area-inset-top) + 10px); }
+#setup { padding-top: calc(var(--sat) + 60px); }
+#end { padding-top: calc(var(--sat) + 28px); }
+.g-back { top: calc(var(--sat) + 10px); }
 /* Brutalist is light, but the iOS status bar text is white: give it a dark band */
-#statusStrip { position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top); background: #1a1a1a; z-index: 9600; pointer-events: none; display: none; }
+#statusStrip { position: fixed; top: 0; left: 0; right: 0; height: var(--sat); background: #1a1a1a; z-index: 9600; pointer-events: none; display: none; }
 body.t-br #statusStrip { display: block; }
 
 /* ── Readable small text (was .42–.5rem ≈ 7–8px) ── */
 .g-effect-banner { font-size: .64rem; padding: 3px 8px; line-height: 1.6; }
-.g-intensity-label { font-size: .58rem; top: calc(env(safe-area-inset-top) + 4px); }
+.g-intensity-label { font-size: .58rem; top: calc(var(--sat) + 4px); }
 .g-tracker-item { font-size: .58rem; }
 .t-br .g-rnd { font-size: .62rem; }
 .mode-card-rule { font-size: .68rem; }
@@ -46,7 +46,7 @@ body.t-br #statusStrip { display: block; }
 .home-btn-sub { font-size: .62rem; }
 .g-chip-cards { font-size: .6rem; }
 .sh-title { font-size: .7rem; }
-.sheet { padding-bottom: calc(env(safe-area-inset-bottom) + 24px); max-height: 92dvh; overflow-y: auto; }
+.sheet { padding-bottom: calc(var(--sab) + 24px); max-height: 92dvh; overflow-y: auto; }
 
 /* ── Setup ── */
 .su-mode-line { width: 100%; max-width: 340px; margin: -16px 0 18px; font-family: 'DM Mono', monospace; font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; opacity: .55; }
@@ -124,7 +124,7 @@ body.lms-showdown.ingame[data-heat="0"] .g-heat, body.lms-showdown.ingame[data-h
 body.lms-showdown.ingame .g-heat::after { animation: heatBreath 2.6s ease-in-out infinite; }
 
 /* ── Toast (queued, wraps, sits at the top out of the way of scores) ── */
-.toast { position: fixed; top: calc(env(safe-area-inset-top) + 8px); left: 50%; transform: translate(-50%, -14px); width: max-content; max-width: min(92vw, 440px); padding: 9px 16px; border-radius: 6px; font-family: 'Archivo Black', sans-serif; font-size: .74rem; letter-spacing: .04em; line-height: 1.35; text-transform: uppercase; text-align: center; white-space: normal; opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; z-index: 9500; background: #1a1a1a; color: #ddd8ce; border: 2px solid #2a2a2a; border-left: 4px solid var(--acc); box-shadow: 3px 3px 0 rgba(0,0,0,.3); }
+.toast { position: fixed; top: calc(var(--sat) + 8px); left: 50%; transform: translate(-50%, -14px); width: max-content; max-width: min(92vw, 440px); padding: 9px 16px; border-radius: 6px; font-family: 'Archivo Black', sans-serif; font-size: .74rem; letter-spacing: .04em; line-height: 1.35; text-transform: uppercase; text-align: center; white-space: normal; opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; z-index: 9500; background: #1a1a1a; color: #ddd8ce; border: 2px solid #2a2a2a; border-left: 4px solid var(--acc); box-shadow: 3px 3px 0 rgba(0,0,0,.3); }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 /* ── Announcements: big, brief, non-blocking ── */
@@ -140,7 +140,7 @@ body.lms-showdown.ingame .g-heat::after { animation: heatBreath 2.6s ease-in-out
 @keyframes annOut { to { transform: scaleY(.15); opacity: 0; } }
 
 /* ── Bust: the pot collapses ── */
-.bust-ov { position: fixed; inset: 0; z-index: 6600; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 24px 20px calc(env(safe-area-inset-bottom) + 24px); cursor: pointer; background: rgba(0,0,0,0); animation: boBg .45s ease forwards; overflow-y: auto; -webkit-tap-highlight-color: transparent; }
+.bust-ov { position: fixed; inset: 0; z-index: 6600; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 24px 20px calc(var(--sab) + 24px); cursor: pointer; background: rgba(0,0,0,0); animation: boBg .45s ease forwards; overflow-y: auto; -webkit-tap-highlight-color: transparent; }
 @keyframes boBg { to { background: rgba(0,0,0,.88); } }
 .bo-stage { position: relative; width: 100%; height: clamp(5.5rem, 26vw, 8.5rem); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .bo-stage > * { position: absolute; }
@@ -170,7 +170,7 @@ body.lms-showdown.ingame .g-heat::after { animation: heatBreath 2.6s ease-in-out
 @keyframes boUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 /* ── Round intro: chaos card / showdown / sudden death ── */
-.mod-reveal { position: fixed; inset: 0; z-index: 6700; background: rgba(0,0,0,.9); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: calc(env(safe-area-inset-top) + 20px) 22px calc(env(safe-area-inset-bottom) + 22px); animation: bdIn .2s ease; overflow-y: auto; }
+.mod-reveal { position: fixed; inset: 0; z-index: 6700; background: rgba(0,0,0,.9); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: calc(var(--sat) + 20px) 22px calc(var(--sab) + 22px); animation: bdIn .2s ease; overflow-y: auto; }
 .mr-label { font-family: 'DM Mono', monospace; font-size: .7rem; letter-spacing: .3em; text-transform: uppercase; color: #888; text-align: center; }
 .mr-cards { display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 340px; perspective: 900px; }
 .mr-card { background: #141414; border: 2px solid var(--acc); border-radius: 18px; padding: 24px 20px 22px; text-align: center; box-shadow: 0 0 44px var(--acc-soft), 0 20px 50px rgba(0,0,0,.5); animation: cardFlip .75s cubic-bezier(.2,1.2,.4,1) both; }
@@ -198,7 +198,7 @@ body.lms-showdown.ingame .g-heat::after { animation: heatBreath 2.6s ease-in-out
 
 /* ── Round end additions ── */
 .rnd-sheet { max-height: 90dvh; overflow-y: auto; }
-.rnd-btns { display: flex; position: sticky; bottom: 0; padding-bottom: env(safe-area-inset-bottom); background: #ddd8ce; }
+.rnd-btns { display: flex; position: sticky; bottom: 0; padding-bottom: var(--sab); background: #ddd8ce; }
 .rnd-btns .rnd-next { flex: 1; }
 .rnd-undo { flex: 0 0 104px; background: #1a1a1a; color: #999; border: none; border-top: 3px solid #222; border-right: 3px solid #222; font-family: 'DM Mono', monospace; font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; cursor: pointer; }
 .rnd-undo:active { color: #fff; }
@@ -377,3 +377,62 @@ button.grp-save { padding: 6px 12px; background: transparent; color: inherit; cu
 /* ── End screen share ── */
 .end-share { height: 46px; border: 2px solid var(--acc); background: transparent; color: var(--acc); font-family: 'Archivo Black', sans-serif; font-size: .82rem; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .end-share:disabled { opacity: .5; }
+
+/* ── iOS home-screen viewport gap (see measureViewportGap in main.js) ── */
+html, body, .screen, .backdrop, .rnd-backdrop, .card-deal-overlay, .mod-reveal, .bust-ov, .g-heat, .g-vignette, #flash { bottom: calc(-1 * var(--gap)); }
+.set-diag { display: inline-block; margin-top: 6px; color: #3a3a3a; }
+
+/* ── Home buttons: subtitle under the label so neither wraps or gets squeezed ── */
+.home-btn { display: grid; grid-template-columns: 32px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 16px; row-gap: 3px; align-items: center; padding: 16px 20px; min-height: 68px; }
+.home-btn-icon { grid-row: 1 / span 2; grid-column: 1; }
+.home-btn-label { grid-column: 2; grid-row: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.15; }
+.home-btn-sub { grid-column: 2; grid-row: 2; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #555; }
+.home-btn-sub:empty { display: none; }
+.home-row .home-btn-small { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; justify-items: center; row-gap: 6px; padding: 14px 10px; }
+.home-row .home-btn-small .home-btn-icon { grid-row: 1; grid-column: 1; width: auto; font-size: 1.25rem; }
+.home-row .home-btn-small .home-btn-label { grid-row: 2; grid-column: 1; font-size: .92rem; }
+.home-menu { gap: 12px; }
+
+/* ── Scrolling screens: the list runs to the bottom edge and fades out, no dead band ── */
+#settings, #hall, #modeSelect, #picker { padding-bottom: 0; }
+.set-list, .hall-body { padding-bottom: calc(var(--sab) + 28px); }
+.set-list, .hall-body, .mode-list, .pk-list { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent); }
+.mode-list, .pk-list { padding-bottom: 22px; }
+.pk-go { padding-bottom: calc(var(--sab) + 14px); margin-top: 12px; }
+.mode-opts { margin-top: 4px; }
+
+/* ── Sheet buttons: bigger, readable; "finish" actions are primary ── */
+.sh-cancel { height: 50px; border-radius: 12px; border: 1.5px solid #333; color: #999; font-size: .74rem; letter-spacing: .12em; flex-shrink: 0; }
+.sh-done { height: 54px; border-radius: 12px; border: none; background: #fff; color: #0d0d0d; font-family: 'Archivo Black', sans-serif; font-size: .9rem; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; flex-shrink: 0; -webkit-tap-highlight-color: transparent; }
+.sh-done:active { opacity: .85; }
+.t-br .sh-done { background: #1a1a1a; color: #ddd8ce; border-radius: 0; }
+.t-br .sh-cancel { border-radius: 0; }
+.t-term .sh-done { background: #00ff41; color: #080d08; border-radius: 0; }
+.t-cas .sh-done { background: #d4af37; color: #0b0b0b; }
+.t-sb .sh-done { background: #ffe14d; color: #111; }
+.t-dive .sh-done { background: #ff1f47; color: #fff; }
+.sheet { padding-bottom: calc(var(--sab) + 18px); }
+
+/* ── Brutalist round-end sheet: light text was invisible on the beige sheet ── */
+.t-br .rnd-name, .t-br .rnd-status:not(.bust):not(.clear) { color: #1a1a1a; }
+.t-br .rnd-stand-name { color: #777; }
+.t-br .rnd-stand-pts { color: #777; }
+.t-br .rnd-stand-row.lead .rnd-stand-name, .t-br .rnd-stand-row.lead .rnd-stand-pts { color: #1a1a1a; }
+.t-br .rnd-header, .t-br .rnd-row, .t-br .rnd-stand-head { border-color: rgba(0,0,0,.12); }
+.t-br .rnd-label, .t-br .rnd-rank, .t-br .rnd-stand-pos, .t-br .rnd-stand-head { color: #999; }
+.t-br .rnd-earn { color: #1a8a1a; }
+.t-br .rnd-mods span { border-color: #bbb; color: #777; }
+
+/* ── Chaos deck editor: compact rows, Done always visible ── */
+#chaosPool .sheet { padding-top: 10px; }
+.pool-list { gap: 5px; }
+.pool-row { padding: 8px 12px; }
+.sheet .sh-done { position: sticky; bottom: 0; box-shadow: 0 -14px 18px 4px #1c1c1c; }
+.t-br .sheet .sh-done { box-shadow: 0 -14px 18px 4px #ddd8ce; }
+.t-term .sheet .sh-done { box-shadow: 0 -14px 18px 4px #080d08; }
+.t-cas .sheet .sh-done { box-shadow: 0 -14px 18px 4px #0b0b0b; }
+.t-sb .sheet .sh-done { box-shadow: 0 -14px 18px 4px #111; }
+
+/* ── End screen award icons were nearly invisible ── */
+.award-icon { color: var(--acc); font-size: 1.25rem; display: flex; }
+.pool-row .ico { flex: 0 0 auto; width: 26px; }

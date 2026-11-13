@@ -5,12 +5,8 @@ function syncThemeCards() {
   var c = $('card-' + T); if (c) c.classList.add('sel');
 }
 function applyTheme(el) {
-  Object.values(THEME_MAP).forEach(function(v) { el.classList.remove(v.cls); document.body.classList.remove(v.cls); });
+  Object.values(THEME_MAP).forEach(function(v) { el.classList.remove(v.cls); });
   el.classList.add(THEME_MAP[T].cls);
-  document.body.classList.add(THEME_MAP[T].cls);
-  document.body.style.backgroundColor = THEME_MAP[T].bg;
-  document.documentElement.style.backgroundColor = THEME_MAP[T].bg;
-  var meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.setAttribute('content', THEME_MAP[T].bg);
 }
 function confirmTheme() { saveSettings(); updateHomeLabels(); showScreen('home'); }
 function selectMode(m) {

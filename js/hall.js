@@ -98,7 +98,7 @@ function showPlayerCard(key) {
   var div = document.createElement('div');
   div.innerHTML = '<div class="pc-name">' + esc(p.name) + '</div><div class="pc-grid">' + rows.map(function(r) { return '<div><small>' + esc(r[0]) + '</small><b>' + esc(String(r[1])) + '</b></div>'; }).join('') + '</div>';
   s.sh.appendChild(div);
-  var ok = document.createElement('button'); ok.className = 'sh-cancel'; ok.textContent = 'Close'; ok.onclick = s.close;
+  var ok = document.createElement('button'); ok.className = 'sh-done'; ok.textContent = 'Close'; ok.onclick = s.close;
   s.sh.appendChild(ok);
   document.body.appendChild(s.bd);
 }

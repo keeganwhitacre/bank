@@ -80,7 +80,7 @@ function showRulesSheet() {
   h += '<ul class="rules-list">' + list.map(function(r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul>';
   var div = document.createElement('div'); div.style.cssText = 'display:flex;flex-direction:column;gap:12px;'; div.innerHTML = h;
   s.sh.appendChild(div);
-  var ok = document.createElement('button'); ok.className = 'sh-cancel'; ok.textContent = 'Got it'; ok.onclick = s.close;
+  var ok = document.createElement('button'); ok.className = 'sh-done'; ok.textContent = 'Got it'; ok.onclick = s.close;
   s.sh.appendChild(ok);
   document.body.appendChild(s.bd);
 }

@@ -46,8 +46,9 @@ var PTS = [], RAF = false, DPR = 1;
 var COLS = ['#ff3300', '#ffe14d', '#38e878', '#60a5fa', '#f472b6', '#fff', '#a78bfa', '#fb923c'];
 function resizeCV() {
   DPR = Math.min(window.devicePixelRatio || 1, 2);
-  CV.width = innerWidth * DPR; CV.height = innerHeight * DPR;
-  CV.style.width = innerWidth + 'px'; CV.style.height = innerHeight + 'px';
+  var h = innerHeight + (window.VIEW_GAP || 0);
+  CV.width = innerWidth * DPR; CV.height = h * DPR;
+  CV.style.width = innerWidth + 'px'; CV.style.height = h + 'px';
   CTX.setTransform(DPR, 0, 0, DPR, 0, 0);
 }
 resizeCV(); addEventListener('resize', resizeCV);

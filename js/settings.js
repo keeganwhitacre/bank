@@ -37,7 +37,7 @@ function renderSettings() {
     });
     h += '</div></div>';
   });
-  h += '<div class="set-foot">Bank · house rules apply to games you start from now on</div>';
+  h += '<div class="set-foot">Bank · house rules apply to games you start from now on<br><span class="set-diag">Display check: ' + esc(displayCheck()) + '</span></div>';
   $('settingsList').innerHTML = h;
 }
 function pickSetting(i, j) { var d = SETTING_DEFS[i]; setSetting(d.key, d.opts[j][0]); if (d.key === 'prefs.sound' && PREFS.sound !== 'off') later(function() { SFX.bank(0); }, 30); }
@@ -107,7 +107,7 @@ function showChaosPool() {
   });
   draw();
   s.sh.appendChild(list);
-  var done = document.createElement('button'); done.className = 'sh-cancel'; done.textContent = 'Done'; done.onclick = s.close;
+  var done = document.createElement('button'); done.className = 'sh-done'; done.textContent = 'Done'; done.onclick = s.close;
   s.sh.appendChild(done);
   document.body.appendChild(s.bd);
 }

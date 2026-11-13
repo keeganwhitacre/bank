@@ -1,4 +1,7 @@
 /* Base layout: reset, screens, theme picker previews, setup and game skeleton */
+/* Safe areas go through variables so they can be simulated in tests. --gap is the height iOS
+   home-screen apps fail to give fixed full-screen elements (WebKit bug); main.js measures it. */
+:root { --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px); --gap: 0px; }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
@@ -18,8 +21,8 @@ html, body {
   flex-direction: column; 
   overflow: hidden;
   /* Use max() to guarantee it always clears the dynamic island/notch */
-  padding-top: max(env(safe-area-inset-top), 110px);
-  padding-bottom: max(env(safe-area-inset-bottom), 24px);
+  padding-top: max(var(--sat), 110px);
+  padding-bottom: max(var(--sab), 24px);
 }
 .screen.active { display: flex; }
 
@@ -105,7 +108,7 @@ html, body {
 
 /* SETUP — min-height fixes background cutoff bug */
 #setup { align-items: center; justify-content: center;
-  overflow-y: auto; padding-top: max(env(safe-area-inset-top), 54px); padding-left: 22px; padding-right: 22px; padding-bottom: 32px; min-height: 100%; }
+  overflow-y: auto; padding-top: max(var(--sat), 54px); padding-left: 22px; padding-right: 22px; padding-bottom: 32px; min-height: 100%; }
 .su-logo { text-align: center; margin-bottom: 6px; }
 .su-sub  { text-align: center;
   margin-bottom: 30px; }
