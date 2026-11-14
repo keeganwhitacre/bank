@@ -408,7 +408,7 @@ button.grp-save { padding: 6px 12px; background: transparent; color: inherit; cu
 .home-menu { gap: 12px; }
 
 /* ── Scrolling screens: the list runs to the bottom edge and fades out, no dead band ── */
-#settings, #hall, #modeSelect, #picker { padding-bottom: 0; }
+#settings, #hall, #picker { padding-bottom: 0; }
 .set-list, .hall-body { padding-bottom: calc(var(--sab) + 28px); }
 .set-list, .hall-body, .mode-list, .pk-list { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent); }
 .mode-list, .pk-list { padding-bottom: 22px; }
@@ -484,3 +484,24 @@ body.state-solo.t-br::after, body.state-solo.t-cas::after { position: absolute !
 .g-scores-row .g-chip { flex: 1 1 0; min-width: 62px; max-width: 120px; }
 .g-undo { flex-shrink: 0; max-width: 64px; overflow: hidden; }
 .t-br .g-chip-tag.roll { color: #ff3300; }
+
+/* ── Setup: mode picker ── */
+.su-mode-sec .mode-opts { padding: 0; max-width: none; margin-top: 10px; }
+.su-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.su-more-modes { display: none; margin-top: 8px; }
+.su-more-modes.show { display: grid; }
+.su-mode { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-height: 64px; padding: 11px 12px; text-align: left; cursor: pointer;
+  border-radius: 10px; border: 2px solid color-mix(in srgb, var(--fg) 14%, transparent); background: color-mix(in srgb, var(--fg) 4%, transparent); color: var(--fg); -webkit-tap-highlight-color: transparent; transition: border-color .12s, background .12s; }
+.su-mode b { font-family: 'Archivo Black', sans-serif; font-weight: 400; font-size: .95rem; line-height: 1.1; }
+.su-mode span { font-family: 'DM Mono', monospace; font-size: .62rem; letter-spacing: .02em; line-height: 1.3; opacity: .6; }
+.su-mode.on { border-color: var(--acc); background: var(--acc-soft); }
+.su-mode.on b { color: var(--acc); }
+.su-mode:active { transform: scale(.97); }
+.su-more-modes .su-mode { min-height: 54px; padding: 9px 12px; }
+.su-more-modes .su-mode b { font-size: .82rem; }
+.su-more, .su-how { display: block; width: 100%; margin-top: 8px; padding: 10px; background: transparent; border: none; color: var(--fg); opacity: .55; cursor: pointer;
+  font-family: 'DM Mono', monospace; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; }
+.su-how { opacity: .8; color: var(--acc); margin-top: 10px; border: 1.5px solid color-mix(in srgb, var(--acc) 45%, transparent); border-radius: 10px; }
+.su-mode-desc { margin-top: 10px; font-family: 'DM Mono', monospace; font-size: .7rem; line-height: 1.5; color: var(--fg); opacity: .7; }
+.t-br .su-mode, .t-br .su-how, .t-term .su-mode, .t-term .su-how { border-radius: 0; }
+.t-br .su-mode { background: rgba(26,26,26,.04); }

@@ -9,13 +9,57 @@ function applyTheme(el) {
   el.classList.add(THEME_MAP[T].cls);
 }
 function confirmTheme() { saveSettings(); updateHomeLabels(); showScreen('home'); }
+var MORE_OPEN = false;
+function renderModeTiles() {
+  function tile(k) {
+    var i = MODE_INFO[k];
+    return '<button class="su-mode' + (MODE === k ? ' on' : '') + '" onclick="selectMode(\'' + k + '\')"><b>' + esc(MODE_LABELS[k]) + '</b><span>' + esc(i.tag) + '</span></button>';
+  }
+  var keys = Object.keys(MODE_INFO);
+  $('suModes').innerHTML = keys.filter(function(k) { return MODE_INFO[k].premier; }).map(tile).join('');
+  $('suMoreModes').innerHTML = keys.filter(function(k) { return !MODE_INFO[k].premier; }).map(tile).join('');
+  var variant = !MODE_INFO[MODE].premier;
+  var open = MORE_OPEN || variant;
+  $('suMoreModes').classList.toggle('show', open);
+  $('suMoreBtn').textContent = open ? (variant ? 'More modes' : 'Fewer modes') : 'More modes';
+  $('suMoreBtn').style.display = variant ? 'none' : '';
+  $('suModeDesc').textContent = MODE_INFO[MODE].desc + houseSummary().replace(' \u00b7 house: ', ' House rules: ');
+  [['optsRace', 'race'], ['optsLms', 'lms'], ['optsChaos', 'chaos']].forEach(function(x) { var e = $(x[0]); if (e) e.classList.toggle('show', MODE === x[1]); });
+  $('suRoundsSec').style.display = (MODE === 'race' || MODE === 'lms') ? 'none' : '';
+}
 function selectMode(m) {
   MODE = m;
-  document.querySelectorAll('#modeList .mode-card').forEach(function(c) { c.classList.remove('sel'); });
-  var el = $('mode-' + m); if (el) el.classList.add('sel');
-  [['optsRace', 'race'], ['optsLms', 'lms'], ['optsChaos', 'chaos']].forEach(function(x) { var e = $(x[0]); if (e) e.classList.toggle('show', m === x[1]); });
+  if (!MODE_INFO[m].premier) MORE_OPEN = true;
+  if ($('suModes')) renderModeTiles();
+  saveSettings();
 }
-function confirmMode() { saveSettings(); updateHomeLabels(); showScreen('home'); }
+function toggleMoreModes() { MORE_OPEN = !MORE_OPEN; renderModeTiles(); }
+// Teach the table: the basics (with this phone's house rules) plus what this mode changes
+function showHowToPlay() {
+  var opts = JSON.parse(JSON.stringify(OPTS)); opts.house = JSON.parse(JSON.stringify(HOUSE));
+  var g = Rules.newGame([], MODE, opts, RACE_TARGET, SEL_R);
+  var S = Rules.safeRollCount(g);
+  var basics = [
+    'Take turns rolling two dice. Each roll adds to one shared pot.',
+    S ? 'The first ' + S + ' rolls of a round are safe: a 7 adds ' + g.opts.house.safe7 + ', doubles just add their total.' : 'There are no safe rolls: a 7 busts from the first roll.',
+    'After that, a 7 busts the round: anyone who hasn\u2019t banked scores nothing.',
+    'Doubles after the safe rolls multiply the pot by ' + g.opts.house.doublesMult + '.',
+    'Anyone can shout BANK at any time to lock in the pot and sit out the rest of the round. Tap their name to bank them.',
+    MODE === 'race' ? 'First to bank ' + fmt(RACE_TARGET) + ' wins.' : MODE === 'lms' ? 'Last player with lives left wins.' : 'Most points after ' + SEL_R + ' rounds wins.'
+  ];
+  var s = makeSheet('howTo', '');
+  var h = '<div class="rules-h">How to play</div><ul class="rules-list">' + basics.map(function(r) { return '<li>' + esc(r) + '</li>'; }).join('') + '</ul>';
+  if (MODE !== 'standard') {
+    h += '<div class="rules-h">' + esc(MODE_LABELS[MODE]) + '</div><ul class="rules-list">' + (MODE_RULES[MODE] || []).map(function(r) { return '<li>' + esc(ruleText(r, g)) + '</li>'; }).join('') + '</ul>';
+  }
+  if (MODE === 'sabotage') h += Object.keys(CARD_DEFS).map(function(k) { var c = CARD_DEFS[k]; return '<div class="rules-mod">' + c.icon + '<div><b>' + esc(c.name) + '</b><span>' + esc(c.desc) + '</span></div></div>'; }).join('');
+  if (MODE === 'chaos') h += Rules.modPool(g).map(function(k) { var d = MODS[k]; return '<div class="rules-mod">' + ico(d.icon) + '<div><b>' + esc(d.name) + '</b><span>' + esc(d.desc) + '</span></div></div>'; }).join('');
+  var div = document.createElement('div'); div.style.cssText = 'display:flex;flex-direction:column;gap:12px;'; div.innerHTML = h;
+  s.sh.appendChild(div);
+  var ok = document.createElement('button'); ok.className = 'sh-done'; ok.textContent = 'Got it'; ok.onclick = s.close;
+  s.sh.appendChild(ok);
+  document.body.appendChild(s.bd);
+}
 function pickRaceTarget(t) { RACE_TARGET = t; syncOptButtons(); }
 function pickOpt(k, v) { OPTS[k] = v; syncOptButtons(); }
 function syncOptButtons() {
@@ -41,9 +85,8 @@ function houseSummary() {
 }
 function updateHomeLabels() {
   var tl = THEME_LABELS[T] || T;
-  $('homeThemeSub').textContent = 'Theme: ' + tl;
+  $('homeThemeSub').textContent = modeSummary();
   $('homeThemeSub2').textContent = tl;
-  $('homeModeSub').textContent = modeSummary();
   var s = peekSaved(), rb = $('homeResumeBtn');
   if (s && s.players && s.players.length && s.phase !== 'over' && s.phase !== 'idle') {
     rb.style.display = '';
@@ -52,9 +95,7 @@ function updateHomeLabels() {
 }
 function goSetup() {
   applyTheme($('setup'));
-  var noRounds = MODE === 'race' || MODE === 'lms';
-  $('suRoundsSec').style.display = noRounds ? 'none' : '';
-  $('suModeLine').textContent = 'Mode: ' + modeSummary() + houseSummary();
+  renderModeTiles(); syncOptButtons(); syncModeExtras();
   renderGroups();
   showScreen('setup');
 }

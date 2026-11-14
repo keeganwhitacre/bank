@@ -1,5 +1,5 @@
 // ══ SETTINGS (what the next new game will use) ══
-var T = 'br';
+var T = 'sb';   // Scoreboard: dark, readable from across a table
 var MODE = 'standard';
 var RACE_TARGET = 1500;
 var USE_DICE = false;
@@ -18,6 +18,18 @@ var THEME_MAP = {
   br:   { cls: 't-br',   bankText: 'BANK',    undoText: 'UNDO', bg: '#ddd8ce' },
   term: { cls: 't-term', bankText: 'BANK_IT', undoText: 'UNDO', bg: '#080d08' },
   cas:  { cls: 't-cas',  bankText: 'Bank',    undoText: 'undo', bg: '#0b0b0b' }
+};
+// Mode picker on the setup screen: the premier four, then variants under "More modes"
+var MODE_INFO = {
+  standard:   { tag: 'Classic Bank',           desc: 'The original. 3 safe rolls build the pot, then a 7 wipes out everyone who hasn\u2019t banked.', premier: true },
+  chaos:      { tag: 'A new rule every round', desc: 'Each round draws a random rule (No Mercy, Lockdown, Hot Hand\u2026) that changes how everyone plays.', premier: true },
+  lms:        { tag: 'Lives & elimination',    desc: 'Everyone has lives. A bust costs everyone still in a life. Last one standing wins.', premier: true },
+  sabotage:   { tag: 'Cards to mess with each other', desc: 'Everyone holds cards: freeze a rival, tax the next banker, put a bounty on someone, or insure yourself.', premier: true },
+  turbo:      { tag: 'No safe rolls',          desc: 'A 7 busts from the very first roll. Bank early or lose everything.' },
+  race:       { tag: 'First to the target',    desc: 'No round limit: the first player to bank up to the target score wins on the spot.' },
+  blackout:   { tag: 'Pot goes dark',          desc: 'After the safe rolls the pot is hidden. Keep count in your heads.' },
+  cutthroat:  { tag: '2 or 12 halves the pot', desc: 'After the safe rolls, a 2 or 12 cuts the pot in half instead of doubling it.' },
+  rollerscut: { tag: 'Greed pays',             desc: 'When only one player is still in, every roll earns them 20% extra.' }
 };
 var MODE_LABELS = { standard: 'Standard', turbo: 'Turbo', race: 'Race to the Bank', blackout: 'Blackout', cutthroat: 'Cutthroat', rollerscut: "Roller's Cut", sabotage: 'Sabotage', chaos: 'Chaos Bank', lms: 'Last Man Standing' };
 var THEME_LABELS = { dive: 'Dive Bar', sb: 'Scoreboard', br: 'Brutalist', term: 'Terminal', cas: 'Casino' };

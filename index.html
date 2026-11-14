@@ -47,11 +47,6 @@
       <span class="home-btn-label">Change Theme</span>
       <span class="home-btn-sub" id="homeThemeSub2">Brutalist</span>
     </button>
-    <button class="home-btn" onclick="showScreen('modeSelect')">
-      <span class="home-btn-icon" id="hIcoBolt"></span>
-      <span class="home-btn-label">Change Gamemode</span>
-      <span class="home-btn-sub" id="homeModeSub">Standard</span>
-    </button>
     <div class="home-row" id="homeRow">
       <button class="home-btn home-btn-small" onclick="openHall()">
         <span class="home-btn-icon" id="hIcoHall"></span>
@@ -111,156 +106,6 @@ Red velvet &amp; gold trim.</span></div>
   <div class="pk-go"><button onclick="confirmTheme()">Confirm Theme &#8594;</button></div>
 </div>
 
-<!-- GAMEMODE SELECT SCREEN -->
-<div class="screen" id="modeSelect">
-  <div class="pk-title">Gamemode</div>
-  <div class="pk-sub">PICK YOUR POISON</div>
-  <div class="mode-list" id="modeList">
-    <div class="mode-card" id="mode-chaos" onclick="selectMode('chaos')">
-      <div class="mode-card-header">
-        <span class="mode-card-name">Chaos Bank</span>
-        <span class="mode-card-tag party">party mode</span>
-      </div>
-      <div class="mode-card-rule">Every round draws a random rule that changes how everyone plays: No Mercy, Golden Seven, Lockdown, Snake Eyes, Taxman and more. The rule is revealed before the round and stays on screen until it ends.</div>
-      <div class="mode-card-effects">
-        <span class="mode-effect party">13 rules</span>
-        <span class="mode-effect neutral">new rule every round</span>
-        <span class="mode-effect gold">1 or 2 at once</span>
-      </div>
-    </div>
-    <div class="mode-card" id="mode-lms" onclick="selectMode('lms')">
-      <div class="mode-card-header">
-        <span class="mode-card-name">Last Man Standing</span>
-        <span class="mode-card-tag danger">elimination</span>
-      </div>
-      <div class="mode-card-rule">Everyone has 3 lives. A bust costs everyone still in a life; lose them all and you're out. You can't bank until the pot hits the minimum. Last survivor wins.</div>
-      <div class="mode-card-effects">
-        <span class="mode-effect danger">3 lives</span>
-        <span class="mode-effect neutral">min bank</span>
-        <span class="mode-effect danger">sudden death</span>
-      </div>
-    </div>
-    <div class="mode-card" id="mode-sabotage" onclick="selectMode('sabotage')">
-      <div class="mode-card-header">
-        <span class="mode-card-name">Sabotage</span>
-        <span class="mode-card-tag danger">cards mode</span>
-      </div>
-      <div class="mode-card-rule">Everyone gets cards to play against each other — force someone into Early Retirement, freeze them out, place a Bounty, protect yourself with Insurance, or skim the pot with Tax. New cards dealt every 5 rounds.</div>
-      <div class="mode-card-effects">
-        <span class="mode-effect danger">6 card types</span>
-        <span class="mode-effect gold">deal every 5 rds</span>
-        <span class="mode-effect neutral">1 freeze per game</span>
-      </div>
-    </div>
-    <div class="mode-card sel" id="mode-standard" onclick="selectMode('standard')">
-      <div class="mode-card-header">
-        <span class="mode-card-name">Standard</span>
-        <span class="mode-card-tag">default</span>
-      </div>
-      <div class="mode-card-rule">3 safe rolls to build the pot. On roll 4+, a 7 wipes everyone who hasn't banked.</div>
-      <div class="mode-card-effects">
-        <span class="mode-effect neutral">3 safe</span>
-        <span class="mode-effect danger">7 kills r4+</span>
-        <span class="mode-effect neutral">2/12 blocked</span>
-      </div>
-    </div>
-    <div class="mode-card" id="mode-turbo" onclick="selectMode('turbo')">
-      <div class="mode-card-header">
-        <span class="mode-card-name">Turbo</span>
-        <span class="mode-card-tag danger">risky</span>
-      </div>
-      <div class="mode-card-rule">No safe rolls. 7 kills from the very first roll. Bank early or lose everything.</div>
-      <div class="mode-card-effects">
-        <span class="mode-effect danger">no safety net</span>
-        <span class="mode-effect danger">7 kills always</span>
-      </div>
-    </div>
-    <div class="mode-card" id="mode-race" onclick="selectMode('race')">
-      <div class="mode-card-header">
-        <span class="mode-card-name">Race to the Bank</span>
-        <span class="mode-card-tag gold">first wins</span>
-      </div>
-      <div class="mode-card-rule">Forget rounds — first player to bank enough to hit the target score wins the whole game instantly.</div>
-      <div class="mode-card-effects">
-        <span class="mode-effect gold">target score</span>
-        <span class="mode-effect neutral">instant win</span>
-        <span class="mode-effect neutral">no round limit</span>
-      </div>
-    </div>
-    <div class="mode-card" id="mode-blackout" onclick="selectMode('blackout')">
-      <div class="mode-card-header">
-        <span class="mode-card-name">Blackout</span>
-        <span class="mode-card-tag">memory test</span>
-      </div>
-      <div class="mode-card-rule">After roll 3, the pot display goes dark. You have to track in your head what everyone's rolled.</div>
-      <div class="mode-card-effects">
-        <span class="mode-effect danger">pot hidden r4+</span>
-        <span class="mode-effect neutral">track mentally</span>
-      </div>
-    </div>
-    <div class="mode-card" id="mode-cutthroat" onclick="selectMode('cutthroat')">
-      <div class="mode-card-header">
-        <span class="mode-card-name">Cutthroat</span>
-        <span class="mode-card-tag danger">volatile</span>
-      </div>
-      <div class="mode-card-rule">Rolling a 2 or 12 slashes the pot in half. These numbers are no longer blocked — use them as weapons.</div>
-      <div class="mode-card-effects">
-        <span class="mode-effect danger">2 or 12 halves pot</span>
-        <span class="mode-effect neutral">2/12 re-enabled</span>
-      </div>
-    </div>
-    <div class="mode-card" id="mode-rollerscut" onclick="selectMode('rollerscut')">
-      <div class="mode-card-header">
-        <span class="mode-card-name">Roller's Cut</span>
-        <span class="mode-card-tag gold">greed bonus</span>
-      </div>
-      <div class="mode-card-rule">When only one player hasn't banked, they earn a 20% bonus on top of each roll. Staying in is rewarded — until the 7 drops.</div>
-      <div class="mode-card-effects">
-        <span class="mode-effect gold">+20% solo bonus</span>
-        <span class="mode-effect danger">7 still kills</span>
-      </div>
-    </div>
-  </div>
-  <div class="mode-opts" id="optsRace">
-    <span class="mode-opts-label">Target score</span>
-    <div class="mode-opts-row">
-      <button class="su-rbtn" data-opt="race" data-val="1500" onclick="pickRaceTarget(1500)">1,500</button>
-      <button class="su-rbtn" data-opt="race" data-val="5000" onclick="pickRaceTarget(5000)">5,000</button>
-      <button class="su-rbtn" data-opt="race" data-val="10000" onclick="pickRaceTarget(10000)">10,000</button>
-    </div>
-  </div>
-  <div class="mode-opts" id="optsLms">
-    <span class="mode-opts-label">Minimum pot to bank</span>
-    <div class="mode-opts-row">
-      <button class="su-rbtn" data-opt="lmsMinBank" data-val="50" onclick="pickOpt('lmsMinBank',50)">50</button>
-      <button class="su-rbtn" data-opt="lmsMinBank" data-val="100" onclick="pickOpt('lmsMinBank',100)">100</button>
-      <button class="su-rbtn" data-opt="lmsMinBank" data-val="200" onclick="pickOpt('lmsMinBank',200)">200</button>
-    </div>
-    <span class="mode-opts-label">Lives</span>
-    <div class="mode-opts-row">
-      <button class="su-rbtn" data-opt="lmsLives" data-val="1" onclick="pickOpt('lmsLives',1)">1</button>
-      <button class="su-rbtn" data-opt="lmsLives" data-val="2" onclick="pickOpt('lmsLives',2)">2</button>
-      <button class="su-rbtn" data-opt="lmsLives" data-val="3" onclick="pickOpt('lmsLives',3)">3</button>
-      <button class="su-rbtn" data-opt="lmsLives" data-val="4" onclick="pickOpt('lmsLives',4)">4</button>
-      <button class="su-rbtn" data-opt="lmsLives" data-val="5" onclick="pickOpt('lmsLives',5)">5</button>
-    </div>
-    <span class="mode-opts-label">Sudden death after round 10</span>
-    <div class="mode-opts-row">
-      <button class="su-rbtn" data-opt="lmsSuddenDeath" data-val="true" onclick="pickOpt('lmsSuddenDeath',true)">On</button>
-      <button class="su-rbtn" data-opt="lmsSuddenDeath" data-val="false" onclick="pickOpt('lmsSuddenDeath',false)">Off</button>
-    </div>
-  </div>
-  <div class="mode-opts" id="optsChaos">
-    <span class="mode-opts-label">Rules per round</span>
-    <div class="mode-opts-row">
-      <button class="su-rbtn" data-opt="chaosCount" data-val="1" onclick="pickOpt('chaosCount',1)">1 rule</button>
-      <button class="su-rbtn" data-opt="chaosCount" data-val="2" onclick="pickOpt('chaosCount',2)">2 rules</button>
-    </div>
-    <span class="mode-opts-label">Deck</span>
-    <button class="su-rbtn mode-opts-wide" id="chaosPoolBtn" onclick="showChaosPool()">All 13 rules — edit</button>
-  </div>
-  <div class="pk-go"><button onclick="confirmMode()">Confirm Mode &#8594;</button></div>
-</div>
 
 
 <!-- SETTINGS -->
@@ -286,12 +131,57 @@ Red velvet &amp; gold trim.</span></div>
   <button class="g-back" onclick="showScreen('home')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
   <div class="su-logo" id="suLogo">Bank</div>
   <div class="su-sub" id="suSub">dont get greedy</div>
-  <div class="su-mode-line" id="suModeLine"></div>
   <div class="su-groups" id="suGroups"></div>
   <div class="su-section">
     <label class="su-label" id="suLblPlayers">Players</label>
     <div class="su-inputs" id="suInputs"></div>
     <button class="su-add" id="suAddBtn" onclick="addInput()">+ Add player</button>
+  </div>
+  <div class="su-section su-mode-sec" id="suModeSec">
+    <label class="su-label">Mode</label>
+    <div class="su-modes" id="suModes"></div>
+    <div class="su-modes su-more-modes" id="suMoreModes"></div>
+    <button class="su-more" id="suMoreBtn" onclick="toggleMoreModes()">More modes</button>
+    <div class="su-mode-desc" id="suModeDesc"></div>
+    <div class="mode-opts" id="optsRace">
+      <span class="mode-opts-label">Target score</span>
+      <div class="mode-opts-row">
+        <button class="su-rbtn" data-opt="race" data-val="1500" onclick="pickRaceTarget(1500)">1,500</button>
+        <button class="su-rbtn" data-opt="race" data-val="5000" onclick="pickRaceTarget(5000)">5,000</button>
+        <button class="su-rbtn" data-opt="race" data-val="10000" onclick="pickRaceTarget(10000)">10,000</button>
+      </div>
+    </div>
+    <div class="mode-opts" id="optsLms">
+      <span class="mode-opts-label">Minimum pot to bank</span>
+      <div class="mode-opts-row">
+        <button class="su-rbtn" data-opt="lmsMinBank" data-val="50" onclick="pickOpt('lmsMinBank',50)">50</button>
+        <button class="su-rbtn" data-opt="lmsMinBank" data-val="100" onclick="pickOpt('lmsMinBank',100)">100</button>
+        <button class="su-rbtn" data-opt="lmsMinBank" data-val="200" onclick="pickOpt('lmsMinBank',200)">200</button>
+      </div>
+      <span class="mode-opts-label">Lives</span>
+      <div class="mode-opts-row">
+        <button class="su-rbtn" data-opt="lmsLives" data-val="1" onclick="pickOpt('lmsLives',1)">1</button>
+        <button class="su-rbtn" data-opt="lmsLives" data-val="2" onclick="pickOpt('lmsLives',2)">2</button>
+        <button class="su-rbtn" data-opt="lmsLives" data-val="3" onclick="pickOpt('lmsLives',3)">3</button>
+        <button class="su-rbtn" data-opt="lmsLives" data-val="4" onclick="pickOpt('lmsLives',4)">4</button>
+        <button class="su-rbtn" data-opt="lmsLives" data-val="5" onclick="pickOpt('lmsLives',5)">5</button>
+      </div>
+      <span class="mode-opts-label">Sudden death after round 10</span>
+      <div class="mode-opts-row">
+        <button class="su-rbtn" data-opt="lmsSuddenDeath" data-val="true" onclick="pickOpt('lmsSuddenDeath',true)">On</button>
+        <button class="su-rbtn" data-opt="lmsSuddenDeath" data-val="false" onclick="pickOpt('lmsSuddenDeath',false)">Off</button>
+      </div>
+    </div>
+    <div class="mode-opts" id="optsChaos">
+      <span class="mode-opts-label">Rules per round</span>
+      <div class="mode-opts-row">
+        <button class="su-rbtn" data-opt="chaosCount" data-val="1" onclick="pickOpt('chaosCount',1)">1 rule</button>
+        <button class="su-rbtn" data-opt="chaosCount" data-val="2" onclick="pickOpt('chaosCount',2)">2 rules</button>
+      </div>
+      <span class="mode-opts-label">Deck</span>
+      <button class="su-rbtn mode-opts-wide" id="chaosPoolBtn" onclick="showChaosPool()">All 13 rules — edit</button>
+    </div>
+    <button class="su-how" onclick="showHowToPlay()">How to play &#8594;</button>
   </div>
   <div class="su-section" id="suRoundsSec">
     <label class="su-label" id="suLblRounds">Rounds</label>

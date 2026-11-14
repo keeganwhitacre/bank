@@ -60,7 +60,6 @@ function boot() {
   names.forEach(function(n) { addInput(n); });
   $('hIcoPlay').innerHTML = ico('play');
   $('hIcoPalette').innerHTML = ico('palette');
-  $('hIcoBolt').innerHTML = ico('bolt');
   $('hIcoSettings').innerHTML = ico('gear');
   $('hIcoHall').innerHTML = ico('trophy');
   $('shareBtn').innerHTML = ico('share') + ' Share results';
