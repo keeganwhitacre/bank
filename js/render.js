@@ -28,12 +28,10 @@ function render() {
   if (G.mode === 'race' || G.mode === 'lms') {
     var sd = G.suddenDeath ? ' · SD' : '';
     if (T === 'sb') rndEl.innerHTML = 'RND <span class="rnd-num">' + pad(G.round) + '</span>' + sd;
-    else if (T === 'term') rndEl.textContent = 'rnd[' + pad(G.round) + ']' + sd;
     else rndEl.textContent = 'rnd ' + G.round + sd;
   } else {
     if (T === 'sb') rndEl.innerHTML = 'RND <span class="rnd-num">' + pad(G.round) + '</span>/' + G.total;
     else if (T === 'br') rndEl.textContent = 'roll_' + pad(G.round);
-    else if (T === 'term') rndEl.textContent = 'rnd[' + pad(G.round) + '/' + G.total + ']';
     else rndEl.textContent = G.round + '/' + G.total;
     for (var i = 1; i <= G.total; i++) {
       var pip = document.createElement('div');
@@ -43,12 +41,12 @@ function render() {
   }
 
   $('gInfo').innerHTML = infoHTML();
+  $('gInfo').classList.toggle('gi-fixed', G.mode === 'sabotage');
 
   // Turn
   var turnEl = $('gTurn'), rn = roller ? esc(roller.name) : '—';
   if (T === 'sb') turnEl.innerHTML = '<span class="live-dot"></span>' + (roller ? rn.toUpperCase() + "'S ROLL" : rn);
   else if (T === 'br') turnEl.innerHTML = '<span class="arrow">→</span>' + (roller ? rn.toUpperCase() + "'S ROLL" : rn);
-  else if (T === 'term') turnEl.textContent = roller ? roller.name.toLowerCase() + '.roll()' : '—';
   else if (T === 'cas') turnEl.textContent = roller ? roller.name + "'s turn" : '—';
   else turnEl.textContent = roller ? roller.name + "'s roll" : '—';
 
@@ -79,7 +77,6 @@ function render() {
     var dblBtn = document.createElement('button');
     dblBtn.className = 'g-key k-doubles' + (danger ? ' k-p2' : '');
     if (T === 'br') dblBtn.innerHTML = '<span style="display:flex;align-items:baseline;gap:0"><span style="font-size:1.1rem;opacity:.6">×</span><span style="font-size:2.5rem">2</span></span>';
-    else if (T === 'term') dblBtn.textContent = '*2';
     else dblBtn.textContent = '×2';
     dblBtn.addEventListener('click', function() {
       if (nextRollDanger() && !needsDoublesTotal()) submitRoll(true, null, dblBtn);
@@ -110,10 +107,10 @@ function render() {
     chip.className = 'g-chip' + (isRoller ? ' rolling' : '') + (p.banked ? ' banked' : '') + (EFFECTS.freeze === p.name ? ' frozen' : '') + (p.out ? ' out' : '');
     chip.setAttribute('aria-label', p.banked ? p.name + ' banked' : 'Bank ' + p.name);
     var handCount = (CARDS[p.name] || []).length;
-    var cardDots = (G.mode === 'sabotage' && handCount > 0) ? '<div class="g-chip-cards">' + ico('card', 'ico-sm').repeat(Math.min(handCount, 3)) + '</div>' : '';
+    var cardDots = G.mode === 'sabotage' ? '<div class="g-chip-cards">' + (handCount ? ico('card', 'ico-sm').repeat(Math.min(handCount, 3)) : '') + '</div>' : '';   // always present so chip height never changes
     var lives = G.mode === 'lms' ? '<div class="g-chip-lives">' + heartsHTML(p.lives, p.out ? (G.opts.lmsLives || 3) : Math.max(p.lives, G.suddenDeath ? 1 : (G.opts.lmsLives || 3))) + '</div>' : '';
     var tag = p.banked ? '<div class="g-chip-tag">\u2713 ' + (hidden || p.bankedAmt == null ? 'in' : '+' + fmt(p.bankedAmt)) + '</div>'
-            : isRoller ? '<div class="g-chip-tag roll">rolling</div>' : '';
+            : isRoller ? '<div class="g-chip-tag roll">rolling</div>' : '<div class="g-chip-tag"></div>';
     chip.innerHTML = '<div class="g-chip-name">' + esc(labels[i]) + '</div><div class="g-chip-pts">' + (p.out ? ico('skull') : fmt(displayScore(p))) + '</div>' + tag + lives + cardDots + (G.mode === 'sabotage' ? cardBadges(p.name) : '');
     // Tap a player's chip to bank them (the Bank button and its list still work too)
     chip.addEventListener('click', function() { chipTap(i); });

@@ -552,3 +552,71 @@ body.state-solo.t-br::after, body.state-solo.t-cas::after { position: absolute !
 .cd-tag { font-family: 'DM Mono', monospace; font-size: .58rem; color: #999; margin-top: 4px; line-height: 1.4; }
 /* End screen: the main action wears the theme's accent */
 #end .again-btn { background: var(--acc); color: var(--bg); }
+
+/* Round sheet footer: themed, padded, never a bare strip under the buttons */
+.rnd-btns { gap: 10px; padding: 12px 16px calc(12px + var(--sab)); background: inherit; border-top: 1px solid color-mix(in srgb, var(--fg) 10%, transparent); }
+.rnd-btns .rnd-next { height: 54px; padding: 0; border: none; border-radius: 12px; background: var(--acc); color: var(--bg); font-family: 'Archivo Black', sans-serif; font-size: .95rem; letter-spacing: .12em; text-transform: uppercase; }
+.rnd-btns .rnd-undo { flex: 0 0 92px; height: 54px; border: 1.5px solid color-mix(in srgb, var(--fg) 22%, transparent); border-radius: 12px; background: transparent; color: var(--fg); opacity: .75; }
+.t-br .rnd-btns .rnd-next, .t-br .rnd-btns .rnd-undo { border-radius: 0; }
+.t-br .rnd-btns .rnd-next { color: #fff; }
+.t-br .rnd-btns .rnd-undo { color: #1a1a1a; border-color: #1a1a1a; }
+
+/* ── Feel like an app: no text selection, no callouts, no rubber-banding ── */
+html, body { overscroll-behavior: none; }
+body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+input, textarea { -webkit-user-select: text; user-select: text; }
+.screen, .sheet, .rnd-sheet, .su-body, .pk-list { overscroll-behavior: contain; }
+
+/* ── Stable game layout: chip tags and card rows always take their space ── */
+.g-chip-tag:empty { visibility: hidden; }
+.g-chip-tag:empty::before { content: '\00a0'; }
+.g-chip-cards { min-height: 12px; }
+.g-info.gi-fixed { height: 44px; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; justify-content: center; scrollbar-width: none; }
+.g-info.gi-fixed::-webkit-scrollbar { display: none; }
+.g-info.gi-fixed > * { flex: 0 0 auto; }
+
+/* ── Setup: one screen. Header, a body that scrolls only if the roster is long, Start pinned ── */
+#setup { overflow: hidden; padding-bottom: 0; justify-content: flex-start; }
+#setup .su-head { flex: 0 0 auto; text-align: center; margin-bottom: 14px; }
+#setup .su-logo { margin-top: 0; font-size: clamp(2.2rem, 7dvh, 3.4rem); line-height: 1; }
+#setup .su-body { flex: 1 1 auto; min-height: 0; width: 100%; max-width: 340px; overflow-y: auto; display: flex; flex-direction: column; scrollbar-width: none; }
+#setup .su-body::-webkit-scrollbar { display: none; }
+#setup .su-body .su-section { max-width: none; }
+#setup .su-groups { max-width: none; }
+#setup .su-start { flex: 0 0 auto; margin: 0; padding: 10px 0 calc(var(--sab) + 14px); }
+.su-opts-holder { display: none; }
+.su-optrow { display: flex; gap: 8px; margin-top: 8px; }
+.su-opts-btn { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; padding: 0 14px; border-radius: 10px; cursor: pointer;
+  border: 1.5px solid color-mix(in srgb, var(--fg) 16%, transparent); background: transparent; color: var(--fg); font-family: 'DM Mono', monospace; font-size: .7rem; letter-spacing: .04em; }
+.su-opts-btn span { opacity: .65; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.su-opts-btn b { font-weight: 500; color: var(--acc); flex: 0 0 auto; }
+.su-optrow .su-how { flex: 0 0 auto; width: auto; margin: 0; padding: 0 14px; min-height: 44px; }
+.su-opts { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+.su-opts .su-section { max-width: none; margin: 8px 0 0; }
+.su-opts .mode-opts { padding: 0; max-width: none; margin-top: 6px; }
+.su-opts .su-mode-desc { margin: 0 0 6px; }
+.su-opts .su-mode-desc b { color: var(--acc); font-weight: 500; }
+.su-opts .su-other-lbl { margin-top: 14px; }
+.su-opts .su-more-modes { display: grid; margin-top: 4px; }
+.t-br .su-opts-btn { border-radius: 0; border-color: #1a1a1a; }
+
+/* ── Theme picker: big preview of the pick, swatches below ── */
+#picker { overflow: hidden; }
+#picker .pk-sub { margin-bottom: 18px; }
+.pk-hero { width: 100%; max-width: 400px; padding: 0 20px; flex: 0 0 auto; }
+.pk-hero .pk-preview { height: 150px; border-radius: 16px; overflow: hidden; position: relative; padding: 0 22px; }
+#picker .pk-hero .pv-pot { font-size: 5.2rem; line-height: 1; }
+.pk-hero-foot { display: flex; flex-direction: column; gap: 4px; padding: 12px 4px 18px; }
+.pk-hero-foot b { font-family: 'Archivo Black', sans-serif; font-weight: 400; font-size: 1.15rem; color: #fff; }
+.pk-hero-foot span { font-family: 'DM Mono', monospace; font-size: .7rem; color: #777; line-height: 1.5; }
+.pk-list.pk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-content: start; flex: 1 1 auto; overflow-y: auto; }
+.pk-grid .pk-card { border-radius: 12px; overflow: hidden; }
+.pk-grid .pk-preview { height: 70px; justify-content: center; padding: 0; position: relative; }
+.pk-grid .pv-name, .pk-grid .pv-tag, .pk-grid .pk-foot-desc { display: none; }
+#picker .pk-grid .pv-pot { font-size: 2.3rem; line-height: 1; transform: none; }
+.pk-grid .pk-foot { padding: 7px 4px 8px; text-align: center; display: block; }
+.pk-grid .pk-foot-name { font-size: .72rem; }
+
+.su-optrow .su-how-q { width: 44px; padding: 0; font-family: 'Archivo Black', sans-serif; font-size: 1.05rem; letter-spacing: 0; }
+#setup .su-body > :last-child { margin-bottom: 0; }
+.pk-preview.prev-dive .pv-pot { font-family: 'Oswald', sans-serif; font-weight: 700; }

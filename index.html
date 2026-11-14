@@ -13,13 +13,12 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Barlow+Condensed:wght@500;600;700&family=Bebas+Neue&family=Monoton&family=Oswald:wght@500;600;700&family=Victor+Mono:wght@400;700&family=Anybody:wght@400;700;900&family=DM+Mono:wght@400;500&family=Archivo+Black&family=Share+Tech+Mono&family=Playfair+Display:wght@700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Barlow+Condensed:wght@500;600;700&family=Bebas+Neue&family=Monoton&family=Oswald:wght@500;600;700&family=Victor+Mono:wght@400;700&family=Anybody:wght@400;700;900&family=DM+Mono:wght@400;500&family=Archivo+Black&family=Playfair+Display:wght@700;900&display=swap">
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/components.css">
 <link rel="stylesheet" href="css/themes/dive.css">
 <link rel="stylesheet" href="css/themes/sb.css">
 <link rel="stylesheet" href="css/themes/br.css">
-<link rel="stylesheet" href="css/themes/term.css">
 <link rel="stylesheet" href="css/themes/cas.css">
 <link rel="stylesheet" href="css/themes/neon.css">
 <link rel="stylesheet" href="css/themes/felt.css">
@@ -66,7 +65,8 @@
 <div class="screen" id="picker">
   <div class="pk-title">Bank</div>
   <div class="pk-sub">PICK YOUR VIBE</div>
-  <div class="pk-list">
+  <div class="pk-hero" id="pkHero"></div>
+  <div class="pk-list pk-grid">
     <div class="pk-card" id="card-sb" onclick="selectTheme('sb')">
       <div class="pk-preview prev-sb">
         <span class="pv-name">Bank</span><span class="pv-pot">97</span><span class="pv-tag">ROLL 04</span>
@@ -103,14 +103,6 @@ Green cloth, cream chips.</span></div>
       <div class="pk-foot"><span class="pk-foot-name">Dive Bar</span><span class="pk-foot-desc">Chalkboard + neon.
 Handwritten, loose, alive.</span></div>
     </div>
-    <div class="pk-card" id="card-term" onclick="selectTheme('term')">
-      <div class="pk-preview prev-term">
-        <span class="pv-name">&gt;
-Bank</span><span class="pv-pot">97</span><span class="pv-tag">roll_04</span>
-      </div>
-      <div class="pk-foot"><span class="pk-foot-name">Terminal</span><span class="pk-foot-desc">Green phosphor.
-CRT glow. Pure signal.</span></div>
-    </div>
     <div class="pk-card" id="card-cas" onclick="selectTheme('cas')">
       <div class="pk-preview prev-cas">
         <span class="pv-name">Bank</span><span class="pv-pot">97</span><span class="pv-tag">ROLL 04</span>
@@ -146,8 +138,8 @@ Red velvet &amp; gold trim.</span></div>
 
 <div class="screen" id="setup">
   <button class="g-back" onclick="showScreen('home')"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
-  <div class="su-logo" id="suLogo">Bank</div>
-  <div class="su-sub" id="suSub">dont get greedy</div>
+  <div class="su-head"><div class="su-logo" id="suLogo">Bank</div><div class="su-sub" id="suSub">dont get greedy</div></div>
+  <div class="su-body">
   <div class="su-groups" id="suGroups"></div>
   <div class="su-section">
     <label class="su-label" id="suLblPlayers">Players</label>
@@ -157,58 +149,63 @@ Red velvet &amp; gold trim.</span></div>
   <div class="su-section su-mode-sec" id="suModeSec">
     <label class="su-label">Mode</label>
     <div class="su-modes" id="suModes"></div>
-    <div class="su-modes su-more-modes" id="suMoreModes"></div>
-    <button class="su-more" id="suMoreBtn" onclick="toggleMoreModes()">More modes</button>
-    <div class="su-mode-desc" id="suModeDesc"></div>
-    <div class="mode-opts" id="optsRace">
-      <span class="mode-opts-label">Target score</span>
-      <div class="mode-opts-row">
-        <button class="su-rbtn" data-opt="race" data-val="1500" onclick="pickRaceTarget(1500)">1,500</button>
-        <button class="su-rbtn" data-opt="race" data-val="5000" onclick="pickRaceTarget(5000)">5,000</button>
-        <button class="su-rbtn" data-opt="race" data-val="10000" onclick="pickRaceTarget(10000)">10,000</button>
-      </div>
-    </div>
-    <div class="mode-opts" id="optsLms">
-      <span class="mode-opts-label">Minimum pot to bank</span>
-      <div class="mode-opts-row">
-        <button class="su-rbtn" data-opt="lmsMinBank" data-val="50" onclick="pickOpt('lmsMinBank',50)">50</button>
-        <button class="su-rbtn" data-opt="lmsMinBank" data-val="100" onclick="pickOpt('lmsMinBank',100)">100</button>
-        <button class="su-rbtn" data-opt="lmsMinBank" data-val="200" onclick="pickOpt('lmsMinBank',200)">200</button>
-      </div>
-      <span class="mode-opts-label">Lives</span>
-      <div class="mode-opts-row">
-        <button class="su-rbtn" data-opt="lmsLives" data-val="1" onclick="pickOpt('lmsLives',1)">1</button>
-        <button class="su-rbtn" data-opt="lmsLives" data-val="2" onclick="pickOpt('lmsLives',2)">2</button>
-        <button class="su-rbtn" data-opt="lmsLives" data-val="3" onclick="pickOpt('lmsLives',3)">3</button>
-        <button class="su-rbtn" data-opt="lmsLives" data-val="4" onclick="pickOpt('lmsLives',4)">4</button>
-        <button class="su-rbtn" data-opt="lmsLives" data-val="5" onclick="pickOpt('lmsLives',5)">5</button>
-      </div>
-      <span class="mode-opts-label">Sudden death after round 10</span>
-      <div class="mode-opts-row">
-        <button class="su-rbtn" data-opt="lmsSuddenDeath" data-val="true" onclick="pickOpt('lmsSuddenDeath',true)">On</button>
-        <button class="su-rbtn" data-opt="lmsSuddenDeath" data-val="false" onclick="pickOpt('lmsSuddenDeath',false)">Off</button>
-      </div>
-    </div>
-    <div class="mode-opts" id="optsChaos">
-      <span class="mode-opts-label">Rules per round</span>
-      <div class="mode-opts-row">
-        <button class="su-rbtn" data-opt="chaosCount" data-val="1" onclick="pickOpt('chaosCount',1)">1 rule</button>
-        <button class="su-rbtn" data-opt="chaosCount" data-val="2" onclick="pickOpt('chaosCount',2)">2 rules</button>
-      </div>
-      <span class="mode-opts-label">Deck</span>
-      <button class="su-rbtn mode-opts-wide" id="chaosPoolBtn" onclick="showChaosPool()">All 13 rules — edit</button>
-    </div>
-    <button class="su-how" onclick="showHowToPlay()">How to play &#8594;</button>
+    <div class="su-optrow"><button class="su-opts-btn" onclick="showGameOptions()"><span id="suOptsSum"></span><b>Options &#8250;</b></button><button class="su-how su-how-q" onclick="showHowToPlay()" aria-label="How to play">?</button></div>
   </div>
+  </div>
+<div class="su-start"><button class="su-start-btn" onclick="startGame()">Start Game</button></div>
+  <div class="su-opts-holder" id="suOptsHolder">
+    <div class="su-opts" id="suOpts">
+      <div class="su-mode-desc" id="suModeDesc"></div>
   <div class="su-section" id="suRoundsSec">
-    <label class="su-label" id="suLblRounds">Rounds</label>
-    <div class="su-rounds">
-      <button class="su-rbtn su-step" onclick="stepR(-1)" aria-label="Fewer rounds">&minus;</button>
-      <button class="su-rbtn on su-rval" id="suRoundsVal" onclick="pickR(10)">10 rounds</button>
-      <button class="su-rbtn su-step" onclick="stepR(1)" aria-label="More rounds">+</button>
+      <label class="su-label" id="suLblRounds">Rounds</label>
+      <div class="su-rounds">
+        <button class="su-rbtn su-step" onclick="stepR(-1)" aria-label="Fewer rounds">&minus;</button>
+        <button class="su-rbtn on su-rval" id="suRoundsVal" onclick="pickR(10)">10 rounds</button>
+        <button class="su-rbtn su-step" onclick="stepR(1)" aria-label="More rounds">+</button>
+      </div>
+    </div>
+  <div class="mode-opts" id="optsRace">
+        <span class="mode-opts-label">Target score</span>
+        <div class="mode-opts-row">
+          <button class="su-rbtn" data-opt="race" data-val="1500" onclick="pickRaceTarget(1500)">1,500</button>
+          <button class="su-rbtn" data-opt="race" data-val="5000" onclick="pickRaceTarget(5000)">5,000</button>
+          <button class="su-rbtn" data-opt="race" data-val="10000" onclick="pickRaceTarget(10000)">10,000</button>
+        </div>
+      </div>
+  <div class="mode-opts" id="optsLms">
+        <span class="mode-opts-label">Minimum pot to bank</span>
+        <div class="mode-opts-row">
+          <button class="su-rbtn" data-opt="lmsMinBank" data-val="50" onclick="pickOpt('lmsMinBank',50)">50</button>
+          <button class="su-rbtn" data-opt="lmsMinBank" data-val="100" onclick="pickOpt('lmsMinBank',100)">100</button>
+          <button class="su-rbtn" data-opt="lmsMinBank" data-val="200" onclick="pickOpt('lmsMinBank',200)">200</button>
+        </div>
+        <span class="mode-opts-label">Lives</span>
+        <div class="mode-opts-row">
+          <button class="su-rbtn" data-opt="lmsLives" data-val="1" onclick="pickOpt('lmsLives',1)">1</button>
+          <button class="su-rbtn" data-opt="lmsLives" data-val="2" onclick="pickOpt('lmsLives',2)">2</button>
+          <button class="su-rbtn" data-opt="lmsLives" data-val="3" onclick="pickOpt('lmsLives',3)">3</button>
+          <button class="su-rbtn" data-opt="lmsLives" data-val="4" onclick="pickOpt('lmsLives',4)">4</button>
+          <button class="su-rbtn" data-opt="lmsLives" data-val="5" onclick="pickOpt('lmsLives',5)">5</button>
+        </div>
+        <span class="mode-opts-label">Sudden death after round 10</span>
+        <div class="mode-opts-row">
+          <button class="su-rbtn" data-opt="lmsSuddenDeath" data-val="true" onclick="pickOpt('lmsSuddenDeath',true)">On</button>
+          <button class="su-rbtn" data-opt="lmsSuddenDeath" data-val="false" onclick="pickOpt('lmsSuddenDeath',false)">Off</button>
+        </div>
+      </div>
+  <div class="mode-opts" id="optsChaos">
+        <span class="mode-opts-label">Rules per round</span>
+        <div class="mode-opts-row">
+          <button class="su-rbtn" data-opt="chaosCount" data-val="1" onclick="pickOpt('chaosCount',1)">1 rule</button>
+          <button class="su-rbtn" data-opt="chaosCount" data-val="2" onclick="pickOpt('chaosCount',2)">2 rules</button>
+        </div>
+        <span class="mode-opts-label">Deck</span>
+        <button class="su-rbtn mode-opts-wide" id="chaosPoolBtn" onclick="showChaosPool()">All 13 rules — edit</button>
+      </div>
+      <label class="su-label su-other-lbl">Other modes</label>
+      <div class="su-modes su-more-modes" id="suMoreModes"></div>
     </div>
   </div>
-  <div class="su-start"><button class="su-start-btn" onclick="startGame()">Start Game</button></div>
 </div>
 
 <div class="screen" id="game">

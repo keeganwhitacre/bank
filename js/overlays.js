@@ -70,10 +70,16 @@ function showRoundEnd() {
     h += '<div class="rnd-row"><div class="rnd-rank">' + (i + 1) + '</div><div class="rnd-name">' + esc(b.name) + '</div><div class="rnd-earn">+' + fmt(b.amt) + '</div></div>';
   });
   if (res.bust) {
-    (res.payouts || []).forEach(function(p) {
-      h += '<div class="rnd-row"><div class="rnd-rank">' + ico(p.why === 'insurance' ? 'shield' : 'bounty', 'ico-sm') + '</div><div class="rnd-name">' + esc(p.name) + '</div><div class="rnd-earn rnd-pay">+' + fmt(p.amt) + ' ' + p.why + '</div></div>';
-    });
+    // One row per player: a card payout replaces their "+0" line instead of adding a second row
+    var paid = {};
+    (res.payouts || []).forEach(function(p) { (paid[p.name] = paid[p.name] || []).push(p); });
+    var payRow = function(n) {
+      var ps = paid[n], amt = ps.reduce(function(s, p) { return s + p.amt; }, 0);
+      return '<div class="rnd-row"><div class="rnd-rank">' + ico(ps[0].why === 'insurance' ? 'shield' : 'bounty', 'ico-sm') + '</div><div class="rnd-name">' + esc(n) + '</div><div class="rnd-earn rnd-pay">+' + fmt(amt) + ' ' + ps.map(function(p) { return p.why; }).join(' + ') + '</div></div>';
+    };
+    Object.keys(paid).forEach(function(n) { if (res.victims.indexOf(n) === -1) h += payRow(n); });
     res.victims.forEach(function(n) {
+      if (paid[n]) { h += payRow(n); return; }
       var cum = G.cumMiss[n] || 0;
       var cumStr = cum > res.pot ? '<span class="rnd-miss-total">(' + fmt(cum) + ' total)</span>' : '';
       var ll = lms ? (res.lifeLost || []).filter(function(l) { return l.name === n; })[0] : null;

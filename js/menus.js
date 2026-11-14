@@ -2,14 +2,26 @@
 function selectTheme(t) { T = t; syncThemeCards(); }
 function syncThemeCards() {
   document.querySelectorAll('.pk-card').forEach(function(c) { c.classList.remove('sel'); });
-  var c = $('card-' + T); if (c) c.classList.add('sel');
+  var c = $('card-' + T); if (!c) return;
+  c.classList.add('sel');
+  // The hero shows the chosen theme large; the grid below is just swatches
+  var prev = c.querySelector('.pk-preview'), desc = c.querySelector('.pk-foot-desc');
+  $('pkHero').innerHTML = prev.outerHTML + '<div class="pk-hero-foot"><b>' + esc(THEME_LABELS[T]) + '</b><span>' + esc(desc ? desc.textContent.replace(/\s*\n\s*/g, ' ') : '') + '</span></div>';
 }
 function applyTheme(el) {
   Object.values(THEME_MAP).forEach(function(v) { el.classList.remove(v.cls); });
   el.classList.add(THEME_MAP[T].cls);
 }
 function confirmTheme() { saveSettings(); updateHomeLabels(); showScreen('home'); }
-var MORE_OPEN = false;
+function optsSummary() {
+  var bits = [];
+  if (!MODE_INFO[MODE].premier) bits.push(MODE_LABELS[MODE]);
+  if (MODE === 'race') bits.push('to ' + fmt(RACE_TARGET));
+  else if (MODE === 'lms') bits.push(OPTS.lmsLives + (OPTS.lmsLives === 1 ? ' life' : ' lives'), 'min ' + OPTS.lmsMinBank);
+  else bits.push(SEL_R + ' rounds');
+  if (MODE === 'chaos') bits.push(OPTS.chaosCount === 2 ? '2 rules' : '1 rule');
+  return bits.join(' · ');
+}
 function renderModeTiles() {
   function tile(k) {
     var i = MODE_INFO[k];
@@ -18,22 +30,27 @@ function renderModeTiles() {
   var keys = Object.keys(MODE_INFO);
   $('suModes').innerHTML = keys.filter(function(k) { return MODE_INFO[k].premier; }).map(tile).join('');
   $('suMoreModes').innerHTML = keys.filter(function(k) { return !MODE_INFO[k].premier; }).map(tile).join('');
-  var variant = !MODE_INFO[MODE].premier;
-  var open = MORE_OPEN || variant;
-  $('suMoreModes').classList.toggle('show', open);
-  $('suMoreBtn').textContent = open ? (variant ? 'More modes' : 'Fewer modes') : 'More modes';
-  $('suMoreBtn').style.display = variant ? 'none' : '';
-  $('suModeDesc').textContent = MODE_INFO[MODE].desc + houseSummary().replace(' \u00b7 house: ', ' House rules: ');
+  $('suModeDesc').innerHTML = '<b>' + esc(MODE_LABELS[MODE]) + '.</b> ' + esc(MODE_INFO[MODE].desc + houseSummary().replace(' · house: ', ' House rules: '));
   [['optsRace', 'race'], ['optsLms', 'lms'], ['optsChaos', 'chaos']].forEach(function(x) { var e = $(x[0]); if (e) e.classList.toggle('show', MODE === x[1]); });
   $('suRoundsSec').style.display = (MODE === 'race' || MODE === 'lms') ? 'none' : '';
+  $('suOptsSum').textContent = optsSummary();
+}
+// Rounds, mode options and the other five modes live in one sheet so setup fits on a single screen
+function showGameOptions() {
+  var s = makeSheet('gameOpts', 'Game options'), panel = $('suOpts');
+  var putBack = function() { $('suOptsHolder').appendChild(panel); renderModeTiles(); };
+  s.sh.appendChild(panel);
+  s.bd.addEventListener('click', function(e) { if (e.target === s.bd) putBack(); });
+  var done = document.createElement('button'); done.className = 'sh-done'; done.textContent = 'Done';
+  done.onclick = function() { putBack(); s.close(); };
+  s.sh.appendChild(done);
+  document.body.appendChild(s.bd);
 }
 function selectMode(m) {
   MODE = m;
-  if (!MODE_INFO[m].premier) MORE_OPEN = true;
   if ($('suModes')) renderModeTiles();
   saveSettings();
 }
-function toggleMoreModes() { MORE_OPEN = !MORE_OPEN; renderModeTiles(); }
 // Teach the table: the basics (with this phone's house rules) plus what this mode changes
 function showHowToPlay() {
   var opts = JSON.parse(JSON.stringify(OPTS)); opts.house = JSON.parse(JSON.stringify(HOUSE));
@@ -63,6 +80,7 @@ function showHowToPlay() {
 function pickRaceTarget(t) { RACE_TARGET = t; syncOptButtons(); }
 function pickOpt(k, v) { OPTS[k] = v; syncOptButtons(); }
 function syncOptButtons() {
+  var o = $('suOptsSum'); if (o && typeof optsSummary === 'function') o.textContent = optsSummary();
   document.querySelectorAll('[data-opt]').forEach(function(b) {
     var k = b.dataset.opt, cur = k === 'race' ? RACE_TARGET : OPTS[k];
     b.classList.toggle('on', String(cur) === b.dataset.val);
@@ -138,6 +156,7 @@ function rmInput(btn) {
 function pickR(n) {
   SEL_R = clamp(Math.round(n), 3, 30);
   var v = $('suRoundsVal'); if (v) v.textContent = SEL_R + ' rounds';
+  var o = $('suOptsSum'); if (o) o.textContent = optsSummary();
 }
 function stepR(d) { pickR(SEL_R + d); }
 function startGame() {
