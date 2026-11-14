@@ -18,7 +18,9 @@ function render() {
   potEl.textContent = fmt(G.pot);
   potEl.classList.toggle('pot-hidden', hidden);
   if (!hidden) potEl.style.opacity = '';
-  $('gPotSub').innerHTML = 'roll ' + (G.rolls + 1) + ' · ' + (danger ? '<span class="danger">danger</span>' : 'safe');
+  var safeLeft = safeRollCount() - G.rolls;
+  $('gPotSub').innerHTML = 'roll ' + (G.rolls + 1) + ' · ' + (danger ? '<span class="danger">7 busts</span>' : 'safe' + (safeLeft > 1 ? ' · ' + safeLeft + ' left' : ' · last one'));
+  $('game').classList.toggle('danger-on', danger && G.phase === 'play');
 
   // Round counter
   var rndEl = $('gRnd'), pipsEl = $('gPips');
@@ -108,12 +110,17 @@ function render() {
   var activeChip = null;
   G.players.forEach(function(p, i) {
     var isRoller = i === G.roller && !p.banked && !p.out;
-    var chip = document.createElement('div');
+    var chip = document.createElement('button');
     chip.className = 'g-chip' + (isRoller ? ' rolling' : '') + (p.banked ? ' banked' : '') + (EFFECTS.freeze === p.name ? ' frozen' : '') + (p.out ? ' out' : '');
+    chip.setAttribute('aria-label', p.banked ? p.name + ' banked' : 'Bank ' + p.name);
     var handCount = (CARDS[p.name] || []).length;
     var cardDots = (G.mode === 'sabotage' && handCount > 0) ? '<div class="g-chip-cards">' + ico('card', 'ico-sm').repeat(Math.min(handCount, 3)) + '</div>' : '';
     var lives = G.mode === 'lms' ? '<div class="g-chip-lives">' + heartsHTML(p.lives, p.out ? (G.opts.lmsLives || 3) : Math.max(p.lives, G.suddenDeath ? 1 : (G.opts.lmsLives || 3))) + '</div>' : '';
-    chip.innerHTML = '<div class="g-chip-name">' + esc(labels[i]) + '</div><div class="g-chip-pts">' + (p.out ? ico('skull') : fmt(displayScore(p))) + '</div>' + lives + cardDots;
+    var tag = p.banked ? '<div class="g-chip-tag">\u2713 ' + (hidden || p.bankedAmt == null ? 'in' : '+' + fmt(p.bankedAmt)) + '</div>'
+            : isRoller ? '<div class="g-chip-tag roll">rolling</div>' : '';
+    chip.innerHTML = '<div class="g-chip-name">' + esc(labels[i]) + '</div><div class="g-chip-pts">' + (p.out ? ico('skull') : fmt(displayScore(p))) + '</div>' + tag + lives + cardDots;
+    // Tap a player's chip to bank them (the Bank button and its list still work too)
+    chip.addEventListener('click', function() { chipTap(i); });
     scoresEl.appendChild(chip);
     if (isRoller) activeChip = chip;
   });

@@ -1,6 +1,6 @@
 // Bank service worker: makes the game load offline / on bad bar wifi.
 // Bump VERSION whenever you deploy so phones pick up the new build.
-var VERSION = 'bank-v3.0.0';
+var VERSION = 'bank-v3.1.0';
 var SHELL = [
   './',
   'index.html',

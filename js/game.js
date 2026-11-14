@@ -28,6 +28,8 @@ function submitRoll(isDbl, total, keyEl, dice) {
   else { animatePot(prev, G.pot); SFX.roll(heat); }
 
   showToast(r.msgs.join(' · '));
+  // The moment the safe rolls run out deserves a beat everyone can see
+  if (!r.danger && nextRollDanger() && G.rolls > 0) { later(function() { doFlash('rgba(255,59,48,.22)'); SFX.halve(); }, 250); }
   nextRoller();
   render();
 }
@@ -54,6 +56,13 @@ function resolveBust(name, total, prev) {
 }
 
 // ══ BANKING ══
+function chipTap(idx) {
+  if (G.phase !== 'play' || anyOverlay()) return;
+  var p = G.players[idx]; if (!p) return;
+  if (p.out) return;
+  if (p.banked) { showToast(p.name + ' already banked'); return; }
+  bankPlayer(idx);
+}
 var BANK_REFUSALS = {
   frozen: function(p) { return p.name + ' is frozen and can’t bank!'; },
   min: function() { return 'The pot needs ' + fmt(lmsMinBank()) + ' before anyone can bank'; },
@@ -108,6 +117,13 @@ function roundClear() {
   G.phase = 'roundEnd';
   SFX.roundClear();
   render();
+  // Clean rounds (everyone banked) move straight on with a summary toast unless the setting
+  // asks for the full sheet every round. Busts always get the sheet. Undo still works.
+  if (PREFS.roundSheet !== 'every' && !Rules.isGameOverAtRoundEnd(G)) {
+    var bits = G.bankedThisRound.slice().sort(function(a, b) { return b.amt - a.amt; }).map(function(b) { return b.name + ' +' + fmt(b.amt); });
+    later(function() { showToast('Round ' + G.round + ' clear \u00b7 ' + bits.join(', ')); endRound(); }, 900);
+    return;
+  }
   later(showRoundEnd, 800);
 }
 

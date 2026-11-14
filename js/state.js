@@ -85,12 +85,13 @@ function displayScore(p) { return (potHidden() && p.banked && p.bankedAmt != nul
 function shortLabels() {
   var names = G.players.map(function(p) { return p.name; });
   return names.map(function(n) {
+    if (n.length <= 8) return n;
     var up = n.toUpperCase();
-    for (var L = 3; L <= Math.min(8, n.length); L++) {
+    for (var L = 6; L <= Math.min(10, n.length); L++) {
       var pre = up.slice(0, L);
-      if (names.every(function(o) { return o === n || o.toUpperCase().slice(0, L) !== pre; })) return pre;
+      if (names.every(function(o) { return o === n || o.toUpperCase().slice(0, L) !== pre; })) return n.slice(0, L) + '\u2026';
     }
-    return up.slice(0, 8);
+    return n.slice(0, 10) + '\u2026';
   });
 }
 function addMoment(kind, text, value) {

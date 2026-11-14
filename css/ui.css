@@ -456,3 +456,31 @@ button.grp-save { padding: 6px 12px; background: transparent; color: inherit; cu
 .backdrop, .rnd-backdrop, .card-deal-overlay, .mod-reveal, .bust-ov, .g-heat, .g-vignette, #flash, #cv,
 body.state-solo.t-br::after, body.state-solo.t-cas::after { position: absolute !important; }
 .set-diag-link { display: inline-block; margin-top: 8px; color: #666; text-decoration: underline; }
+
+/* ── Score chips: readable tiles you can tap to bank ── */
+.g-scores-row { gap: 8px !important; padding: 6px 2px !important; }
+.g-chip { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 64px; padding: 6px 10px 5px; border-radius: 10px; border: 2px solid transparent;
+  background: color-mix(in srgb, var(--fg) 7%, transparent); font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .1s, opacity .2s; }
+.g-chip:active { transform: scale(.94); }
+.g-chip .g-chip-name { font-size: .72rem !important; color: color-mix(in srgb, var(--fg) 62%, transparent) !important; letter-spacing: .02em !important; white-space: nowrap; max-width: 92px; overflow: hidden; text-overflow: ellipsis; }
+.g-chip .g-chip-pts { font-size: 1.45rem !important; line-height: 1.1; color: var(--fg) !important; opacity: .9; text-shadow: none !important; }
+.g-chip.rolling { border-color: var(--acc); background: var(--acc-soft); }
+.g-chip.rolling .g-chip-name, .g-chip.rolling .g-chip-pts { color: var(--acc) !important; opacity: 1; }
+.g-chip.banked { opacity: .5 !important; background: transparent; border: 2px dashed color-mix(in srgb, var(--fg) 22%, transparent); }
+.g-chip-tag { margin-top: 1px; font-family: 'DM Mono', monospace; font-size: .58rem; letter-spacing: .06em; text-transform: uppercase; color: #3ad07a; white-space: nowrap; }
+.g-chip-tag.roll { color: var(--acc); }
+.t-br .g-chip { border-radius: 0; background: rgba(26,26,26,.06); }
+.t-br .g-chip-tag { color: #1a8a3a; }
+.t-term .g-chip { border-radius: 0; }
+
+/* ── Danger state: once 7 busts, the whole pad says so ── */
+.g-pot-sub .danger { color: #fff !important; background: #ff3b30; padding: 1px 7px; border-radius: 4px; font-weight: 700; letter-spacing: .08em; }
+.g-pot-sub { font-size: .74rem !important; }
+#game.danger-on .g-grid { box-shadow: inset 0 0 0 2px rgba(255,59,48,.45), 0 0 22px rgba(255,59,48,.12); border-radius: 6px; }
+.t-br#game.danger-on .g-grid { border-radius: 0; }
+/* Everyone visible at once: chips wrap to a second row instead of scrolling sideways */
+.g-scores-wrap { overflow: visible !important; }
+.g-scores-row { flex-wrap: wrap; justify-content: center; min-width: 0 !important; row-gap: 6px !important; }
+.g-scores-row .g-chip { flex: 1 1 0; min-width: 62px; max-width: 120px; }
+.g-undo { flex-shrink: 0; max-width: 64px; overflow: hidden; }
+.t-br .g-chip-tag.roll { color: #ff3300; }

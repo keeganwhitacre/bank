@@ -6,7 +6,7 @@ var USE_DICE = false;
 var SEL_R = 10;
 var OPTS = { chaosCount: 1, chaosPool: [], lmsLives: 3, lmsMinBank: 100, lmsSuddenDeath: true };
 // How the app behaves on this phone
-var PREFS_DEFAULTS = { sound: 'med', haptics: true, wake: true, motion: 'auto', announce: 'all', dice: false };
+var PREFS_DEFAULTS = { sound: 'med', haptics: true, wake: true, motion: 'auto', announce: 'all', dice: false, roundSheet: 'busts' };
 var PREFS = JSON.parse(JSON.stringify(PREFS_DEFAULTS));
 // Default house rules for new games (see Rules.HOUSE_DEFAULTS)
 var HOUSE = JSON.parse(JSON.stringify(Rules.HOUSE_DEFAULTS));

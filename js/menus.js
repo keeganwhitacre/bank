@@ -121,6 +121,7 @@ function beginGame(names, mode, opts, raceTarget, selR) {
   G.phase = 'play';
   if (mode === 'chaos') { Rules.pickMods(G); G.phase = 'reveal'; G.intro = ['chaos']; }
   enterGame();
+  try { if (!localStorage.getItem('bank.tip.chips')) { localStorage.setItem('bank.tip.chips', '1'); later(function() { showToast('Tip: tap a player\u2019s score to bank them'); }, 900); } } catch (e) {}
 }
 function enterGame() {
   applyTheme($('game'));

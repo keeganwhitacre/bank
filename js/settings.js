@@ -8,6 +8,7 @@ var SETTING_DEFS = [
   { key: 'prefs.wake', label: 'Keep screen awake', desc: 'Stops the phone dimming mid-game', opts: [[true, 'On'], [false, 'Off']] },
   { key: 'prefs.motion', label: 'Motion', desc: 'Reduced turns off shaking, confetti and pulsing. Auto follows your phone’s setting.', opts: [['auto', 'Auto'], ['reduced', 'Reduced'], ['full', 'Full']] },
   { key: 'prefs.announce', label: 'Announcements', desc: 'Big only = records and comebacks', opts: [['all', 'All'], ['big', 'Big only'], ['off', 'Off']] },
+  { key: 'prefs.roundSheet', label: 'Round summary', desc: 'Busts only = clean rounds roll straight on with a quick toast', opts: [['busts', 'Busts only'], ['every', 'Every round']] },
   { key: 'prefs.dice', label: 'Virtual dice', desc: 'Roll on the phone instead of tapping in totals', opts: [[false, 'Off'], [true, 'On']] },
   { sec: 'House rules', note: 'For new games' },
   { key: 'house.safeRolls', label: 'Safe rolls', desc: 'Rolls at the start of a round where a 7 is safe', opts: [[1, '1'], [2, '2'], [3, '3'], [4, '4'], [5, '5']] },
@@ -30,6 +31,7 @@ function renderSettings() {
   SETTING_DEFS.forEach(function(d, i) {
     if (d.sec) { h += '<div class="set-h">' + esc(d.sec) + (d.note ? '<span>' + esc(d.note) + '</span>' : '') + '</div>'; return; }
     if (d.action) { h += '<button class="set-action' + (d.warn ? ' warn' : '') + '" onclick="settingAction(\'' + d.action + '\', this)">' + esc(d.label) + '</button>'; return; }
+    if (d.key === 'prefs.haptics' && !('vibrate' in navigator)) return;   // iPhones can't vibrate from the web
     var cur = getSetting(d.key);
     h += '<div class="set-row"><div class="set-label">' + esc(d.label) + (d.desc ? '<small>' + esc(d.desc) + '</small>' : '') + '</div><div class="set-seg">';
     d.opts.forEach(function(o, j) {
