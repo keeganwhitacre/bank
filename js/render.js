@@ -15,7 +15,7 @@ function render() {
 
   // Pot
   var potEl = $('gPotValue');
-  potEl.textContent = fmt(G.pot);
+  potEl.textContent = hidden ? '???' : fmt(G.pot);   // never put the real number on screen while it's hidden
   potEl.classList.toggle('pot-hidden', hidden);
   if (!hidden) potEl.style.opacity = '';
   var safeLeft = safeRollCount() - G.rolls;

@@ -125,7 +125,7 @@
 .mode-effect.neutral { background: #1a1a1a; color: #555; }
 
 /* BLACKOUT pot — truly hidden, font-size 0 trick to preserve layout */
-.pot-hidden { color: transparent !important; text-shadow: 0 0 18px rgba(255,255,255,.12) !important; opacity: 1 !important; user-select: none; }
+.pot-hidden { opacity: .35 !important; text-shadow: none !important; filter: none !important; }
 
 /* VIRTUAL DICE — legacy stub, screen removed */
 

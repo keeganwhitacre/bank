@@ -17,6 +17,7 @@ function potSlam(mag) {
 }
 function animatePot(from, to) {
   var el = $('gPotValue');
+  if (potHidden()) { el.textContent = '???'; return; }
   var dur = 200 + Math.min(400, Math.abs(to - from) / 3), start = performance.now();
   function step(now) {
     var t = Math.min((now - start) / dur, 1);
