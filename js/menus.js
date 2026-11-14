@@ -36,6 +36,13 @@ function renderModeTiles() {
   $('suOptsSum').textContent = optsSummary();
 }
 // Rounds, mode options and the other five modes live in one sheet so setup fits on a single screen
+function syncDiceChoice() {
+  document.querySelectorAll('#suDice button').forEach(function(b) { b.classList.toggle('on', (b.dataset.dice === 'app') === !!PREFS.dice); });
+}
+function pickDice(app) {
+  PREFS.dice = app; applyPrefs(); saveSettings(); syncDiceChoice();
+  if (app && diceStyle() === '3d') enableShake();   // this tap is the gesture iOS needs for the motion prompt
+}
 function showGameOptions() {
   var s = makeSheet('gameOpts', 'Game options'), panel = $('suOpts');
   var putBack = function() { $('suOptsHolder').appendChild(panel); renderModeTiles(); };
@@ -113,7 +120,7 @@ function updateHomeLabels() {
 }
 function goSetup() {
   applyTheme($('setup'));
-  renderModeTiles(); syncOptButtons(); syncModeExtras();
+  renderModeTiles(); syncOptButtons(); syncModeExtras(); syncDiceChoice();
   renderGroups();
   showScreen('setup');
 }

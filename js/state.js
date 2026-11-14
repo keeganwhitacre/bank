@@ -58,6 +58,7 @@ function clearPending() {
   PENDING.forEach(clearTimeout); PENDING = [];
   if (DICE_IV) { clearInterval(DICE_IV); DICE_IV = null; }
   DICE_ROLLING = false;
+  if (typeof cancelStageRoll === 'function') cancelStageRoll();
   ['gDie1', 'gDie2'].forEach(function(id) { var d = $(id); if (d) d.classList.remove('rolling'); });
 }
 function clearOverlays() {

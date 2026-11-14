@@ -6,7 +6,7 @@ var USE_DICE = false;
 var SEL_R = 10;
 var OPTS = { chaosCount: 1, chaosPool: [], lmsLives: 3, lmsMinBank: 100, lmsSuddenDeath: true };
 // How the app behaves on this phone
-var PREFS_DEFAULTS = { sound: 'med', haptics: true, wake: true, motion: 'auto', announce: 'all', dice: false, roundSheet: 'busts' };
+var PREFS_DEFAULTS = { sound: 'med', haptics: true, wake: true, motion: 'auto', announce: 'all', dice: false, diceStyle: '3d', shake: true, roundSheet: 'busts' };
 var PREFS = JSON.parse(JSON.stringify(PREFS_DEFAULTS));
 // Default house rules for new games (see Rules.HOUSE_DEFAULTS)
 var HOUSE = JSON.parse(JSON.stringify(Rules.HOUSE_DEFAULTS));
@@ -43,7 +43,7 @@ var MODE_RULES = {
   blackout:   ['After roll {S} the pot goes dark. Keep count in your heads.', 'Scores of players who banked stay hidden until the round ends.', 'Normal rules otherwise.'],
   cutthroat:  ['From roll {N}, a 2 or 12 halves the pot (even though they\u2019re doubles).', 'Other doubles still multiply the pot by {M}.'],
   rollerscut: ['When only one player is still in, each of their rolls earns 20% extra on top of what it adds.', 'A 7 still busts.'],
-  sabotage:   ['Everyone starts with a card. New cards are dealt every 5 rounds.', 'Only the current roller can play a card.', 'Insurance pays half the pot on a bust. Freeze shows up once per game.'],
+  sabotage:   ['Everyone starts with a card. New cards are dealt every 5 rounds.', 'Only the current roller can play a card.', 'Insurance pays half the pot on a bust. Freeze shows up once per game.', 'Hands are public: everyone\u2019s cards show on their name. Hold a name to read them.'],
   chaos:      ['Every round draws a random rule (or two, if you chose that).', 'The active rules stay at the top of the screen all round. Tap one for details.', 'Normal rules otherwise: {S} safe rolls, then 7 busts.'],
   lms:        ['Everyone starts with {L} lives.', 'A bust costs every player still in one life. Lose them all and you\u2019re out.', 'Nobody can bank until the pot reaches {B}.', 'If a bust would knock out everyone left, the highest score survives.', 'Sudden death (optional) after round 10: everyone drops to 1 life and the minimum climbs 100 each round.', 'Last player standing wins.']
 };

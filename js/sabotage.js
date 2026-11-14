@@ -43,7 +43,7 @@ function showCardDealOverlay(dealt) {
     var def = CARD_DEFS[dealt[p.name]]; if (!def) return;
     h += '<div class="cd-card ' + def.tag + '"><div class="cd-who">' + esc(p.name) + '</div><div class="cd-ico">' + def.icon + '</div><div class="cd-name">' + esc(def.name) + '</div><div class="cd-tag">' + esc(def.tagLabel) + '</div></div>';
   });
-  h += '</div><button class="mr-go">Deal me in</button>';
+  h += '</div><div class="cd-legend">Everyone\u2019s cards show on their name. Hold a name to read them.</div><button class="mr-go">Deal me in</button>';
   ov.innerHTML = h;
   ov.querySelector('.mr-go').onclick = function() { ov.remove(); };
   document.body.appendChild(ov);
@@ -151,4 +151,36 @@ function playCard(cardKey, cardIdx, target) {
       EFFECTS.bounty = { by: roller.name, target: target }; showCardPlayReveal(roller.name, 'bounty', target, 'If ' + target + ' busts, the rest of the table splits the pot.'); break;
   }
   render();
+}
+
+// ── Public hands: everyone's cards as small icons on their chip ──
+function handIcons(name) {
+  var hand = CARDS[name] || [], shown = hand.slice(0, 4);
+  return shown.map(function(k) { var d = CARD_DEFS[k]; return d ? '<i class="hc ' + d.tag + '">' + d.icon + '</i>' : ''; }).join('') + (hand.length > 4 ? '<i class="hc more">+' + (hand.length - 4) + '</i>' : '');
+}
+// Long-press a chip to read that player's hand; a normal tap still banks them
+function holdToPeek(chip, name) {
+  var t = null, sx = 0, sy = 0;
+  var cancel = function() { if (t) { clearTimeout(t); t = null; } };
+  chip.addEventListener('pointerdown', function(e) { sx = e.clientX; sy = e.clientY; cancel(); t = setTimeout(function() { t = null; chip._held = true; buzz(12); showHandSheet(name); }, 450); });
+  chip.addEventListener('pointermove', function(e) { if (Math.abs(e.clientX - sx) + Math.abs(e.clientY - sy) > 12) cancel(); });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(function(ev) { chip.addEventListener(ev, cancel); });
+  chip.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+}
+function showHandSheet(name) {
+  if (anyOverlay()) return;
+  var hand = CARDS[name] || [];
+  var s = makeSheet('handSheet', name + '’s cards');
+  var list = document.createElement('div'); list.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
+  if (!hand.length) list.innerHTML = '<div class="cs-desc" style="text-align:center;padding:12px 0">No cards. Next deal in round ' + nextDealRound() + '.</div>';
+  hand.forEach(function(k) {
+    var d = CARD_DEFS[k]; if (!d) return;
+    var row = document.createElement('div'); row.className = 'rules-mod hand-row ' + d.tag;
+    row.innerHTML = d.icon + '<div><b>' + esc(d.name) + '</b><span>' + esc(d.desc) + '</span></div>';
+    list.appendChild(row);
+  });
+  s.sh.appendChild(list);
+  var ok = document.createElement('button'); ok.className = 'sh-done'; ok.textContent = 'OK'; ok.onclick = s.close;
+  s.sh.appendChild(ok);
+  document.body.appendChild(s.bd);
 }

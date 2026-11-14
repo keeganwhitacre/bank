@@ -1,6 +1,6 @@
 // Bank service worker: makes the game load offline / on bad bar wifi.
 // Bump VERSION whenever you deploy so phones pick up the new build.
-var VERSION = 'bank-v3.5.0';
+var VERSION = 'bank-v3.6.0';
 var SHELL = [
   './',
   'index.html',
@@ -21,6 +21,7 @@ var SHELL = [
   'js/config.js',
   'js/core.js',
   'js/dice.js',
+  'js/dice3d.js',
   'js/fx.js',
   'js/game.js',
   'js/groups.js',

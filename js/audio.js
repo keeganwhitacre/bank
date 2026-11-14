@@ -51,6 +51,16 @@ var SFX = {
     SFX._hit(ac, t + 0.005, 0.04, 18, 'bandpass', 1100, 1.2, 0.18);
     if (heat >= 2) SFX._tone(ac, 'sine', 75, 42, t, 0.2, 0.12 * (heat - 1));
   },
+  // Dice tumbling in a cup/tray: a scatter of clicks that thins out, for the in-app roller
+  rattle: function() {
+    var ac = getAC(); if (!ac) return;
+    var t = ac.currentTime, at = 0;
+    for (var i = 0; i < 14; i++) {
+      at += 0.035 + Math.random() * 0.05 + i * 0.006;
+      SFX._hit(ac, t + at, 0.03, 20, 'bandpass', 1400 + Math.random() * 1600, 2, 0.16 + Math.random() * 0.12);
+      if (i % 4 === 0) SFX._hit(ac, t + at, 0.05, 14, 'lowpass', 300, 0, 0.18);
+    }
+  },
   doubles: function(heat) {
     heat = heat || 0;
     var ac = getAC(), t = ac.currentTime;

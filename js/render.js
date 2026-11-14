@@ -53,9 +53,11 @@ function render() {
   // Number pad / dice
   var grid = $('gGrid'); grid.innerHTML = '';
   var diceArea = $('gDiceArea');
+  var legacy = USE_DICE && diceStyle() === 'legacy';
   grid.style.display = USE_DICE ? 'none' : '';
-  diceArea.style.display = USE_DICE ? '' : 'none';
-  if (USE_DICE && !DICE_ROLLING) {
+  diceArea.style.display = legacy ? '' : 'none';
+  renderStage();
+  if (legacy && !DICE_ROLLING) {
     var ld = G.lastDice;
     renderGameDie('gDie1', ld ? ld[0] : 0); renderGameDie('gDie2', ld ? ld[1] : 0);
     $('gDiceRollBtn').disabled = G.phase !== 'play';
@@ -107,13 +109,14 @@ function render() {
     chip.className = 'g-chip' + (isRoller ? ' rolling' : '') + (p.banked ? ' banked' : '') + (EFFECTS.freeze === p.name ? ' frozen' : '') + (p.out ? ' out' : '');
     chip.setAttribute('aria-label', p.banked ? p.name + ' banked' : 'Bank ' + p.name);
     var handCount = (CARDS[p.name] || []).length;
-    var cardDots = G.mode === 'sabotage' ? '<div class="g-chip-cards">' + (handCount ? ico('card', 'ico-sm').repeat(Math.min(handCount, 3)) : '') + '</div>' : '';   // always present so chip height never changes
+    var cardDots = G.mode === 'sabotage' ? '<div class="g-chip-cards">' + handIcons(p.name) + '</div>' : '';   // public hands; always present so chip height never changes
     var lives = G.mode === 'lms' ? '<div class="g-chip-lives">' + heartsHTML(p.lives, p.out ? (G.opts.lmsLives || 3) : Math.max(p.lives, G.suddenDeath ? 1 : (G.opts.lmsLives || 3))) + '</div>' : '';
     var tag = p.banked ? '<div class="g-chip-tag">\u2713 ' + (hidden || p.bankedAmt == null ? 'in' : '+' + fmt(p.bankedAmt)) + '</div>'
             : isRoller ? '<div class="g-chip-tag roll">rolling</div>' : '<div class="g-chip-tag"></div>';
     chip.innerHTML = '<div class="g-chip-name">' + esc(labels[i]) + '</div><div class="g-chip-pts">' + (p.out ? ico('skull') : fmt(displayScore(p))) + '</div>' + tag + lives + cardDots + (G.mode === 'sabotage' ? cardBadges(p.name) : '');
     // Tap a player's chip to bank them (the Bank button and its list still work too)
-    chip.addEventListener('click', function() { chipTap(i); });
+    chip.addEventListener('click', function() { if (chip._held) { chip._held = false; return; } chipTap(i); });
+    if (G.mode === 'sabotage') holdToPeek(chip, p.name);
     scoresEl.appendChild(chip);
     if (isRoller) activeChip = chip;
   });

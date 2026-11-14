@@ -149,6 +149,7 @@ Red velvet &amp; gold trim.</span></div>
   <div class="su-section su-mode-sec" id="suModeSec">
     <label class="su-label">Mode</label>
     <div class="su-modes" id="suModes"></div>
+    <div class="su-dice" id="suDice"><button data-dice="own" onclick="pickDice(false)">Our own dice</button><button data-dice="app" onclick="pickDice(true)">Roll in the app</button></div>
     <div class="su-optrow"><button class="su-opts-btn" onclick="showGameOptions()"><span id="suOptsSum"></span><b>Options &#8250;</b></button><button class="su-how su-how-q" onclick="showHowToPlay()" aria-label="How to play">?</button></div>
   </div>
   </div>
@@ -232,6 +233,14 @@ Red velvet &amp; gold trim.</span></div>
     </div>
     <button class="g-dice-roll-btn" id="gDiceRollBtn" onclick="rollInGameDice()">Roll</button>
   </div>
+  <div class="g-stage" id="gStage" style="display:none" onclick="rollStage()">
+    <div class="st-tray">
+      <div class="st-die" id="stDie1"><div class="st-cube"></div><i class="st-shadow"></i></div>
+      <div class="st-die" id="stDie2"><div class="st-cube"></div><i class="st-shadow"></i></div>
+    </div>
+    <div class="st-result" id="stResult"></div>
+    <div class="st-hint" id="stHint"></div>
+  </div>
   <div class="g-action-row">
     <button class="g-bank" id="gBank" onclick="showBankPicker()">Bank</button>
   </div>
@@ -278,6 +287,7 @@ Red velvet &amp; gold trim.</span></div>
 <script src="js/fx.js"></script>
 <script src="js/sabotage.js"></script>
 <script src="js/dice.js"></script>
+<script src="js/dice3d.js"></script>
 <script src="js/settings.js"></script>
 <script src="js/groups.js"></script>
 <script src="js/hall.js"></script>
