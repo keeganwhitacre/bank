@@ -20,9 +20,9 @@
   padding: 4px 0 0; }
 .t-dive .g-pot-label { font-family: 'Victor Mono', monospace; font-size: .5rem; color: rgba(255,255,255,.2); letter-spacing: .2em; font-weight: 700;
   display: block; }
-.t-dive .g-pot-value { font-size: clamp(3.8rem, 10dvh, 7rem); color: #fff; line-height: .88; text-shadow: 0 0 2px rgba(255,255,255,.3); transform: rotate(-1deg);
+.t-dive .g-pot-value { font-family: 'Oswald', sans-serif; font-weight: 700; letter-spacing: -.01em; font-size: clamp(3.8rem, 10dvh, 7rem); color: #fff; line-height: .88; text-shadow: 0 0 2px rgba(255,255,255,.3); transform: rotate(-1deg);
 }
-.t-dive .g-pot-value::after { content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%) rotate(1deg); width: 120px; height: 3px; background: #ff1f47;
+.t-dive .g-pot-value::after { content: ''; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%) rotate(1deg); width: 120px; height: 3px; background: #ff1f47;
   box-shadow: 0 0 10px rgba(255,31,71,.4); border-radius: 2px; }
 .t-dive .g-pot-sub { font-family: 'Victor Mono', monospace; font-size: .5rem; color: rgba(255,255,255,.15); margin-top: 2px;
   letter-spacing: .05em; display: block; }
@@ -30,7 +30,7 @@
   text-shadow: 0 0 14px rgba(56,232,120,.3); transform: rotate(.5deg); }
 .t-dive .g-grid { gap: 4px; padding: 4px 8px 4px;
 }
-.t-dive .g-key { background: rgba(255,255,255,.04); border: 1.5px solid rgba(255,255,255,.08); border-radius: 10px; color: rgba(255,255,255,.65); font-family: 'Permanent Marker', cursive;
+.t-dive .g-key { background: rgba(255,255,255,.04); border: 1.5px solid rgba(255,255,255,.08); border-radius: 10px; color: rgba(255,255,255,.82); font-family: 'Oswald', sans-serif; font-weight: 600;
   font-size: clamp(1.8rem, 5dvh, 3rem); transition: background .06s, color .06s; }
 .t-dive .g-key:active { background: rgba(255,255,255,.12); color: #fff;
 }
@@ -55,7 +55,7 @@
 .t-dive .g-scores-row { gap: 14px; padding: 6px 0; }
 .t-dive .g-chip-name { font-family: 'Victor Mono', monospace; font-size: .58rem; color: rgba(255,255,255,.12);
   letter-spacing: .04em; }
-.t-dive .g-chip-pts { font-family: 'Permanent Marker', cursive; font-size: 1.3rem; color: rgba(255,255,255,.4); }
+.t-dive .g-chip-pts { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 1.3rem; color: rgba(255,255,255,.4); }
 .t-dive .g-chip.rolling .g-chip-name { color: rgba(56,232,120,.5);
 }
 .t-dive .g-chip.rolling .g-chip-pts { color: #38e878; text-shadow: 0 0 8px rgba(56,232,120,.3); }

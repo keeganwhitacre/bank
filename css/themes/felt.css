@@ -1,0 +1,125 @@
+/* ══ FELT ══ */
+.t-felt { background: #0d3b29; font-family: 'Bebas Neue', sans-serif; color: #fff; position: relative; }
+.t-felt::before { content: '';
+  position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(255,255,255,.03) 1px, transparent 1px); background-size: 4px 4px; pointer-events: none; z-index: 0;
+}
+.t-felt::after { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: #e83a3a;
+  box-shadow: 0 0 12px rgba(232,58,58,.4); z-index: 3; }
+.t-felt .g-topbar { padding: 14px 14px 2px; }
+.t-felt .g-title { font-size: 1rem;
+  font-weight: 900; color: rgba(255,255,255,.4); letter-spacing: .15em; text-transform: uppercase; }
+.t-felt .g-rnd { font-family: 'DM Mono', monospace; font-size: .6rem; color: rgba(255,255,255,.15);
+}
+.t-felt .g-rnd .rnd-num { color: #e83a3a; }
+.t-felt .g-pips { gap: 3px; max-width: 120px; }
+.t-felt .g-pip { width: 10px; height: 3px;
+  background: rgba(255,255,255,.08); }
+.t-felt .g-pip.done { background: rgba(232,58,58,.35); }
+.t-felt .g-pip.current { background: #e83a3a; box-shadow: 0 0 4px rgba(232,58,58,.5);
+}
+.t-felt .g-pot { text-align: center; padding: 4px 0 0; }
+.t-felt .g-pot-label { font-family: 'DM Mono', monospace; font-size: .5rem; color: rgba(255,255,255,.1);
+  letter-spacing: .25em; display: block; }
+.t-felt .g-pot-value { font-family: 'Bebas Neue', sans-serif; font-weight: 900; font-size: clamp(3.8rem, 10dvh, 7rem); color: #f4ecd6; line-height: .88;
+  letter-spacing: -.02em; text-shadow: 0 0 20px rgba(244,236,214,.3); }
+.t-felt .g-pot-value::after { content: ''; position: absolute; bottom: -5px; left: 50%; transform: translateX(-50%);
+  width: 150px; height: 2px; background: #f4ecd6; opacity: .5; }
+.t-felt .g-pot-sub { font-family: 'DM Mono', monospace; font-size: .5rem; color: rgba(255,255,255,.1);
+  margin-top: 4px; display: block; }
+.t-felt .g-turn { font-family: 'Bebas Neue', sans-serif; font-size: .9rem; font-weight: 900; color: #fff; text-align: center; letter-spacing: .08em;
+  text-transform: uppercase; margin: 3px 0 0; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.live-dot { display: inline-block; width: 6px;
+  height: 6px; border-radius: 50%; background: #e83a3a; box-shadow: 0 0 8px rgba(232,58,58,.5); flex-shrink: 0; animation: livePulse 1.5s ease-in-out infinite;
+}
+@keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+.t-felt .g-grid { gap: 4px;
+  padding: 4px 8px 4px; }
+.t-felt .g-key { background: #124a34; border: 1px solid rgba(255,255,255,.04); border-radius: 4px; color: rgba(255,255,255,.6); font-family: 'Bebas Neue', sans-serif;
+  font-weight: 700; font-size: clamp(1.8rem, 5dvh, 3rem); transition: background .06s, color .06s; }
+.t-felt .g-key::before { content: ''; position: absolute; inset: 0;
+  border-radius: 4px; box-shadow: inset 0 1px 2px rgba(255,255,255,.04), inset 0 -2px 4px rgba(0,0,0,.3); pointer-events: none; }
+.t-felt .g-key:active { background: #1d5c42;
+  color: #f4ecd6; }
+.t-felt .g-key.k-seven-safe { background: #1d5a3f; border-color: rgba(244,236,214,.15); color: #f4ecd6; text-shadow: 0 0 8px rgba(244,236,214,.3);
+}
+.t-felt .g-key.k-seven-danger { background: #4a1d1d; border-color: rgba(232,58,58,.25); color: #e83a3a; animation: dangerPulse 1.2s ease-in-out infinite; }
+.t-felt .g-key.k-blocked { color: rgba(255,255,255,.06);
+  border-color: transparent; background: #10402d; pointer-events: none; }
+.t-felt .g-key.k-blocked::before { display: none; }
+.t-felt .g-key.k-doubles { color: rgba(244,236,214,.3); background: #0f4430; border-color: rgba(244,236,214,.08);
+  font-size: clamp(1.3rem, 5vw, 2rem); }
+.t-felt .g-key.k-doubles.k-p2 { color: #f4ecd6; background: #1d5a3f; border-color: rgba(244,236,214,.18); }
+.t-felt .g-bank { background: #f4ecd6; border: none;
+  border-radius: 4px; color: #0d3b29; font-family: 'Bebas Neue', sans-serif; font-weight: 900; font-size: 1.1rem; padding: 11px; text-align: center; letter-spacing: .2em; text-transform: uppercase;
+  cursor: pointer; margin: 0 8px 4px; box-shadow: 0 4px 20px rgba(244,236,214,.2); transition: background .06s; -webkit-tap-highlight-color: transparent;
+}
+.t-felt .g-bank:active { background: #fff6df; }
+.t-felt .g-bottom { gap: 8px; padding: 6px 10px 10px; }
+.t-felt .g-undo { background: transparent;
+  border: 1px solid rgba(255,255,255,.06); border-radius: 3px; color: rgba(255,255,255,.15); font-family: 'DM Mono', monospace; font-size: .65rem; padding: 8px 14px;
+}
+.t-felt .g-undo.dim { opacity: .25; pointer-events: none; }
+.t-felt .g-scores-wrap { border-top: 2px solid rgba(244,236,214,.08); }
+.t-felt .g-scores-row { gap: 12px;
+  padding: 6px 0; }
+.t-felt .g-chip-name { font-family: 'DM Mono', monospace; font-size: .58rem; color: rgba(255,255,255,.1); letter-spacing: .04em;
+}
+.t-felt .g-chip-pts { font-family: 'Bebas Neue', sans-serif; font-weight: 700; font-size: 1.3rem; color: rgba(255,255,255,.3); }
+.t-felt .g-chip.rolling .g-chip-name { color: rgba(244,236,214,.4);
+}
+.t-felt .g-chip.rolling .g-chip-pts { color: #f4ecd6; text-shadow: 0 0 8px rgba(244,236,214,.3); }
+.t-felt .g-chip.banked { opacity: .3;
+}
+.t-felt .su-logo { font-family: 'Bebas Neue', sans-serif; font-weight: 900; font-size: 3.8rem; color: #f4ecd6; letter-spacing: -.02em; text-shadow: 0 0 28px rgba(244,236,214,.3);
+}
+.t-felt .su-sub { font-family: 'DM Mono', monospace; font-size: .55rem; color: rgba(255,255,255,.15); letter-spacing: .15em; }
+.t-felt .su-label { font-family: 'DM Mono', monospace;
+  color: rgba(255,255,255,.2); }
+.t-felt .su-row input { flex: 1; height: 46px; background: #124a34; border: 1px solid rgba(255,255,255,.06); border-radius: 4px;
+  padding: 0 14px; font-family: 'Bebas Neue', sans-serif; font-weight: 700; font-size: 1rem; color: #fff; outline: none; }
+.t-felt .su-row input::placeholder { color: rgba(255,255,255,.18);
+}
+.t-felt .su-rm { width: 36px; height: 36px; flex-shrink: 0; background: #124a34; border: 1px solid rgba(255,255,255,.06); border-radius: 4px; color: rgba(255,255,255,.3);
+  font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.t-felt .su-add { width: 100%; height: 40px; margin-top: 6px;
+  background: transparent; border: 1px dashed rgba(255,255,255,.1); border-radius: 4px; color: rgba(255,255,255,.2); font-family: 'DM Mono', monospace; font-size: .7rem; cursor: pointer;
+}
+.t-felt .su-rbtn { flex: 1; height: 46px; background: #124a34; border: 1px solid rgba(255,255,255,.06); border-radius: 4px; color: rgba(255,255,255,.28); font-family: 'Bebas Neue', sans-serif;
+  font-weight: 900; font-size: 1.2rem; cursor: pointer; transition: all .15s; }
+.t-felt .su-rbtn.on { background: #1d5a3f; border-color: rgba(244,236,214,.25); color: #f4ecd6;
+}
+.t-felt .su-start-btn { width: 100%; height: 52px; background: #f4ecd6; border: none; border-radius: 4px; color: #0d3b29; font-family: 'Bebas Neue', sans-serif; font-weight: 900;
+  font-size: 1.1rem; letter-spacing: .2em; text-transform: uppercase; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
+/* ── FELT DICE ── */
+.t-felt .g-die { background: #124a34; border: 1px solid rgba(244,236,214,.12); box-shadow: 0 4px 16px rgba(0,0,0,.4); }
+.t-felt .g-die-pip { background: #f4ecd6; box-shadow: 0 0 4px rgba(244,236,214,.5); }
+.t-felt .g-dice-roll-btn { background: #f4ecd6; border: none; border-radius: 4px; color: #0d3b29; font-family: 'Bebas Neue', sans-serif; font-weight: 900; font-size: 1rem; padding: 12px 32px; letter-spacing: .2em; text-transform: uppercase; box-shadow: 0 4px 20px rgba(244,236,214,.2); }
+.t-felt .g-card-btn { border-color: rgba(244,236,214,.12); color: rgba(244,236,214,.4); border-radius: 4px; }
+.t-felt .g-back { border-color: rgba(255,255,255,.06); color: rgba(255,255,255,.2); border-radius: 3px; }
+/* ── THEME FLAVOR: FELT ── */
+body.state-duel.t-felt .g-vignette { background: radial-gradient(ellipse at center, transparent 42%, rgba(232,58,58,.08) 100%); }
+body.state-duel.t-felt .g-intensity-label { color: rgba(232,58,58,.5); }
+body.state-solo.t-felt .g-vignette { background: radial-gradient(ellipse at center, transparent 20%, rgba(232,58,58,.18) 100%); }
+body.state-solo.t-felt .g-intensity-label { color: #e83a3a; }
+.t-felt.state-solo::after { animation: sbStripePulse .9s ease-in-out infinite !important; }
+.t-felt.state-solo .g-bank { animation: bankPulse 1s ease-in-out infinite, sbBankGlow 1s ease-in-out infinite; }
+@keyframes sbStripePulse { 0%,100%{box-shadow:0 0 12px rgba(232,58,58,.4)} 50%{box-shadow:0 0 28px rgba(232,58,58,.9)} }
+@keyframes sbBankGlow { 0%,100%{box-shadow:0 4px 20px rgba(244,236,214,.2)} 50%{box-shadow:0 4px 40px rgba(244,236,214,.6)} }
+/* Overlay Theme Overrides */
+.t-felt .sheet, .t-felt .rnd-sheet { background: #0d3b29; border-top-color: #e83a3a; }
+.t-felt .rnd-status, .t-felt .rnd-name { color: #f4ecd6; }
+
+/* Felt touches: woven cloth, cream numerals, a red chip for the accent */
+.t-felt::before { background-image: radial-gradient(ellipse at 50% 35%, rgba(255,255,255,.07), transparent 65%), repeating-linear-gradient(45deg, rgba(0,0,0,.05) 0 2px, transparent 2px 4px); background-size: auto; }
+.t-felt .g-pot-value { font-weight: 400; letter-spacing: .01em; color: #f4ecd6; text-shadow: 0 2px 0 rgba(0,0,0,.35); }
+.t-felt .g-key { font-weight: 400; font-size: clamp(2.2rem, 6.4dvh, 3.6rem); color: rgba(244,236,214,.9); letter-spacing: .02em; background: rgba(0,0,0,.14); border-color: rgba(244,236,214,.10); }
+.t-felt .g-turn, .t-felt .g-title, .t-felt .su-logo { font-weight: 400; letter-spacing: .1em; }
+.t-felt .g-bank { color: #0d3b29; box-shadow: 0 3px 0 rgba(0,0,0,.35); }
+.t-felt .g-chip-pts { font-weight: 400; letter-spacing: .03em; }
+
+/* Picker preview */
+.pk-preview.prev-felt { background: radial-gradient(ellipse at 50% 35%, #17573c, #0d3b29 75%); font-family: 'Bebas Neue', sans-serif; }
+.pk-preview.prev-felt .pv-name { font-size: 1.2rem; color: rgba(244,236,214,.6); letter-spacing: .12em; }
+.pk-preview.prev-felt .pv-pot { font-size: 3.2rem; color: #f4ecd6; text-shadow: 0 2px 0 rgba(0,0,0,.35); }
+.pk-preview.prev-felt .pv-tag { font-family: 'DM Mono', monospace; font-size: .5rem; color: #e83a3a; letter-spacing: .15em; }

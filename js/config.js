@@ -17,7 +17,9 @@ var THEME_MAP = {
   sb:   { cls: 't-sb',   bankText: 'BANK',    undoText: 'UNDO', bg: '#111111' },
   br:   { cls: 't-br',   bankText: 'BANK',    undoText: 'UNDO', bg: '#ddd8ce' },
   term: { cls: 't-term', bankText: 'BANK_IT', undoText: 'UNDO', bg: '#080d08' },
-  cas:  { cls: 't-cas',  bankText: 'Bank',    undoText: 'undo', bg: '#0b0b0b' }
+  cas:  { cls: 't-cas',  bankText: 'Bank',    undoText: 'undo', bg: '#0b0b0b' },
+  neon: { cls: 't-neon', bankText: 'BANK',    undoText: 'UNDO', bg: '#0c0716' },
+  felt: { cls: 't-felt', bankText: 'BANK',    undoText: 'UNDO', bg: '#0d3b29' }
 };
 // Mode picker on the setup screen: the premier four, then variants under "More modes"
 var MODE_INFO = {
@@ -32,7 +34,7 @@ var MODE_INFO = {
   rollerscut: { tag: 'Greed pays',             desc: 'When only one player is still in, every roll earns them 20% extra.' }
 };
 var MODE_LABELS = { standard: 'Standard', turbo: 'Turbo', race: 'Race to the Bank', blackout: 'Blackout', cutthroat: 'Cutthroat', rollerscut: "Roller's Cut", sabotage: 'Sabotage', chaos: 'Chaos Bank', lms: 'Last Man Standing' };
-var THEME_LABELS = { dive: 'Dive Bar', sb: 'Scoreboard', br: 'Brutalist', term: 'Terminal', cas: 'Casino' };
+var THEME_LABELS = { dive: 'Dive Bar', sb: 'Scoreboard', br: 'Brutalist', term: 'Terminal', cas: 'Casino', neon: 'Neon', felt: 'Felt' };
 
 // Tokens: {S} safe rolls, {N} first danger roll, {V} safe 7 value, {M} doubles multiplier, {L} lives, {B} min bank
 var MODE_RULES = {

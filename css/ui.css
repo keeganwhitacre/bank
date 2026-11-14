@@ -5,6 +5,8 @@
    ══════════════════════════════════════════════════════════════ */
 :root { --acc:#ff3300; --acc-soft:rgba(255,51,0,.16); --fg:#fff; --bg:#0d0d0d; --disp:'Archivo Black',sans-serif; --heart:#ff3b5c; }
 .t-dive { --acc:#ff1f47; --acc-soft:rgba(255,31,71,.16); --fg:#fff; --bg:#1a1a18; --disp:'Permanent Marker',cursive; }
+.t-neon { --acc:#ff2bd6; --acc-soft:rgba(255,43,214,.16); --fg:#fff; --bg:#0c0716; --disp:'Barlow Condensed',sans-serif; }
+.t-felt { --acc:#f4ecd6; --acc-soft:rgba(244,236,214,.14); --fg:#fff; --bg:#0d3b29; --disp:'Bebas Neue',sans-serif; }
 .t-sb   { --acc:#ffe14d; --acc-soft:rgba(255,225,77,.14); --fg:#fff; --bg:#111; --disp:'Anybody',sans-serif; }
 .t-br   { --acc:#ff3300; --acc-soft:rgba(255,51,0,.14); --fg:#1a1a1a; --bg:#ddd8ce; --disp:'Archivo Black',sans-serif; }
 .t-term { --acc:#00ff41; --acc-soft:rgba(0,255,65,.12); --fg:#00ff41; --bg:#080d08; --disp:'Share Tech Mono',monospace; }
@@ -424,6 +426,8 @@ button.grp-save { padding: 6px 12px; background: transparent; color: inherit; cu
 .t-term .sh-done { background: #00ff41; color: #080d08; border-radius: 0; }
 .t-cas .sh-done { background: #d4af37; color: #0b0b0b; }
 .t-sb .sh-done { background: #ffe14d; color: #111; }
+.t-neon .sh-done { background: #ff2bd6; color: #0c0716; }
+.t-felt .sh-done { background: #f4ecd6; color: #0d3b29; }
 .t-dive .sh-done { background: #ff1f47; color: #fff; }
 .sheet { padding-bottom: calc(var(--sab) + 18px); }
 
@@ -446,6 +450,8 @@ button.grp-save { padding: 6px 12px; background: transparent; color: inherit; cu
 .t-term .sheet .sh-done { box-shadow: 0 -14px 18px 4px #080d08; }
 .t-cas .sheet .sh-done { box-shadow: 0 -14px 18px 4px #0b0b0b; }
 .t-sb .sheet .sh-done { box-shadow: 0 -14px 18px 4px #111; }
+.t-neon .sheet .sh-done { box-shadow: 0 -14px 18px 4px #0c0716; }
+.t-felt .sheet .sh-done { box-shadow: 0 -14px 18px 4px #0d3b29; }
 
 /* ── End screen award icons were nearly invisible ── */
 .award-icon { color: var(--acc); font-size: 1.25rem; display: flex; }
@@ -544,3 +550,5 @@ body.state-solo.t-br::after, body.state-solo.t-cas::after { position: absolute !
 .cd-card.danger .cd-ico { color: #ff3b30; } .cd-card.gold .cd-ico { color: #ffd23f; } .cd-card.safe .cd-ico { color: #34c759; }
 .cd-name { font-family: 'Archivo Black', sans-serif; font-size: .9rem; color: #fff; margin-top: 6px; text-transform: uppercase; }
 .cd-tag { font-family: 'DM Mono', monospace; font-size: .58rem; color: #999; margin-top: 4px; line-height: 1.4; }
+/* End screen: the main action wears the theme's accent */
+#end .again-btn { background: var(--acc); color: var(--bg); }

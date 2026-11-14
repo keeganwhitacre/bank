@@ -28,13 +28,12 @@
   animation: termBlink .8s step-end infinite; }
 .t-term .g-pot-sub { font-size: .5rem; color: rgba(0,255,65,.25); margin-top: 2px; display: block;
 }
-.t-term .g-pot-sub::before { content: 'roll_'; }
 .t-term .g-turn { font-size: .85rem; color: rgba(0,255,65,.7); text-align: center; margin: 2px 0 0; letter-spacing: .1em;
   position: relative; z-index: 2; }
 .t-term .g-turn::before { content: '$ '; color: rgba(0,255,65,.35); }
 .t-term .g-grid { gap: 4px;
   padding: 4px 8px 4px; position: relative; z-index: 2; }
-.t-term .g-key { background: rgba(0,255,65,.04); border: 1px solid rgba(0,255,65,.12); color: rgba(0,255,65,.5);
+.t-term .g-key { background: rgba(0,255,65,.04); border: 1px solid rgba(0,255,65,.12); color: rgba(0,255,65,.78);
   font-size: clamp(1.8rem, 5dvh, 3rem); transition: background .06s, color .06s; }
 .t-term .g-key:active { background: rgba(0,255,65,.18); color: #00ff41;
 }
