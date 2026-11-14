@@ -505,3 +505,42 @@ body.state-solo.t-br::after, body.state-solo.t-cas::after { position: absolute !
 .su-mode-desc { margin-top: 10px; font-family: 'DM Mono', monospace; font-size: .7rem; line-height: 1.5; color: var(--fg); opacity: .7; }
 .t-br .su-mode, .t-br .su-how, .t-term .su-mode, .t-term .su-how { border-radius: 0; }
 .t-br .su-mode { background: rgba(26,26,26,.04); }
+
+/* ── Sabotage: hand tray, chip badges, card sheet, reveals ── */
+.gi-card { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; min-height: 34px; border: 1.5px solid var(--acc); border-radius: 999px; background: var(--acc-soft); color: var(--fg);
+  font: inherit; letter-spacing: .05em; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.gi-card b { font-weight: 500; }
+.gi-card .ico { width: 15px; height: 15px; }
+.gi-card.danger { border-color: #ff3b30; background: rgba(255,59,48,.12); } .gi-card.danger .ico { color: #ff3b30; }
+.gi-card.gold { border-color: #ffd23f; background: rgba(255,210,63,.12); } .gi-card.gold .ico { color: #e0b000; }
+.gi-card.safe { border-color: #34c759; background: rgba(52,199,89,.12); } .gi-card.safe .ico { color: #34c759; }
+.gi-card.blocked { opacity: .45; border-style: dashed; }
+.gi-card:active { transform: scale(.96); }
+.gi-danger { color: #ff3b30; opacity: 1; display: inline-flex; align-items: center; gap: 4px; }
+.t-br .gi-card, .t-term .gi-card { border-radius: 0; }
+.g-chip { position: relative; }
+.g-chip-fx { position: absolute; top: -7px; right: -5px; display: flex; gap: 2px; }
+.g-chip-fx i { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--bg); border: 1.5px solid currentColor; }
+.g-chip-fx .ico { width: 12px; height: 12px; }
+.g-chip-fx .fx-danger { color: #ff3b30; } .g-chip-fx .fx-safe { color: #34c759; } .g-chip-fx .fx-gold { color: #e0b000; }
+.g-chip.frozen { border-color: #5ac8fa; }
+.cs-card { text-align: center; padding: 18px 14px 16px; border-radius: 16px; border: 2px solid var(--acc); margin-bottom: 14px; }
+.cs-card.danger { border-color: #ff3b30; } .cs-card.gold { border-color: #ffd23f; } .cs-card.safe { border-color: #34c759; }
+.cs-ico .ico { width: 40px; height: 40px; }
+.cs-card.danger .cs-ico { color: #ff3b30; } .cs-card.gold .cs-ico { color: #e0b000; } .cs-card.safe .cs-ico { color: #34c759; }
+.cs-name { font-family: 'Archivo Black', sans-serif; font-size: 1.4rem; text-transform: uppercase; margin-top: 8px; }
+.cs-desc { font-family: 'DM Mono', monospace; font-size: .78rem; line-height: 1.55; opacity: .8; margin-top: 8px; }
+.cs-why { font-family: 'DM Mono', monospace; font-size: .72rem; color: #ff3b30; margin-top: 10px; }
+.cs-label { font-family: 'DM Mono', monospace; font-size: .62rem; letter-spacing: .2em; text-transform: uppercase; opacity: .55; margin: 0 0 8px; }
+.card-reveal .mr-card { animation-duration: .45s; }
+.cr-on { font-family: 'DM Mono', monospace; font-size: .9rem; color: #bbb; margin-top: 8px; letter-spacing: .1em; text-transform: uppercase; }
+.cr-on b { color: #fff; font-family: 'Archivo Black', sans-serif; font-size: 1.3rem; font-weight: 400; letter-spacing: 0; display: block; margin-top: 4px; }
+.cd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; width: 100%; max-width: 360px; }
+.cd-card { background: #141414; border: 2px solid var(--acc); border-radius: 14px; padding: 12px 10px; text-align: center; animation: cardFlip .5s cubic-bezier(.2,.9,.3,1.2) both; }
+.cd-card:nth-child(2) { animation-delay: .08s; } .cd-card:nth-child(3) { animation-delay: .16s; } .cd-card:nth-child(4) { animation-delay: .24s; } .cd-card:nth-child(n+5) { animation-delay: .32s; }
+.cd-card.danger { border-color: #ff3b30; } .cd-card.gold { border-color: #ffd23f; } .cd-card.safe { border-color: #34c759; }
+.cd-who { font-family: 'DM Mono', monospace; font-size: .62rem; letter-spacing: .15em; text-transform: uppercase; color: #999; }
+.cd-ico { margin-top: 8px; color: #fff; } .cd-ico .ico { width: 26px; height: 26px; }
+.cd-card.danger .cd-ico { color: #ff3b30; } .cd-card.gold .cd-ico { color: #ffd23f; } .cd-card.safe .cd-ico { color: #34c759; }
+.cd-name { font-family: 'Archivo Black', sans-serif; font-size: .9rem; color: #fff; margin-top: 6px; text-transform: uppercase; }
+.cd-tag { font-family: 'DM Mono', monospace; font-size: .58rem; color: #999; margin-top: 4px; line-height: 1.4; }

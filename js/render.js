@@ -19,7 +19,7 @@ function render() {
   potEl.classList.toggle('pot-hidden', hidden);
   if (!hidden) potEl.style.opacity = '';
   var safeLeft = safeRollCount() - G.rolls;
-  $('gPotSub').innerHTML = 'roll ' + (G.rolls + 1) + ' · ' + (danger ? '<span class="danger">7 busts</span>' : 'safe' + (safeLeft > 1 ? ' · ' + safeLeft + ' left' : ' · last one'));
+  $('gPotSub').innerHTML = 'roll ' + (G.rolls + 1) + ' · ' + (danger ? '<span class="danger">' + (hasMod('snakeEyes') ? '7 · 2 · 12 bust' : '7 busts') + '</span>' : 'safe' + (safeLeft > 1 ? ' · ' + safeLeft + ' left' : ' · last one'));
   $('game').classList.toggle('danger-on', danger && G.phase === 'play');
 
   // Round counter
@@ -69,7 +69,7 @@ function render() {
       if (total === 7) btn.classList.add(danger ? 'k-seven-danger' : 'k-seven-safe');
       if (danger && (total === 2 || total === 12)) {
         if (G.mode === 'cutthroat') btn.classList.add('k-cut');
-        else if (total === 2 && hasMod('snakeEyes')) btn.classList.add('k-seven-danger');
+        else if (hasMod('snakeEyes')) btn.classList.add('k-seven-danger');
         else blocked = true;   // 2 and 12 are always doubles: use the ×2 key
       }
       if (blocked) btn.classList.add('k-blocked');
@@ -100,10 +100,6 @@ function render() {
   undoEl.className = 'g-undo' + (HISTORY.length ? '' : ' dim');
   undoEl.textContent = THEME_MAP[T].undoText;
 
-  var cardBtn = $('gCardBtn');
-  if (G.mode !== 'sabotage') cardBtn.style.display = 'none';
-  else { cardBtn.style.display = ''; cardBtn.classList.toggle('dim', !(CARDS[roller ? roller.name : ''] || []).length); }
-  renderEffectBanner();
 
   // Score chips
   var scoresEl = $('gScores'); scoresEl.innerHTML = '';
@@ -118,7 +114,7 @@ function render() {
     var lives = G.mode === 'lms' ? '<div class="g-chip-lives">' + heartsHTML(p.lives, p.out ? (G.opts.lmsLives || 3) : Math.max(p.lives, G.suddenDeath ? 1 : (G.opts.lmsLives || 3))) + '</div>' : '';
     var tag = p.banked ? '<div class="g-chip-tag">\u2713 ' + (hidden || p.bankedAmt == null ? 'in' : '+' + fmt(p.bankedAmt)) + '</div>'
             : isRoller ? '<div class="g-chip-tag roll">rolling</div>' : '';
-    chip.innerHTML = '<div class="g-chip-name">' + esc(labels[i]) + '</div><div class="g-chip-pts">' + (p.out ? ico('skull') : fmt(displayScore(p))) + '</div>' + tag + lives + cardDots;
+    chip.innerHTML = '<div class="g-chip-name">' + esc(labels[i]) + '</div><div class="g-chip-pts">' + (p.out ? ico('skull') : fmt(displayScore(p))) + '</div>' + tag + lives + cardDots + (G.mode === 'sabotage' ? cardBadges(p.name) : '');
     // Tap a player's chip to bank them (the Bank button and its list still work too)
     chip.addEventListener('click', function() { chipTap(i); });
     scoresEl.appendChild(chip);
@@ -185,7 +181,8 @@ function infoHTML() {
   if (m === 'chaos') {
     return h + G.mods.map(function(k) { var d = MODS[k]; return '<button class="gi-mod" onclick="showRulesSheet()">' + ico(d.icon) + '<b>' + esc(d.name) + '</b><span class="gi-short">' + esc(d.short) + '</span></button>'; }).join('');
   }
-  var txt = { race: 'First to ' + fmt(G.raceTarget) + ' wins', turbo: '7 busts every roll', blackout: 'Pot hidden after roll ' + safeRollCount(), cutthroat: '2 or 12 halves the pot', rollerscut: 'Last one in: +20% per roll', sabotage: 'Cards every 5 rounds' }[m];
+  var txt = { race: 'First to ' + fmt(G.raceTarget) + ' wins', turbo: '7 busts every roll', blackout: 'Pot hidden after roll ' + safeRollCount(), cutthroat: '2 or 12 halves the pot', rollerscut: 'Last one in: +20% per roll', }[m];
+  if (m === 'sabotage') return sabotageTrayHTML();
   if (m === 'lms') txt = 'Min bank ' + fmt(lmsMinBank()) + (G.suddenDeath ? '</span><span class="gi-txt gi-danger">Sudden death' : '');
   return h + '<span class="gi-txt">' + txt + '</span>';
 }

@@ -11,19 +11,19 @@ var Rules = (function() {
   var LMS_DEFAULTS = { lmsLives: 3, lmsMinBank: 100, lmsSuddenDeath: true, lmsSuddenRound: 10 };
 
   var MODS = {
-    noMercy:       { name: 'No Mercy',       icon: 'skull',  tag: 'danger', short: 'No safe rolls',        desc: 'No safe rolls this round. A 7 busts from the very first roll.' },
+    noMercy:       { name: 'No Mercy',       icon: 'skull',  tag: 'danger', short: 'No safe rolls',        desc: 'No safe rolls this round. A 7 busts from the very first roll.', weight: 2 },
     doubleTrouble: { name: 'Double Trouble', icon: 'dice',   tag: 'gold',   short: 'Rolls add ×2',    desc: 'Normal rolls add double their value. Doubles still double the pot.' },
     goldenSeven:   { name: 'Golden Seven',   icon: 'star',   tag: 'gold',   short: 'Safe 7 ×2',       desc: 'A 7 during the safe rolls is worth double.' },
-    lockdown:      { name: 'Lockdown',       icon: 'lock',   tag: 'danger', short: 'Bank on your turn',    desc: 'You can only bank when it’s your turn to roll. The Bank button banks the roller.' },
-    snakeEyes:     { name: 'Snake Eyes',     icon: 'snake',  tag: 'danger', short: '2 also busts',         desc: 'After the safe rolls, rolling a 2 busts the round just like a 7.' },
+    lockdown:      { name: 'Lockdown',       icon: 'lock',   tag: 'danger', short: 'Bank on your turn',    desc: 'You can only bank when it’s your turn to roll. The Bank button banks the roller.', weight: 2 },
+    snakeEyes:     { name: 'Snake Eyes',     icon: 'snake',  tag: 'danger', short: '2 or 12 also bust',     desc: 'After the safe rolls, a 2 or a 12 busts the round just like a 7.', weight: 1.5 },
     highStakes:    { name: 'High Stakes',    icon: 'trend',  tag: 'gold',   short: '10 or 11 = +50',       desc: 'Any roll that totals 10 or 11 adds a 50-point bonus to the pot.' },
-    finalStand:    { name: 'Final Stand',    icon: 'target', tag: 'gold',   short: 'Last one in +100',     desc: 'The last player still in gets a 100-point bonus if they bank.' },
+    finalStand:    { name: 'Final Stand',    icon: 'target', tag: 'gold',   short: 'Last one in +25%',     desc: 'The last player still in gets 25% extra when they bank.' },
     taxman:        { name: 'Taxman',         icon: 'coins',  tag: 'danger', short: 'Banks lose 10%',       desc: 'Every bank this round loses 10% off the top.' },
-    hotHand:       { name: 'Hot Hand',       icon: 'flame',  tag: 'gold',   short: 'Doubles ×3',      desc: 'Doubles triple the pot instead of doubling it.' },
-    shortFuse:     { name: 'Short Fuse',     icon: 'fuse',   tag: 'danger', short: '1 safe roll',          desc: 'Only the first roll is safe. A 7 busts from roll 2.' },
+    hotHand:       { name: 'Hot Hand',       icon: 'flame',  tag: 'gold',   short: 'Doubles ×3',      desc: 'Doubles triple the pot instead of doubling it.', weight: 2 },
+    shortFuse:     { name: 'Short Fuse',     icon: 'fuse',   tag: 'danger', short: '1 safe roll',          desc: 'Only the first roll is safe. A 7 busts from roll 2.', weight: 1.5 },
     firstIn:       { name: 'First In',       icon: 'flag',   tag: 'gold',   short: 'First bank +25%',      desc: 'The first player to bank this round gets 25% extra.' },
-    blind:         { name: 'Blind Round',    icon: 'eyeOff', tag: 'danger', short: 'Pot hidden',           desc: 'The pot goes dark after the safe rolls. Keep count in your heads.' },
-    copycat:       { name: 'Copycat',        icon: 'copy',   tag: 'gold',   short: 'Repeat a roll = ×2', desc: 'After the safe rolls, rolling the same total as the roll before doubles the pot.' }
+    blind:         { name: 'Blind Round',    icon: 'eyeOff', tag: 'danger', short: 'Pot hidden',           desc: 'The pot goes dark after the safe rolls. Keep count in your heads.', weight: 2 },
+    copycat:       { name: 'Copycat',        icon: 'copy',   tag: 'gold',   short: 'Repeat a roll = ×2', desc: 'After the safe rolls, rolling the same total as the roll before doubles the pot.', weight: 1.5 }
   };
   // Pairs that would cancel out or make each other pointless
   var MOD_CONFLICTS = [['noMercy', 'shortFuse'], ['noMercy', 'goldenSeven']];
@@ -80,7 +80,7 @@ var Rules = (function() {
   function safeSevenValue(g) { return house(g).safe7 * (hasMod(g, 'goldenSeven') ? 2 : 1); }
   // Doubles need an exact total when a rule cares which doubles it was
   function needsDoublesTotal(g) { return g.mode === 'cutthroat' || hasMod(g, 'snakeEyes') || hasMod(g, 'highStakes') || hasMod(g, 'copycat'); }
-  function isBustTotal(g, total) { return total === 7 || (total === 2 && hasMod(g, 'snakeEyes')); }
+  function isBustTotal(g, total) { return total === 7 || ((total === 2 || total === 12) && hasMod(g, 'snakeEyes')); }
   function leaderName(g) {
     var best = null, bestS = -1, tie = false;
     activePlayers(g).forEach(function(p) { if (p.score > bestS) { bestS = p.score; best = p.name; tie = false; } else if (p.score === bestS) tie = true; });
@@ -206,7 +206,7 @@ var Rules = (function() {
   function previewBank(g, idx) {
     var amt = g.pot, notes = [];
     if (hasMod(g, 'firstIn') && !g.firstBankDone) { var b = Math.round(amt * 0.25); amt += b; notes.push('First In +' + b); }
-    if (hasMod(g, 'finalStand') && activeUnbanked(g).length === 1 && activePlayers(g).length > 1) { amt += 100; notes.push('Final Stand +100'); }
+    if (hasMod(g, 'finalStand') && activeUnbanked(g).length === 1 && activePlayers(g).length > 1) { var fs = Math.round(g.pot * 0.25); amt += fs; notes.push('Final Stand +' + fs); }
     if (hasMod(g, 'taxman')) { var t = Math.floor(amt * 0.10); amt -= t; notes.push('Taxman −' + t); }
     return { amt: amt, notes: notes };
   }
@@ -286,7 +286,9 @@ var Rules = (function() {
     var all = modPool(g);
     var keys = all.filter(function(k) { return g.prevMods.indexOf(k) === -1; });
     if (!keys.length) keys = all.slice();             // tiny pools may have to repeat
-    for (var i = keys.length - 1; i > 0; i--) { var j = Math.floor(rng() * (i + 1)); var t = keys[i]; keys[i] = keys[j]; keys[j] = t; }
+    var score = {};
+    keys.forEach(function(k) { score[k] = Math.pow(rng(), 1 / (MODS[k].weight || 1)); });
+    keys.sort(function(a, b) { return score[b] - score[a]; });
     var picked = keys.length ? [keys[0]] : [];
     if (count === 2) {
       var rest = keys.slice(1).concat(all.filter(function(k) { return keys.indexOf(k) === -1; }));

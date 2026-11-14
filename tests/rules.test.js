@@ -92,11 +92,21 @@ test('chaos: Double Trouble doubles normal rolls; Golden Seven doubles the safe 
   R.applyRoll(g, fx, { total: 7 });
   assert.equal(g.pot, 10 + 140);
 });
-test('chaos: Snake Eyes busts on a 2 only after the safe rolls', () => {
+test('chaos: Snake Eyes busts on a 2 or 12 only after the safe rolls', () => {
   const { g, fx } = chaos(['snakeEyes']);
   assert.equal(R.applyRoll(g, fx, { total: 2, isDbl: true }).bust, false);
-  rolls(g, fx, [6, 6]);
+  assert.equal(R.applyRoll(g, fx, { total: 12, isDbl: true }).bust, false);
+  rolls(g, fx, [6]);
+  assert.equal(R.applyRoll(g, fx, { total: 12, isDbl: true }).bust, true);
   assert.equal(R.applyRoll(g, fx, { total: 2, isDbl: true }).bust, true);
+});
+test('chaos: weighted picks favour game-changers but never exclude a rule', () => {
+  const g = R.newGame(['A', 'B'], 'chaos', {});
+  const n = {}; let x = 7;
+  const rng = () => { x = (x * 16807) % 2147483647; return x / 2147483647; };
+  for (let i = 0; i < 4000; i++) { g.prevMods = []; const k = R.pickMods(g, rng)[0]; n[k] = (n[k] || 0) + 1; }
+  assert.equal(Object.keys(n).length, Object.keys(R.MODS).length);
+  assert.ok(n.noMercy > n.doubleTrouble * 1.4, JSON.stringify(n));
 });
 test('chaos: High Stakes adds 50 on 10 or 11, including doubles', () => {
   const { g, fx } = chaos(['highStakes']);
@@ -131,7 +141,7 @@ test('chaos: Final Stand pays the last player in', () => {
   const { g, fx } = chaos(['finalStand']);
   rolls(g, fx, [10, 10, 10]);
   R.applyBank(g, fx, 0); R.applyBank(g, fx, 1);
-  assert.equal(R.applyBank(g, fx, 2).amt, 130);
+  assert.equal(R.applyBank(g, fx, 2).amt, 30 + 8);   // +25% of 30, rounded
 });
 test('chaos: Lockdown only lets the roller bank', () => {
   const { g, fx } = chaos(['lockdown']);

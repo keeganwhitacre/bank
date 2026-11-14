@@ -64,7 +64,6 @@ function boot() {
   $('hIcoHall').innerHTML = ico('trophy');
   $('shareBtn').innerHTML = ico('share') + ' Share results';
   $('hIcoResume').innerHTML = ico('play');
-  $('gCardBtn').innerHTML = ico('card', 'ico-lg');
   $('gMenuBtn').innerHTML = ICONS.menu;
   syncThemeCards(); selectMode(MODE); syncOptButtons(); pickR(SEL_R); syncModeExtras();
   applyPrefs();
