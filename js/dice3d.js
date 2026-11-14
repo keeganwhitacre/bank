@@ -90,7 +90,9 @@ function rollStage() {
 function cancelStageRoll() { STAGE.token++; STAGE.rolling = false; var st = $('gStage'); if (st) st.classList.remove('rolling', 'landed'); }
 
 // ── Shake to roll ──
-var SHAKE = { on: false, asked: false, hits: 0, t: 0, last: 0 };
+var SHAKE = { on: false, asked: false, hits: 0, t: 0, last: 0, first: 0, dir: 0 };
+// Tuning: how hard a jolt must be (m/s², gravity removed), how many back-and-forth jolts, and within how long
+var SHAKE_G = 20, SHAKE_HITS = 3, SHAKE_WINDOW = 1000, SHAKE_GAP = 110, SHAKE_COOLDOWN = 2500;
 function enableShake() {
   if (SHAKE.on || PREFS.shake === false || typeof DeviceMotionEvent === 'undefined') return;
   if (typeof DeviceMotionEvent.requestPermission === 'function') {
@@ -108,13 +110,18 @@ function attachShake() {
 }
 function onShakeMotion(e) {
   if (!stageOn() || PREFS.shake === false || !$('game').classList.contains('active')) return;
-  var a = e.acceleration, g;
-  if (a && a.x != null) g = Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
-  else { var b = e.accelerationIncludingGravity; if (!b || b.x == null) return; g = Math.abs(Math.sqrt(b.x * b.x + b.y * b.y + b.z * b.z) - 9.81); }
+  var a = e.acceleration, x, y, z;
+  if (a && a.x != null) { x = a.x; y = a.y; z = a.z; }
+  else { var b = e.accelerationIncludingGravity; if (!b || b.x == null) return; x = b.x; y = b.y; z = b.z - 9.81; }
+  var g = Math.sqrt(x * x + y * y + z * z);
   var now = Date.now();
-  if (g < 13) return;
-  // Two strong jolts close together = a shake (one bump on the table shouldn't roll)
-  SHAKE.hits = now - SHAKE.t < 450 ? SHAKE.hits + 1 : 1;
-  SHAKE.t = now;
-  if (SHAKE.hits >= 2 && now - SHAKE.last > 1600) { SHAKE.last = now; SHAKE.hits = 0; rollStage(); }
+  if (g < SHAKE_G || now - SHAKE.last < SHAKE_COOLDOWN) return;
+  // The motion sensor reports ~60x a second, so one flick produces a run of strong readings.
+  // Only count a jolt if enough time has passed AND it goes the opposite way to the previous one.
+  var ax = Math.abs(x) >= Math.abs(y) && Math.abs(x) >= Math.abs(z) ? x : Math.abs(y) >= Math.abs(z) ? y : z;
+  var dir = ax > 0 ? 1 : -1;
+  if (now - SHAKE.t < SHAKE_GAP || dir === SHAKE.dir) { if (now - SHAKE.t >= SHAKE_GAP) SHAKE.t = now; return; }
+  if (!SHAKE.hits || now - SHAKE.first > SHAKE_WINDOW) { SHAKE.hits = 0; SHAKE.first = now; }
+  SHAKE.hits++; SHAKE.t = now; SHAKE.dir = dir;
+  if (SHAKE.hits >= SHAKE_HITS) { SHAKE.last = now; SHAKE.hits = 0; SHAKE.dir = 0; rollStage(); }
 }
