@@ -49,7 +49,7 @@ function renderStage() {
     $('stResult').textContent = '';
     var danger = nextRollDanger();
     $('stHint').innerHTML = G.phase === 'play' && roller
-      ? '<b>' + esc(roller.name) + '</b> · ' + (SHAKE.on ? 'shake or tap to roll' : 'tap to roll') + (danger ? ' · <span class="st-danger">7 busts</span>' : '')
+      ? '<b>' + esc(roller.name) + '</b> · ' + (SHAKE.on ? 'shake or tap to roll' : shakeWanted() && typeof DeviceMotionEvent !== 'undefined' ? 'tap to roll (shake works after one tap)' : 'tap to roll') + (danger ? ' · <span class="st-danger">7 busts</span>' : '')
       : '';
   }
   st.classList.toggle('idle', !G.lastDice);
@@ -93,13 +93,19 @@ function cancelStageRoll() { STAGE.token++; STAGE.rolling = false; var st = $('g
 var SHAKE = { on: false, asked: false, hits: 0, t: 0, last: 0, first: 0, dir: 0 };
 // Tuning: how hard a jolt must be (m/s², gravity removed), how many back-and-forth jolts, and within how long
 var SHAKE_G = 20, SHAKE_HITS = 3, SHAKE_WINDOW = 1000, SHAKE_GAP = 110, SHAKE_COOLDOWN = 2500;
+var LS_MOTION = 'bank.motion.v1';
+function shakeWanted() { return PREFS.dice && diceStyle() === '3d' && PREFS.shake !== false; }
 function enableShake() {
   if (SHAKE.on || PREFS.shake === false || typeof DeviceMotionEvent === 'undefined') return;
   if (typeof DeviceMotionEvent.requestPermission === 'function') {
-    // iOS: only allowed from a tap; shows a one-time system prompt
+    // iOS: allowed only during a tap. The prompt shows once; after that it resolves silently,
+    // but it still has to be asked again every time the app is relaunched.
     if (SHAKE.asked) return;
     SHAKE.asked = true;
-    DeviceMotionEvent.requestPermission().then(function(s) { if (s === 'granted') attachShake(); }).catch(function() { SHAKE.asked = false; });
+    DeviceMotionEvent.requestPermission().then(function(s) {
+      if (s === 'granted') { try { localStorage.setItem(LS_MOTION, 'granted'); } catch (e) {} attachShake(); }
+      else { try { localStorage.removeItem(LS_MOTION); } catch (e) {} }
+    }).catch(function() { SHAKE.asked = false; });
   } else attachShake();
 }
 function attachShake() {
@@ -108,6 +114,18 @@ function attachShake() {
   window.addEventListener('devicemotion', onShakeMotion);
   if ($('game').classList.contains('active')) renderStage();
 }
+// After a relaunch, renew motion access on the first tap anywhere (Resume, Play, a chip...)
+// so shaking works without having to tap the dice first.
+(function() {
+  var renew = function() {
+    if (SHAKE.on) { done(); return; }
+    var had = false; try { had = localStorage.getItem(LS_MOTION) === 'granted'; } catch (e) {}
+    if (shakeWanted() || had) enableShake();
+    if (SHAKE.asked || SHAKE.on) done();
+  };
+  var done = function() { ['touchend', 'click'].forEach(function(ev) { document.removeEventListener(ev, renew, true); }); };
+  ['touchend', 'click'].forEach(function(ev) { document.addEventListener(ev, renew, true); });
+})();
 function onShakeMotion(e) {
   if (!stageOn() || PREFS.shake === false || !$('game').classList.contains('active')) return;
   var a = e.acceleration, x, y, z;
